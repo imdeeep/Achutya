@@ -1,23 +1,37 @@
-import { useState } from 'react';
-import { Search, Calendar, MapPin, ArrowRight, Menu, X, Phone, ChevronDown } from 'lucide-react';
+import { useState } from "react";
+import {
+  Search,
+  Calendar,
+  MapPin,
+  ArrowRight,
+  Menu,
+  X,
+  Phone,
+  ChevronDown,
+} from "lucide-react";
+import { Link } from "react-router";
 
 type DropdownContentType = {
-  'International Trips': string[];
-  'India Trips': string[];
-  'Weekend Trips': string[];
-  'Group Tours': string[];
+  "International Trips": string[];
+  "India Trips": string[];
+  "Weekend Trips": string[];
+  "Group Tours": string[];
 };
 
 const Navigation = () => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const dropdownContent: DropdownContentType = {
-    'International Trips': ['Thailand', 'Switzerland', 'Bali', 'Dubai'],
-    'India Trips': ['Goa', 'Kerala', 'Rajasthan', 'Himachal'],
-    'Weekend Trips': ['Lonavala', 'Alibaug', 'Pune', 'Matheran'],
-    'Group Tours': ['Andaman', 'Kashmir', 'Sikkim', 'Coorg']
+    "International Trips": ["Thailand", "Switzerland", "Bali", "Dubai"],
+    "India Trips": ["Goa", "Kerala", "Rajasthan", "Himachal"],
+    "Weekend Trips": ["Lonavala", "Alibaug", "Pune", "Matheran"],
+    "Group Tours": ["Andaman", "Kashmir", "Sikkim", "Coorg"],
+  };
+
+  const createSlug = (destination: string) => {
+    return destination.toLowerCase().replace(/\s+/g, "-");
   };
 
   return (
@@ -47,13 +61,21 @@ const Navigation = () => {
             </div>
 
             <div className="flex space-x-6">
-              {['Upcoming Trips', 'Corporate Tours', 'Blogs', 'About Us', 'Payments'].map((item) => (
+              {[
+                "Upcoming Trips",
+                "Corporate Tours",
+                "Blogs",
+                "About Us",
+                "Payments",
+              ].map((item) => (
                 <a
                   key={item}
                   href="#"
                   className="text-gray-600 hover:text-emerald-600 transition-colors duration-200 flex items-center text-sm group"
                 >
-                  {item === 'Upcoming Trips' && <Calendar size={16} className="mr-2 text-emerald-500" />}
+                  {item === "Upcoming Trips" && (
+                    <Calendar size={16} className="mr-2 text-emerald-500" />
+                  )}
                   <span className="relative after:bg-emerald-600 after:transition-all group-hover:after:w-full">
                     {item}
                   </span>
@@ -70,8 +92,13 @@ const Navigation = () => {
         {/* Desktop Line 2 - Hidden on mobile */}
         <div className="hidden lg:block border-t bg-emerald-500/15">
           <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-center space-x-8">
-            {['International Trips', 'India Trips', 'Weekend Trips', 'Group Tours'].map((item) => (
-              <div 
+            {[
+              "International Trips",
+              "India Trips",
+              "Weekend Trips",
+              "Group Tours",
+            ].map((item) => (
+              <div
                 key={item}
                 className="relative group"
                 onMouseEnter={() => setOpenDropdown(item)}
@@ -79,34 +106,44 @@ const Navigation = () => {
               >
                 <div className="flex items-center text-gray-700 hover:text-emerald-600 transition-colors duration-200 cursor-pointer text-sm font-medium px-3 py-1.5 rounded-lg">
                   {item}
-                  <ChevronDown size={16} className={`ml-2 transition-transform duration-200 ${
-                    openDropdown === item ? 'rotate-180 text-emerald-500' : 'text-gray-500'
-                  }`} />
+                  <ChevronDown
+                    size={16}
+                    className={`ml-2 transition-transform duration-200 ${
+                      openDropdown === item
+                        ? "rotate-180 text-emerald-500"
+                        : "text-gray-500"
+                    }`}
+                  />
                 </div>
 
                 <div
                   className={`absolute top-full left-1/2 -translate-x-1/2 mt-1 w-56 bg-white shadow-lg rounded-xl py-3 z-20 border border-gray-200 transition-all duration-300 ${
-                    openDropdown === item 
-                      ? 'opacity-100 visible translate-y-0'
-                      : 'opacity-0 invisible -translate-y-2 pointer-events-none'
+                    openDropdown === item
+                      ? "opacity-100 visible translate-y-0"
+                      : "opacity-0 invisible -translate-y-2 pointer-events-none"
                   }`}
                 >
                   <div className="px-4 pb-2 text-xs font-semibold text-gray-500 tracking-wide">
                     Popular Destinations
                   </div>
-                  {dropdownContent[item as keyof DropdownContentType].map((destination: string) => (
-                    <a 
-                      key={destination} 
-                      href="#" 
-                      className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 group/item transition-colors"
-                    >
-                      <MapPin size={16} className="mr-3 text-gray-400 group-hover/item:text-emerald-500 min-w-[16px] transition-colors" />
-                      {destination}
-                    </a>
-                  ))}
+                  {dropdownContent[item as keyof DropdownContentType].map(
+                    (destination: string) => (
+                      <Link
+                        key={destination}
+                        to={`/destination/${createSlug(destination)}`}
+                        className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 group/item transition-colors"
+                      >
+                        <MapPin
+                          size={16}
+                          className="mr-3 text-gray-400 group-hover/item:text-emerald-500 min-w-[16px] transition-colors"
+                        />
+                        {destination}
+                      </Link>
+                    )
+                  )}
                   <div className="border-t border-gray-100 mt-2 pt-2">
-                    <a 
-                      href="#" 
+                    <a
+                      href="#"
                       className="flex items-center px-4 py-2 text-xs text-emerald-600 hover:text-emerald-700 font-semibold transition-colors"
                     >
                       View All Destinations
@@ -117,7 +154,7 @@ const Navigation = () => {
               </div>
             ))}
 
-            {['Honeymoon Packages', 'early-bird', 'Gift Cards'].map((item) => (
+            {["Honeymoon Packages", "early-bird", "Gift Cards"].map((item) => (
               <a
                 key={item}
                 href="#"
@@ -136,9 +173,9 @@ const Navigation = () => {
             <div className="text-2xl font-bold text-emerald-600 tracking-tight">
               Achutya
             </div>
-            
+
             <div className="flex items-center gap-3">
-              <a 
+              <a
                 href="tel:+919090403075"
                 className="bg-emerald-600 text-white p-2 rounded-full hover:bg-emerald-700 transition-colors"
               >
@@ -171,20 +208,29 @@ const Navigation = () => {
         </div>
 
         {/* Mobile Menu Dropdown */}
-        <div className={`lg:hidden bg-white border-t border-gray-100 transition-all duration-300 overflow-hidden ${
-          isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}>
+        <div
+          className={`lg:hidden bg-white border-t border-gray-100 transition-all duration-300 overflow-hidden ${
+            isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
           <div className="px-4 py-4 space-y-2 max-h-80 overflow-y-auto">
-            
             {/* Navigation Items */}
-            {['Upcoming Trips', 'Corporate Tours', 'Blogs', 'About Us', 'Payments'].map((item) => (
+            {[
+              "Upcoming Trips",
+              "Corporate Tours",
+              "Blogs",
+              "About Us",
+              "Payments",
+            ].map((item) => (
               <a
                 key={item}
                 href="#"
                 className="flex items-center text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2.5 rounded-lg text-sm font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                {item === 'Upcoming Trips' && <Calendar size={16} className="mr-3 text-emerald-500" />}
+                {item === "Upcoming Trips" && (
+                  <Calendar size={16} className="mr-3 text-emerald-500" />
+                )}
                 {item}
               </a>
             ))}
@@ -192,31 +238,43 @@ const Navigation = () => {
             <div className="border-t border-gray-100 my-3"></div>
 
             {/* Trip Categories */}
-            {['International Trips', 'India Trips', 'Weekend Trips', 'Group Tours'].map((category) => (
+            {[
+              "International Trips",
+              "India Trips",
+              "Weekend Trips",
+              "Group Tours",
+            ].map((category) => (
               <div key={category}>
                 <button
-                  onClick={() => setOpenDropdown(openDropdown === category ? null : category)}
+                  onClick={() =>
+                    setOpenDropdown(openDropdown === category ? null : category)
+                  }
                   className="flex items-center justify-between w-full text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2.5 rounded-lg text-sm font-medium"
                 >
                   {category}
-                  <ChevronDown size={16} className={`ml-2 transition-transform duration-200 ${
-                    openDropdown === category ? 'rotate-180' : ''
-                  }`} />
+                  <ChevronDown
+                    size={16}
+                    className={`ml-2 transition-transform duration-200 ${
+                      openDropdown === category ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
-                
+
                 {openDropdown === category && (
                   <div className="mt-1 ml-4 space-y-1">
-                    {dropdownContent[category as keyof DropdownContentType].map((destination: string) => (
-                      <a
-                        key={destination}
-                        href="#"
-                        className="flex items-center text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2 rounded-lg text-sm"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <MapPin size={14} className="mr-3 text-gray-400" />
-                        {destination}
-                      </a>
-                    ))}
+                    {dropdownContent[category as keyof DropdownContentType].map(
+                      (destination: string) => (
+                        <a
+                          key={destination}
+                          href="#"
+                          className="flex items-center text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2 rounded-lg text-sm"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <MapPin size={14} className="mr-3 text-gray-400" />
+                          {destination}
+                        </a>
+                      )
+                    )}
                   </div>
                 )}
               </div>
@@ -225,7 +283,7 @@ const Navigation = () => {
             <div className="border-t border-gray-100 my-3"></div>
 
             {/* Special Items */}
-            {['Honeymoon Packages', 'early-bird', 'Gift Cards'].map((item) => (
+            {["Honeymoon Packages", "early-bird", "Gift Cards"].map((item) => (
               <a
                 key={item}
                 href="#"

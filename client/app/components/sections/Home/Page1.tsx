@@ -37,7 +37,7 @@ const Page1 = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative min-h-screen w-full  overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -48,19 +48,18 @@ const Page1 = () => {
 
       <div className="absolute inset-0 bg-black/45" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center md:-translate-y-10">
         <div className="">
-          
-            <motion.p
-              key={currentSubheading}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-white text-lg md:text-2xl font-medium"
-            >
-              {subheadings[currentSubheading]}
-            </motion.p>
+          <motion.p
+            key={currentSubheading}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-white text-lg md:text-2xl font-medium"
+          >
+            {subheadings[currentSubheading]}
+          </motion.p>
         </div>
 
         <motion.h1

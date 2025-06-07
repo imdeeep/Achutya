@@ -1,5 +1,6 @@
 import Page1 from "~/components/sections/Home/Page1";
 import Layout from "../components/layout/Layout";
+import Page2 from "~/components/sections/Home/Page2";
 
 export function meta({}) {
   return [
@@ -15,16 +16,13 @@ export function meta({}) {
 export default function Home() {
   return (
     <Layout>
-
       {/* Hero Section */}
-      <Page1/>
+      <Page1 />
 
       {/* Popular Destinations */}
-
-     
+      <Page2 />
 
       {/* Testimonials */}
-    
 
       {/* Ready to Start Your Next Adventure? */}
     </Layout>
