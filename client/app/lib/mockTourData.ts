@@ -1,7 +1,6 @@
-
 import type { TourData } from "~/types/tour";
 
-export const mockTourData:TourData = {
+export const mockTourData: TourData = {
   id: "1",
   title: "7 Days Spiti Full Circuit Roadtrip",
   subtitle:

@@ -40,9 +40,9 @@ const Navigation = () => {
         {/* Desktop Line 1 - Hidden on mobile */}
         <div className="hidden lg:block">
           <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="text-3xl font-bold text-emerald-600 tracking-tight">
-              Achutya
-            </div>
+            <Link to="/" className="text-3xl font-bold text-emerald-600 tracking-tight">
+              Achyuta
+            </Link>
 
             <div className="flex-1 mx-8 flex items-center gap-2 max-w-xl">
               <div className="relative w-full">
@@ -170,9 +170,9 @@ const Navigation = () => {
         <div className="lg:hidden">
           {/* Mobile Header */}
           <div className="flex items-center justify-between px-4 py-3">
-            <div className="text-2xl font-bold text-emerald-600 tracking-tight">
-              Achutya
-            </div>
+            <Link to="/" className="text-2xl font-bold text-emerald-600 tracking-tight">
+              Achyuta
+            </Link>
 
             <div className="flex items-center gap-3">
               <a
@@ -191,7 +191,7 @@ const Navigation = () => {
           </div>
 
           {/* Mobile Search Bar */}
-          <div className="px-4 pb-3">
+          {/* <div className="px-4 hidden pb-3">
             <div className="relative">
               <input
                 type="text"
@@ -204,7 +204,7 @@ const Navigation = () => {
                 <Search size={16} />
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Mobile Menu Dropdown */}

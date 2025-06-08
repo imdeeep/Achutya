@@ -34,7 +34,8 @@ const TourDetails = () => {
   useEffect(() => {
     const fetchTourData = async () => {
       try {
-        setLoading(true);        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setLoading(true);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         setTourData(mockTourData);
       } catch (err) {
         setError("Failed to load tour details. Please try again.");
@@ -82,22 +83,18 @@ const TourDetails = () => {
   }
 
   if (error) {
-    return (
-      <Error error={error}/>
-    );
+    return <Error error={error} />;
   }
 
   if (!tourData) {
-    return (
-      <TourNotFound/>
-    );
+    return <TourNotFound />;
   }
 
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         {/* Header */}
-        <TourHeader tourData={mockTourData}/>
+        <TourHeader tourData={mockTourData} />
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 py-6">
@@ -438,7 +435,10 @@ const TourDetails = () => {
             </div>
 
             {/* Booking Card */}
-            <BookingCard tourData={mockTourData} handleBookNow={handleBookNow}/>
+            <BookingCard
+              tourData={mockTourData}
+              handleBookNow={handleBookNow}
+            />
           </div>
         </div>
       </div>

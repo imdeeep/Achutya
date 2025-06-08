@@ -33,7 +33,7 @@ const Footer = () => {
       "Kerala",
       "Rajasthan",
     ],
-    "Achutya Special": [
+    "Achyuta Special": [
       "Community Trips",
       "Honeymoon Trips",
       "Corporate Trips",
@@ -105,13 +105,13 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Achutya Special */}
+          {/* Achyuta Special */}
           <div className="space-y-3">
             <h3 className="text-base font-semibold text-white">
-              Achutya Special
+              Achyuta Special
             </h3>
             <ul className="space-y-1">
-              {footerData["Achutya Special"].map((item) => (
+              {footerData["Achyuta Special"].map((item) => (
                 <li key={item}>
                   <a
                     href="#"
@@ -152,7 +152,7 @@ const Footer = () => {
             {/* Company Name */}
             <div className="space-y-2">
               <h2 className="text-xl font-bold text-white tracking-tight">
-                ACHUTYA EXPERIENCES PVT LTD
+                ACHYUTA EXPERIENCES PVT LTD
               </h2>
               <p className="text-white/80 text-sm max-w-2xl mx-auto">
                 3rd Floor, Building No-436, Phase IV, Udyog Vihar, Sector-18,
@@ -163,11 +163,11 @@ const Footer = () => {
             {/* Contact Info */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
               <a
-                href="mailto:hello@achutya.in"
+                href="mailto:hello@Achyuta.in"
                 className="flex items-center text-white/80 hover:text-white transition-colors group"
               >
                 <Mail size={16} className="mr-2" />
-                hello@achutya.in
+                hello@achyuta.in
               </a>
               <div className="hidden sm:block w-px h-4 bg-white/30"></div>
               <a
@@ -179,11 +179,11 @@ const Footer = () => {
               </a>
               <div className="hidden sm:block w-px h-4 bg-white/30"></div>
               <a
-                href="https://www.achutya.in"
+                href="https://www.Achyuta.in"
                 className="flex items-center text-white/80 hover:text-white transition-colors group"
               >
                 <Globe size={16} className="mr-2" />
-                www.achutya.in
+                www.achyuta.in
               </a>
             </div>
 
@@ -210,7 +210,7 @@ const Footer = () => {
       <div className="border-t border-white/20 bg-black/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <p className="text-center text-white/80 text-sm">
-            © ACHUTYA EXPERIENCES PVT LTD. All rights reserved.
+            © ACHYUTA EXPERIENCES PVT LTD. All rights reserved.
           </p>
         </div>
       </div>

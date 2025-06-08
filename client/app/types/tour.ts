@@ -43,7 +43,12 @@ export interface TourData {
   imageUrl?: string;
 }
 
-export type TabType = 'overview' | 'itinerary' | 'inclusions' | 'essentials' | 'notes';
+export type TabType =
+  | "overview"
+  | "itinerary"
+  | "inclusions"
+  | "essentials"
+  | "notes";
 
 export interface TabConfig {
   id: TabType;
