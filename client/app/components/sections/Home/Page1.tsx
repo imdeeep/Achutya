@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const Page1 = () => {
   const [currentSubheading, setCurrentSubheading] = useState(0);
@@ -38,7 +38,10 @@ const Page1 = () => {
 
   return (
     <div className="relative min-h-screen w-full  overflow-hidden">
-      <div
+      <motion.div
+        initial={{ scale: 1.2 }}
+        animate={{ scale: 1.1 }}
+        transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage:
