@@ -8,8 +8,10 @@ import {
   X,
   Phone,
   ChevronDown,
+  User,
 } from "lucide-react";
 import { Link } from "react-router";
+import { useAuth } from "../../lib/auth";
 
 type DropdownContentType = {
   "International Trips": string[];
@@ -19,6 +21,7 @@ type DropdownContentType = {
 };
 
 const Navigation = () => {
+  const { user, logout } = useAuth();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -39,7 +42,7 @@ const Navigation = () => {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur shadow-sm">
         {/* Desktop Line 1 - Hidden on mobile */}
         <div className="hidden lg:block">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="max-w-9/12 mx-auto px-4 py-3 flex items-center justify-between">
             <Link to="/" className="text-3xl font-bold text-emerald-600 tracking-tight">
               Achyuta
             </Link>
@@ -60,13 +63,12 @@ const Navigation = () => {
               </div>
             </div>
 
-            <div className="flex space-x-6">
+            <div className="flex space-x-6 md:mr-10">
               {[
                 "Upcoming Trips",
                 "Corporate Tours",
                 "Blogs",
                 "About Us",
-                "Payments",
               ].map((item) => (
                 <a
                   key={item}
@@ -83,8 +85,51 @@ const Navigation = () => {
               ))}
             </div>
 
-            <div className="ml-6 font-semibold bg-emerald-600 text-white px-4 py-2 rounded-full text-sm hover:bg-emerald-700 transition-colors shadow-sm">
-              +91-9090403075
+            <div className="flex items-center gap-4">
+              <div className="font-semibold bg-emerald-600 text-white px-4 py-2 rounded-full text-sm hover:bg-emerald-700 transition-colors shadow-sm">
+                +91-9090403075
+              </div>
+              
+              {user ? (
+                <div className="relative group">
+                  <button className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition-colors">
+                    <User size={20} />
+                    <span className="text-sm font-medium">{user.name}</span>
+                    <ChevronDown size={16} className="text-gray-500" />
+                  </button>
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 hidden group-hover:block">
+                    {user.role === 'admin' && (
+                      <Link
+                        to="/admin/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
+                    <button
+                      onClick={logout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Link
+                    to="/login"
+                    className="text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -214,26 +259,49 @@ const Navigation = () => {
           }`}
         >
           <div className="px-4 py-4 space-y-2 max-h-80 overflow-y-auto">
-            {/* Navigation Items */}
-            {[
-              "Upcoming Trips",
-              "Corporate Tours",
-              "Blogs",
-              "About Us",
-              "Payments",
-            ].map((item) => (
-              <a
-                key={item}
-                href="#"
-                className="flex items-center text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2.5 rounded-lg text-sm font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {item === "Upcoming Trips" && (
-                  <Calendar size={16} className="mr-3 text-emerald-500" />
+            {user ? (
+              <>
+                <div className="flex items-center gap-2 px-3 py-2.5">
+                  <User size={20} className="text-emerald-500" />
+                  <span className="text-sm font-medium text-gray-700">{user.name}</span>
+                </div>
+                {user.role === 'admin' && (
+                  <Link
+                    to="/admin/dashboard"
+                    className="flex items-center text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2.5 rounded-lg text-sm font-medium"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Admin Dashboard
+                  </Link>
                 )}
-                {item}
-              </a>
-            ))}
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2.5 rounded-lg text-sm font-medium w-full"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col gap-2 px-3 py-2">
+                <Link
+                  to="/login"
+                  className="text-center text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="text-center bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
 
             <div className="border-t border-gray-100 my-3"></div>
 
