@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../lib/auth";
+import { useAuth } from '~/hooks/auth';
 import { Mail, Lock, User, Loader2 } from "lucide-react";
 
 export default function Register() {

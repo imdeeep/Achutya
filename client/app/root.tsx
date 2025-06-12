@@ -6,9 +6,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-import { AuthProvider } from './lib/auth';
 import "./app.css";
-import { useEffect } from "react";
+import { AuthProvider } from "./hooks/auth";
 // import Lenis from "lenis";
 
 export const links = () => [

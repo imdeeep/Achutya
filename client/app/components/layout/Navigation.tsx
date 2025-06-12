@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 import { Link } from "react-router";
-import { useAuth } from "../../lib/auth";
+import { useAuth } from '~/hooks/auth';
 
 type DropdownContentType = {
   "International Trips": string[];
@@ -42,7 +42,7 @@ const Navigation = () => {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur shadow-sm">
         {/* Desktop Line 1 - Hidden on mobile */}
         <div className="hidden lg:block">
-          <div className="max-w-9/12 mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="max-w-10/12 mx-auto px-4 py-3 flex items-center justify-between">
             <Link to="/" className="text-3xl font-bold text-emerald-600 tracking-tight">
               Achyuta
             </Link>
@@ -86,9 +86,9 @@ const Navigation = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="font-semibold bg-emerald-600 text-white px-4 py-2 rounded-full text-sm hover:bg-emerald-700 transition-colors shadow-sm">
+              {/* <div className="font-semibold bg-emerald-600 text-white px-4 py-2 rounded-full text-sm hover:bg-emerald-700 transition-colors shadow-sm">
                 +91-9090403075
-              </div>
+              </div> */}
               
               {user ? (
                 <div className="relative group">
@@ -106,19 +106,23 @@ const Navigation = () => {
                         Admin Dashboard
                       </Link>
                     )}
+                    <Link to={"/"} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600">
+                    Bookings
+                    </Link>
                     <button
                       onClick={logout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
                     >
                       Logout
                     </button>
+                    
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
                   <Link
                     to="/login"
-                    className="text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors"
+                    className="text-sm  text-gray-600 hover:text-emerald-600 transition-colors"
                   >
                     Login
                   </Link>
@@ -283,6 +287,9 @@ const Navigation = () => {
                 >
                   Logout
                 </button>
+                <Link to="/" className="flex items-center text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2.5 rounded-lg text-sm font-medium w-full">
+                  Bookings
+                </Link>
               </>
             ) : (
               <div className="flex flex-col gap-2 px-3 py-2">
