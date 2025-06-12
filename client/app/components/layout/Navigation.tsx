@@ -92,32 +92,34 @@ const Navigation = () => {
               
               {user ? (
                 <div className="relative group">
-                  <button className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition-colors">
-                    <User size={20} />
-                    <span className="text-sm font-medium">{user.name}</span>
-                    <ChevronDown size={16} className="text-gray-500" />
-                  </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 hidden group-hover:block">
-                    {user.role === 'admin' && (
-                      <Link
-                        to="/admin/dashboard"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
-                      >
-                        Admin Dashboard
-                      </Link>
-                    )}
-                    <Link to={"/"} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600">
-                    Bookings
-                    </Link>
-                    <button
-                      onClick={logout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+                <button className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition-colors">
+                  <User size={20} />
+                  <span className="text-sm font-medium">{user.name}</span>
+                  <ChevronDown size={16} className="text-gray-500 transition-transform duration-200 group-hover:rotate-180" />
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 opacity-0 invisible translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
+                  {user.role === 'admin' && (
+                    <Link
+                      to="/admin/dashboard"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-150"
                     >
-                      Logout
-                    </button>
-                    
-                  </div>
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  <Link 
+                    to={"/"} 
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-150"
+                  >
+                    Bookings
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-150"
+                  >
+                    Logout
+                  </button>
                 </div>
+              </div>
               ) : (
                 <div className="flex items-center gap-3">
                   <Link

@@ -20,9 +20,9 @@ import { mockTourData } from "~/lib/mockTourData";
 import type { TourData } from "~/types/tour";
 import Layout from "~/components/layout/Layout";
 import TourHeader from "~/components/sections/TourDetails/TourHeader";
-import BookingCard from "~/components/sections/TourDetails/BookingCard";
 import TourNotFound from "~/components/sections/TourDetails/TourNotFound";
 import { Error } from "~/components/sections/TourDetails/Error";
+import BookingCard from "~/components/sections/TourDetails/BookingCard";
 
 declare global {
   interface Window {
@@ -46,14 +46,6 @@ const TourDetails = () => {
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showAllNotes, setShowAllNotes] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [guests, setGuests] = useState(1);
-  const [userDetails, setUserDetails] = useState<UserDetails>({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-  });
 
   useEffect(() => {
     // Load Razorpay script
@@ -83,93 +75,6 @@ const TourDetails = () => {
     fetchTourData();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setUserDetails((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleBookNow = async () => {
-    if (!selectedDate || !tourData) {
-      alert("Please select a date for your tour");
-      return;
-    }
-
-    try {
-      const totalAmount = tourData.price * guests;
-      
-      // Create payment order
-      const response = await fetch("http://localhost:3000/api/create-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: totalAmount,
-          currency: "INR",
-          receipt: `receipt_${Date.now()}`,
-          userDetails,
-          itineraryId: tourData.id,
-          date: selectedDate,
-          guests,
-        }),
-      });
-
-      const data = await response.json();
-
-      const options = {
-        key: "rzp_test_pQLbxWbQ5iwwZe",
-        amount: data.amount,
-        currency: data.currency,
-        name: "Achyuta Travel",
-        description: "Tour Booking Payment",
-        order_id: data.id,
-        handler: async function (response: any) {
-          try {
-            const verifyResponse = await fetch("http://localhost:3000/api/verify-payment", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                userDetails,
-                itineraryId: tourData.id,
-                date: selectedDate,
-                guests,
-              }),
-            });
-
-            const verifyData = await verifyResponse.json();
-            if (verifyData.success) {
-              navigate(`/booking/confirmation?bookingId=${verifyData.bookingId}`);
-            }
-          } catch (error) {
-            console.error("Payment verification failed:", error);
-            alert("Payment verification failed. Please contact support.");
-          }
-        },
-        prefill: {
-          name: userDetails.name,
-          email: userDetails.email,
-          contact: userDetails.phone,
-        },
-        theme: {
-          color: "#277A55",
-        },
-      };
-
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
-    } catch (error) {
-      console.error("Payment initialization failed:", error);
-      alert("Failed to initialize payment. Please try again.");
-    }
-  };
 
   const toggleAccordion = (dayIndex: number) => {
     setExpandedDay(expandedDay === dayIndex ? null : dayIndex);
@@ -558,132 +463,8 @@ const TourDetails = () => {
             </div>
 
             {/* Booking Card */}
-            <div className="lg:col-span-1">
-              <div className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/50 p-6 sticky top-6">
-                <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-emerald-600 mb-2">
-                    ₹{tourData?.price?.toLocaleString()}
-                  </h3>
-                  <p className="text-gray-500">per person</p>
-                </div>
+            <BookingCard tourData={tourData}/>
 
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                      Select Date
-                    </label>
-                    <input
-                      type="date"
-                      id="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 text-black"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="guests" className="block text-sm font-medium text-gray-700 mb-1">
-                      Number of Guests
-                    </label>
-                    <select
-                      id="guests"
-                      value={guests}
-                      onChange={(e) => setGuests(Number(e.target.value))}
-                      className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 text-black"
-                    >
-                      {[...Array(tourData?.maxGroupSize || 1)].map((_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {i + 1} {i === 0 ? "Guest" : "Guests"}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1" >
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      id="name"
-                      value={userDetails.name}
-                      onChange={handleInputChange}
-                      className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 text-black"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      id="email"
-                      value={userDetails.email}
-                      onChange={handleInputChange}
-                      className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 text-black"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      id="phone"
-                      value={userDetails.phone}
-                      onChange={handleInputChange}
-                      className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 text-black"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                      Address
-                    </label>
-                    <textarea
-                      name="address"
-                      id="address"
-                      value={userDetails.address}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 text-black"
-                      required
-                    />
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-4 text-black">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Price per person</span>
-                      <span>₹{tourData?.price?.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Number of guests</span>
-                      <span>{guests}</span>
-                    </div>
-                    <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
-                      <span>Total Amount</span>
-                      <span>₹{(tourData?.price * guests)?.toLocaleString()}</span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleBookNow}
-                    className="w-full bg-emerald-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-                  >
-                    Book Now
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
