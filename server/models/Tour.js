@@ -18,7 +18,7 @@ const tourSchema = new mongoose.Schema({
     type: String,
   },
   heroImage: {
-    required:true,
+    required: true,
     type: String
   },
   duration: {
@@ -60,6 +60,11 @@ const tourSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  destination: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Destination',
+    required: true
+  },
   country: {
     type: String,
     required: true,
@@ -70,9 +75,41 @@ const tourSchema = new mongoose.Schema({
     required: true
   },
   location: {
-    type: String, // e.g., "Delhi - Delhi"
+    type: String,
     required: true
   },
+
+  // Additional destinations for multi-destination tours
+  additionalDestinations: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Destination'
+  }],
+  
+  // AVAILABLE DATES - When this tour can be offered
+  availableDates: [{
+    date: {
+      type: Date,
+      required: true
+    },
+    maxBookings: {
+      type: Number,
+      default: 1 // How many people/groups can book this date
+    },
+    currentBookings: {
+      type: Number,
+      default: 0
+    },
+    isAvailable: {
+      type: Boolean,
+      default: true
+    },
+    price: {
+      type: Number // Optional: different price for different dates
+    },
+    notes: {
+      type: String // Optional: special notes for this date
+    }
+  }],
   
   // Detailed tour information
   highlights: [{
@@ -151,7 +188,7 @@ const tourSchema = new mongoose.Schema({
   }
 });
 
-// middleware to update updatedAt
+// Middleware to update updatedAt
 tourSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
@@ -168,8 +205,38 @@ tourSchema.pre('save', function(next) {
   next();
 });
 
+// Method to get available dates (not fully booked)
+tourSchema.methods.getAvailableDates = function() {
+  return this.availableDates.filter(dateObj => 
+    dateObj.isAvailable && 
+    dateObj.currentBookings < dateObj.maxBookings &&
+    dateObj.date >= new Date()
+  );
+};
+
+// Method to book a date
+tourSchema.methods.bookDate = function(dateId) {
+  const dateObj = this.availableDates.id(dateId);
+  if (!dateObj) {
+    throw new Error('Date not found');
+  }
+  
+  if (dateObj.currentBookings >= dateObj.maxBookings) {
+    throw new Error('No slots available for this date');
+  }
+  
+  dateObj.currentBookings += 1;
+  
+  // If fully booked, mark as unavailable
+  if (dateObj.currentBookings >= dateObj.maxBookings) {
+    dateObj.isAvailable = false;
+  }
+  
+  return this.save();
+};
+
+tourSchema.set('toJSON', { virtuals: true });
+tourSchema.set('toObject', { virtuals: true });
+
 const Tour = mongoose.model('Tour', tourSchema);
-
-module.exports = Tour
-
-
+module.exports = Tour;
