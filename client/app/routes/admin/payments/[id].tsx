@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router";
-import { ArrowLeft, Edit, CreditCard, Calendar, User, Receipt } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  CreditCard,
+  Calendar,
+  User,
+  Receipt,
+} from "lucide-react";
 
 // Mock data - replace with actual API call
 const payment = {
@@ -53,7 +60,9 @@ export default function PaymentDetail() {
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Payment Details</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Payment Details
+            </h1>
             {!isEditing && (
               <button
                 onClick={() => setIsEditing(true)}
@@ -68,13 +77,25 @@ export default function PaymentDetail() {
 
         {isEditing ? (
           <div className="p-6">
-            <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
+            >
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Status
+                  </label>
                   <select
                     value={editedPayment.status}
-                    onChange={(e) => setEditedPayment({ ...editedPayment, status: e.target.value })}
+                    onChange={(e) =>
+                      setEditedPayment({
+                        ...editedPayment,
+                        status: e.target.value,
+                      })
+                    }
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   >
                     <option value="Completed">Completed</option>
@@ -84,28 +105,49 @@ export default function PaymentDetail() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Refund Amount</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Refund Amount
+                  </label>
                   <input
                     type="number"
                     value={editedPayment.refundAmount}
-                    onChange={(e) => setEditedPayment({ ...editedPayment, refundAmount: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditedPayment({
+                        ...editedPayment,
+                        refundAmount: Number(e.target.value),
+                      })
+                    }
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Refund Reason</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Refund Reason
+                  </label>
                   <textarea
                     value={editedPayment.refundReason}
-                    onChange={(e) => setEditedPayment({ ...editedPayment, refundReason: e.target.value })}
+                    onChange={(e) =>
+                      setEditedPayment({
+                        ...editedPayment,
+                        refundReason: e.target.value,
+                      })
+                    }
                     rows={3}
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Notes</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Notes
+                  </label>
                   <textarea
                     value={editedPayment.notes}
-                    onChange={(e) => setEditedPayment({ ...editedPayment, notes: e.target.value })}
+                    onChange={(e) =>
+                      setEditedPayment({
+                        ...editedPayment,
+                        notes: e.target.value,
+                      })
+                    }
                     rows={3}
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   />
@@ -132,35 +174,58 @@ export default function PaymentDetail() {
           <div className="p-6">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Transaction Information</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Transaction Information
+                </h3>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Booking ID</div>
-                    <div className="mt-1 text-sm text-gray-900">{payment.bookingId}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Booking ID
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {payment.bookingId}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Transaction ID</div>
-                    <div className="mt-1 text-sm text-gray-900">{payment.transactionId}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Transaction ID
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {payment.transactionId}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Amount</div>
-                    <div className="mt-1 text-sm text-gray-900">₹{payment.amount.toLocaleString()}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Amount
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      ₹{payment.amount.toLocaleString()}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Date</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Date
+                    </div>
                     <div className="mt-1 text-sm text-gray-900">
                       {new Date(payment.date).toLocaleDateString()}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Status</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Status
+                    </div>
                     <div className="mt-1">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        payment.status === "Completed" ? "bg-green-100 text-green-800" :
-                        payment.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
-                        payment.status === "Failed" ? "bg-red-100 text-red-800" :
-                        "bg-blue-100 text-blue-800"
-                      }`}>
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          payment.status === "Completed"
+                            ? "bg-green-100 text-green-800"
+                            : payment.status === "Pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : payment.status === "Failed"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
                         {payment.status}
                       </span>
                     </div>
@@ -169,32 +234,54 @@ export default function PaymentDetail() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Customer Information</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Customer Information
+                </h3>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Name</div>
-                    <div className="mt-1 text-sm text-gray-900">{payment.customer.name}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Name
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {payment.customer.name}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Email</div>
-                    <div className="mt-1 text-sm text-gray-900">{payment.customer.email}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Email
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {payment.customer.email}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Phone</div>
-                    <div className="mt-1 text-sm text-gray-900">{payment.customer.phone}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Phone
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {payment.customer.phone}
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Information</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Payment Information
+                </h3>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Payment Method</div>
-                    <div className="mt-1 text-sm text-gray-900">{payment.paymentMethod}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Payment Method
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {payment.paymentMethod}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Card Details</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Card Details
+                    </div>
                     <div className="mt-1 text-sm text-gray-900">
                       {payment.cardBrand} ending in {payment.cardLast4}
                     </div>
@@ -202,12 +289,20 @@ export default function PaymentDetail() {
                   {payment.refundAmount > 0 && (
                     <>
                       <div>
-                        <div className="text-sm font-medium text-gray-500">Refund Amount</div>
-                        <div className="mt-1 text-sm text-gray-900">₹{payment.refundAmount.toLocaleString()}</div>
+                        <div className="text-sm font-medium text-gray-500">
+                          Refund Amount
+                        </div>
+                        <div className="mt-1 text-sm text-gray-900">
+                          ₹{payment.refundAmount.toLocaleString()}
+                        </div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-500">Refund Reason</div>
-                        <div className="mt-1 text-sm text-gray-900">{payment.refundReason}</div>
+                        <div className="text-sm font-medium text-gray-500">
+                          Refund Reason
+                        </div>
+                        <div className="mt-1 text-sm text-gray-900">
+                          {payment.refundReason}
+                        </div>
                       </div>
                     </>
                   )}
@@ -215,11 +310,17 @@ export default function PaymentDetail() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Additional Information
+                </h3>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Notes</div>
-                    <div className="mt-1 text-sm text-gray-900">{payment.notes}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Notes
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {payment.notes}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -229,4 +330,4 @@ export default function PaymentDetail() {
       </div>
     </div>
   );
-} 
+}

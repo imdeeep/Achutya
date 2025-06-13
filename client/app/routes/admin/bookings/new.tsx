@@ -35,7 +35,11 @@ export default function NewBooking() {
     console.log(formData);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -63,7 +67,9 @@ export default function NewBooking() {
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tour</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Tour
+              </label>
               <select
                 name="tourId"
                 value={formData.tourId}
@@ -81,7 +87,9 @@ export default function NewBooking() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Date</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Date
+              </label>
               <input
                 type="date"
                 name="date"
@@ -93,7 +101,9 @@ export default function NewBooking() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Customer Name</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Customer Name
+              </label>
               <input
                 type="text"
                 name="customerName"
@@ -105,7 +115,9 @@ export default function NewBooking() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Customer Email</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Customer Email
+              </label>
               <input
                 type="email"
                 name="customerEmail"
@@ -117,7 +129,9 @@ export default function NewBooking() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Customer Phone</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Customer Phone
+              </label>
               <input
                 type="tel"
                 name="customerPhone"
@@ -129,7 +143,9 @@ export default function NewBooking() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Number of Guests</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Number of Guests
+              </label>
               <input
                 type="number"
                 name="numberOfGuests"
@@ -142,7 +158,9 @@ export default function NewBooking() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Payment Method</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Payment Method
+              </label>
               <select
                 name="paymentMethod"
                 value={formData.paymentMethod}
@@ -158,7 +176,9 @@ export default function NewBooking() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">Special Requests</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Special Requests
+              </label>
               <textarea
                 name="specialRequests"
                 value={formData.specialRequests}
@@ -187,4 +207,4 @@ export default function NewBooking() {
       </div>
     </div>
   );
-} 
+}

@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router";
-import { ArrowLeft, Edit, Calendar, User, CreditCard, MapPin, Clock } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  Calendar,
+  User,
+  CreditCard,
+  MapPin,
+  Clock,
+} from "lucide-react";
 
 // Mock data - replace with actual API call
 const booking = {
@@ -51,7 +59,9 @@ export default function BookingDetail() {
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Booking Details</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Booking Details
+            </h1>
             {!isEditing && (
               <button
                 onClick={() => setIsEditing(true)}
@@ -66,22 +76,41 @@ export default function BookingDetail() {
 
         {isEditing ? (
           <div className="p-6">
-            <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
+            >
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Tour Name</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Tour Name
+                  </label>
                   <input
                     type="text"
                     value={editedBooking.tourName}
-                    onChange={(e) => setEditedBooking({ ...editedBooking, tourName: e.target.value })}
+                    onChange={(e) =>
+                      setEditedBooking({
+                        ...editedBooking,
+                        tourName: e.target.value,
+                      })
+                    }
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Status
+                  </label>
                   <select
                     value={editedBooking.status}
-                    onChange={(e) => setEditedBooking({ ...editedBooking, status: e.target.value })}
+                    onChange={(e) =>
+                      setEditedBooking({
+                        ...editedBooking,
+                        status: e.target.value,
+                      })
+                    }
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   >
                     <option value="Confirmed">Confirmed</option>
@@ -90,19 +119,33 @@ export default function BookingDetail() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Amount</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Amount
+                  </label>
                   <input
                     type="number"
                     value={editedBooking.amount}
-                    onChange={(e) => setEditedBooking({ ...editedBooking, amount: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditedBooking({
+                        ...editedBooking,
+                        amount: Number(e.target.value),
+                      })
+                    }
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Payment Status</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Payment Status
+                  </label>
                   <select
                     value={editedBooking.paymentStatus}
-                    onChange={(e) => setEditedBooking({ ...editedBooking, paymentStatus: e.target.value })}
+                    onChange={(e) =>
+                      setEditedBooking({
+                        ...editedBooking,
+                        paymentStatus: e.target.value,
+                      })
+                    }
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   >
                     <option value="Paid">Paid</option>
@@ -132,90 +175,146 @@ export default function BookingDetail() {
           <div className="p-6">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Tour Information</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Tour Information
+                </h3>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Tour Name</div>
-                    <div className="mt-1 text-sm text-gray-900">{booking.tourName}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Tour Name
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {booking.tourName}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Date</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Date
+                    </div>
                     <div className="mt-1 text-sm text-gray-900">
                       {new Date(booking.date).toLocaleDateString()}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Number of Guests</div>
-                    <div className="mt-1 text-sm text-gray-900">{booking.numberOfGuests}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Number of Guests
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {booking.numberOfGuests}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Special Requests</div>
-                    <div className="mt-1 text-sm text-gray-900">{booking.specialRequests}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Customer Information</h3>
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">Name</div>
-                    <div className="mt-1 text-sm text-gray-900">{booking.customer.name}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">Email</div>
-                    <div className="mt-1 text-sm text-gray-900">{booking.customer.email}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">Phone</div>
-                    <div className="mt-1 text-sm text-gray-900">{booking.customer.phone}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Special Requests
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {booking.specialRequests}
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Information</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Customer Information
+                </h3>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Amount</div>
-                    <div className="mt-1 text-sm text-gray-900">₹{booking.amount.toLocaleString()}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Name
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {booking.customer.name}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Payment Status</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Email
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {booking.customer.email}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Phone
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {booking.customer.phone}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Payment Information
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Amount
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      ₹{booking.amount.toLocaleString()}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Payment Status
+                    </div>
                     <div className="mt-1">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        booking.paymentStatus === "Paid" ? "bg-green-100 text-green-800" :
-                        booking.paymentStatus === "Pending" ? "bg-yellow-100 text-yellow-800" :
-                        "bg-blue-100 text-blue-800"
-                      }`}>
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          booking.paymentStatus === "Paid"
+                            ? "bg-green-100 text-green-800"
+                            : booking.paymentStatus === "Pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
                         {booking.paymentStatus}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Payment Method</div>
-                    <div className="mt-1 text-sm text-gray-900">{booking.paymentMethod}</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Payment Method
+                    </div>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {booking.paymentMethod}
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Booking Information</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Booking Information
+                </h3>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Booking Date</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Booking Date
+                    </div>
                     <div className="mt-1 text-sm text-gray-900">
                       {new Date(booking.bookingDate).toLocaleDateString()}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-500">Status</div>
+                    <div className="text-sm font-medium text-gray-500">
+                      Status
+                    </div>
                     <div className="mt-1">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        booking.status === "Confirmed" ? "bg-green-100 text-green-800" :
-                        booking.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
-                        "bg-red-100 text-red-800"
-                      }`}>
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          booking.status === "Confirmed"
+                            ? "bg-green-100 text-green-800"
+                            : booking.status === "Pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                        }`}
+                      >
                         {booking.status}
                       </span>
                     </div>
@@ -228,4 +327,4 @@ export default function BookingDetail() {
       </div>
     </div>
   );
-} 
+}

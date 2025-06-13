@@ -7,7 +7,8 @@ const mockBlogPosts = [
     id: "1",
     title: "Exploring the Wonders of Goa",
     author: "Admin",
-    content: "This is a detailed blog post about the beautiful beaches and vibrant culture of Goa...",
+    content:
+      "This is a detailed blog post about the beautiful beaches and vibrant culture of Goa...",
     status: "Published",
   },
   {
@@ -21,7 +22,8 @@ const mockBlogPosts = [
     id: "3",
     title: "Rajasthan: Land of Kings and Forts",
     author: "Admin",
-    content: "Journey through the majestic forts and colorful cities of Rajasthan...",
+    content:
+      "Journey through the majestic forts and colorful cities of Rajasthan...",
     status: "Published",
   },
 ];
@@ -61,7 +63,9 @@ export default function BlogPostDetail() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -75,7 +79,9 @@ export default function BlogPostDetail() {
   }
 
   if (notFound) {
-    return <div className="p-6 text-center text-red-500">Blog post not found!</div>;
+    return (
+      <div className="p-6 text-center text-red-500">Blog post not found!</div>
+    );
   }
 
   return (
@@ -92,13 +98,18 @@ export default function BlogPostDetail() {
 
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">Edit Blog Post: {formData.title}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Edit Blog Post: {formData.title}
+          </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Title
               </label>
               <input
@@ -112,7 +123,10 @@ export default function BlogPostDetail() {
               />
             </div>
             <div>
-              <label htmlFor="author" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="author"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Author
               </label>
               <input
@@ -126,7 +140,10 @@ export default function BlogPostDetail() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="content"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Content
               </label>
               <textarea
@@ -140,7 +157,10 @@ export default function BlogPostDetail() {
               />
             </div>
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="status"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Status
               </label>
               <select
@@ -176,4 +196,4 @@ export default function BlogPostDetail() {
       </div>
     </div>
   );
-} 
+}

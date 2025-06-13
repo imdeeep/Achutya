@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Plus, Search, Edit, Trash2, Calendar, MapPin, Users, Star } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Calendar,
+  MapPin,
+  Users,
+  Star,
+} from "lucide-react";
 import { tours } from "~/lib/tour.data";
 
 export default function Itineraries() {
@@ -10,10 +19,14 @@ export default function Itineraries() {
   const [selectedGroupType, setSelectedGroupType] = useState("All");
 
   const filteredTours = tours.filter((tour) => {
-    const matchesSearch = tour.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCountry = selectedCountry === "All" || tour.country === selectedCountry;
+    const matchesSearch = tour.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesCountry =
+      selectedCountry === "All" || tour.country === selectedCountry;
     const matchesCity = selectedCity === "All" || tour.city === selectedCity;
-    const matchesGroupType = selectedGroupType === "All" || tour.groupType === selectedGroupType;
+    const matchesGroupType =
+      selectedGroupType === "All" || tour.groupType === selectedGroupType;
     return matchesSearch && matchesCountry && matchesCity && matchesGroupType;
   });
 
@@ -119,7 +132,9 @@ export default function Itineraries() {
               </div>
             </div>
             <div className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">{tour.title}</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {tour.title}
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-center text-sm text-gray-500">
                   <Calendar className="w-4 h-4 mr-2" />
@@ -136,7 +151,9 @@ export default function Itineraries() {
                 <div className="flex items-center text-sm">
                   <Star className="w-4 h-4 mr-1 text-yellow-400" />
                   <span className="text-gray-700">{tour.rating}</span>
-                  <span className="text-gray-400 ml-1">({tour.reviews} reviews)</span>
+                  <span className="text-gray-400 ml-1">
+                    ({tour.reviews} reviews)
+                  </span>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                   <span className="text-lg font-semibold text-emerald-600">
@@ -158,7 +175,9 @@ export default function Itineraries() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
             <Search className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No itineraries found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">
+            No itineraries found
+          </h3>
           <p className="text-gray-500">
             Try adjusting your search or filter criteria
           </p>
@@ -166,4 +185,4 @@ export default function Itineraries() {
       )}
     </div>
   );
-} 
+}

@@ -33,17 +33,26 @@ export default function Payments() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("All");
 
   const filteredPayments = payments.filter((payment) => {
-    const matchesSearch = 
+    const matchesSearch =
       payment.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
       payment.bookingId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       payment.transactionId.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = selectedStatus === "All" || payment.status === selectedStatus;
-    const matchesPaymentMethod = selectedPaymentMethod === "All" || payment.paymentMethod === selectedPaymentMethod;
+    const matchesStatus =
+      selectedStatus === "All" || payment.status === selectedStatus;
+    const matchesPaymentMethod =
+      selectedPaymentMethod === "All" ||
+      payment.paymentMethod === selectedPaymentMethod;
     return matchesSearch && matchesStatus && matchesPaymentMethod;
   });
 
   const statuses = ["All", "Completed", "Pending", "Failed", "Refunded"];
-  const paymentMethods = ["All", "Credit Card", "Debit Card", "UPI", "Net Banking"];
+  const paymentMethods = [
+    "All",
+    "Credit Card",
+    "Debit Card",
+    "UPI",
+    "Net Banking",
+  ];
 
   return (
     <div className="p-6">
@@ -124,13 +133,19 @@ export default function Payments() {
             {filteredPayments.map((payment) => (
               <tr key={payment.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{payment.bookingId}</div>
-                  <div className="text-sm text-gray-500">{payment.transactionId}</div>
+                  <div className="text-sm font-medium text-gray-900">
+                    {payment.bookingId}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {payment.transactionId}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-2 text-gray-400" />
-                    <div className="text-sm text-gray-900">{payment.customer}</div>
+                    <div className="text-sm text-gray-900">
+                      {payment.customer}
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -145,19 +160,26 @@ export default function Payments() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    payment.status === "Completed" ? "bg-green-100 text-green-800" :
-                    payment.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
-                    payment.status === "Failed" ? "bg-red-100 text-red-800" :
-                    "bg-blue-100 text-blue-800"
-                  }`}>
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      payment.status === "Completed"
+                        ? "bg-green-100 text-green-800"
+                        : payment.status === "Pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : payment.status === "Failed"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-blue-100 text-blue-800"
+                    }`}
+                  >
                     {payment.status}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <CreditCard className="h-4 w-4 mr-2 text-gray-400" />
-                    <div className="text-sm text-gray-900">{payment.paymentMethod}</div>
+                    <div className="text-sm text-gray-900">
+                      {payment.paymentMethod}
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -188,7 +210,9 @@ export default function Payments() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
             <Search className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No payments found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">
+            No payments found
+          </h3>
           <p className="text-gray-500">
             Try adjusting your search or filter criteria
           </p>
@@ -196,4 +220,4 @@ export default function Payments() {
       )}
     </div>
   );
-} 
+}
