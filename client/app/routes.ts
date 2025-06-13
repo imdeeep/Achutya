@@ -10,7 +10,6 @@ export default [
   route("unauthorized", "routes/unauthorized.tsx"),
   route("admin", "routes/admin/_layout.tsx", [
     index("routes/admin/dashboard.tsx"),
-    route("dashboard", "routes/admin/dashboard.tsx"),
     route("itineraries", "routes/admin/itineraries.tsx"),
     route("itineraries/new", "routes/admin/itineraries/new.tsx"),
     route("itineraries/:id", "routes/admin/itineraries/[id].tsx"),
