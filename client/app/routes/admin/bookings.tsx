@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Plus, Search, Edit, Trash2, Calendar, User, CreditCard, MapPin } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Calendar,
+  User,
+  CreditCard,
+  MapPin,
+} from "lucide-react";
 
 // Mock data - replace with actual API call
 const bookings = [
@@ -31,11 +40,14 @@ export default function Bookings() {
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState("All");
 
   const filteredBookings = bookings.filter((booking) => {
-    const matchesSearch = 
+    const matchesSearch =
       booking.tourName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.customer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = selectedStatus === "All" || booking.status === selectedStatus;
-    const matchesPaymentStatus = selectedPaymentStatus === "All" || booking.paymentStatus === selectedPaymentStatus;
+    const matchesStatus =
+      selectedStatus === "All" || booking.status === selectedStatus;
+    const matchesPaymentStatus =
+      selectedPaymentStatus === "All" ||
+      booking.paymentStatus === selectedPaymentStatus;
     return matchesSearch && matchesStatus && matchesPaymentStatus;
   });
 
@@ -130,12 +142,16 @@ export default function Bookings() {
             {filteredBookings.map((booking) => (
               <tr key={booking.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{booking.tourName}</div>
+                  <div className="text-sm font-medium text-gray-900">
+                    {booking.tourName}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-2 text-gray-400" />
-                    <div className="text-sm text-gray-900">{booking.customer}</div>
+                    <div className="text-sm text-gray-900">
+                      {booking.customer}
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -147,11 +163,15 @@ export default function Bookings() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    booking.status === "Confirmed" ? "bg-green-100 text-green-800" :
-                    booking.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
-                    "bg-red-100 text-red-800"
-                  }`}>
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      booking.status === "Confirmed"
+                        ? "bg-green-100 text-green-800"
+                        : booking.status === "Pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                    }`}
+                  >
                     {booking.status}
                   </span>
                 </td>
@@ -159,11 +179,15 @@ export default function Bookings() {
                   ₹{booking.amount.toLocaleString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    booking.paymentStatus === "Paid" ? "bg-green-100 text-green-800" :
-                    booking.paymentStatus === "Pending" ? "bg-yellow-100 text-yellow-800" :
-                    "bg-blue-100 text-blue-800"
-                  }`}>
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      booking.paymentStatus === "Paid"
+                        ? "bg-green-100 text-green-800"
+                        : booking.paymentStatus === "Pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-blue-100 text-blue-800"
+                    }`}
+                  >
                     {booking.paymentStatus}
                   </span>
                 </td>
@@ -195,7 +219,9 @@ export default function Bookings() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
             <Search className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No bookings found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">
+            No bookings found
+          </h3>
           <p className="text-gray-500">
             Try adjusting your search or filter criteria
           </p>
@@ -203,4 +229,4 @@ export default function Bookings() {
       )}
     </div>
   );
-} 
+}

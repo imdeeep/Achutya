@@ -1,13 +1,16 @@
-import type { ReactNode } from 'react';
-import { Navigate } from 'react-router';
-import { useAuth } from '~/hooks/auth';
+import type { ReactNode } from "react";
+import { Navigate } from "react-router";
+import { useAuth } from "~/hooks/auth";
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  allowedRoles?: ('user' | 'admin')[];
+  allowedRoles?: ("user" | "admin")[];
 }
 
-export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+export default function ProtectedRoute({
+  children,
+  allowedRoles,
+}: ProtectedRouteProps) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -27,4 +30,4 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   }
 
   return <>{children}</>;
-} 
+}

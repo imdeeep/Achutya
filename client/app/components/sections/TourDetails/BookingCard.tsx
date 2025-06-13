@@ -1,5 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, Users, User, Mail, Phone, MapPin, CreditCard, Check, AlertCircle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  Calendar,
+  Users,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  CreditCard,
+  Check,
+  AlertCircle,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 // Types from your original code
 interface TourData {
@@ -31,31 +44,39 @@ declare global {
   }
 }
 
-const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess }) => {
-  const [selectedDate, setSelectedDate] = useState('');
+const BookingCard: React.FC<BookingCardProps> = ({
+  tourData,
+  onBookingSuccess,
+}) => {
+  const [selectedDate, setSelectedDate] = useState("");
   const [guests, setGuests] = useState(1);
   const [userDetails, setUserDetails] = useState<UserDetails>({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
   });
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Partial<UserDetails & { date: string; general: string }>>({});
-  const [step, setStep] = useState<'booking' | 'details' | 'summary'>('booking');
+  const [errors, setErrors] = useState<
+    Partial<UserDetails & { date: string; general: string }>
+  >({});
+  const [step, setStep] = useState<"booking" | "details" | "summary">(
+    "booking"
+  );
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [availableDates, setAvailableDates] = useState<string[]>([]);
 
   // Mock tour data for demo
   const defaultTourData: TourData = {
-    id: 'spiti-circuit',
-    title: '7 Days Spiti Full Circuit Roadtrip',
+    id: "spiti-circuit",
+    title: "7 Days Spiti Full Circuit Roadtrip",
     price: 23499,
     maxGroupSize: 16,
-    description: 'High Altitude Desert Adventure - Experience the pristine beauty of the Himalayas',
-    duration: '7 Days',
-    location: 'Spiti Valley'
+    description:
+      "High Altitude Desert Adventure - Experience the pristine beauty of the Himalayas",
+    duration: "7 Days",
+    location: "Spiti Valley",
   };
 
   const activeTourData = tourData || defaultTourData;
@@ -65,20 +86,20 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
     const generateAvailableDates = () => {
       const dates = [];
       const today = new Date();
-      
+
       // Generate available dates for next 3 months
       for (let i = 0; i < 90; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() + i);
-        
+
         // Make some dates available (skip some randomly for demo)
         if (Math.random() > 0.3) {
-          dates.push(date.toISOString().split('T')[0]);
+          dates.push(date.toISOString().split("T")[0]);
         }
       }
       setAvailableDates(dates);
     };
-    
+
     generateAvailableDates();
   }, []);
 
@@ -93,73 +114,78 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<UserDetails & { date: string; general: string }> = {};
+    const newErrors: Partial<UserDetails & { date: string; general: string }> =
+      {};
 
     if (!selectedDate) {
-      newErrors.date = 'Please select a travel date';
+      newErrors.date = "Please select a travel date";
     }
 
     if (!userDetails.name.trim()) {
-      newErrors.name = 'Full name is required';
+      newErrors.name = "Full name is required";
     } else if (userDetails.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
+      newErrors.name = "Name must be at least 2 characters";
     }
 
     if (!userDetails.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!validateEmail(userDetails.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!userDetails.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
+      newErrors.phone = "Phone number is required";
     } else if (!validatePhone(userDetails.phone)) {
-      newErrors.phone = 'Please enter a valid 10-digit Indian mobile number';
+      newErrors.phone = "Please enter a valid 10-digit Indian mobile number";
     }
 
     if (!userDetails.address.trim()) {
-      newErrors.address = 'Address is required';
+      newErrors.address = "Address is required";
     } else if (userDetails.address.trim().length < 10) {
-      newErrors.address = 'Please provide a complete address';
+      newErrors.address = "Please provide a complete address";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setUserDetails(prev => ({
+    setUserDetails((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const handleNext = () => {
-    if (step === 'booking') {
+    if (step === "booking") {
       if (!selectedDate) {
-        setErrors({ date: 'Please select a travel date' });
+        setErrors({ date: "Please select a travel date" });
         return;
       }
-      setStep('details');
-    } else if (step === 'details') {
+      setStep("details");
+    } else if (step === "details") {
       if (validateForm()) {
-        setStep('summary');
+        setStep("summary");
       }
     }
   };
 
-  // booking function 
+  // booking function
   const handleBookNow = async () => {
     if (!selectedDate || !activeTourData) {
-      alert('Please select a date for your tour');
+      alert("Please select a date for your tour");
       return;
     }
 
@@ -168,16 +194,16 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
     try {
       setLoading(true);
       const totalAmount = activeTourData.price * guests;
-      
+
       // Create payment order
-      const response = await fetch('http://localhost:3000/api/create-payment', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3000/api/create-payment", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           amount: totalAmount, // Server will convert to paise
-          currency: 'INR',
+          currency: "INR",
           receipt: `receipt_${Date.now()}`,
           userDetails,
           itineraryId: activeTourData.id,
@@ -187,57 +213,63 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
       });
 
       if (!response.ok) {
-        const errorData = await response.json() as { error?: string };
-        throw new Error(errorData?.error || 'Failed to create payment');
+        const errorData = (await response.json()) as { error?: string };
+        throw new Error(errorData?.error || "Failed to create payment");
       }
 
       const orderData = await response.json();
 
       const options = {
-        key: 'rzp_test_pQLbxWbQ5iwwZe',
+        key: "rzp_test_pQLbxWbQ5iwwZe",
         amount: orderData.amount,
         currency: orderData.currency,
-        name: 'Achyuta Travel',
+        name: "Achyuta Travel",
         description: `Booking for ${activeTourData.title}`,
         order_id: orderData.id,
         config: {
           display: {
             preferences: {
-              show_default_blocks: true
-            }
-          }
+              show_default_blocks: true,
+            },
+          },
         },
         handler: async function (response: any) {
           try {
-            const verifyResponse = await fetch('http://localhost:3000/api/verify-payment', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                userDetails,
-                itineraryId: activeTourData.id,
-                date: selectedDate,
-                guests,
-                amount: totalAmount,
-              }),
-            });
+            const verifyResponse = await fetch(
+              "http://localhost:3000/api/verify-payment",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                  userDetails,
+                  itineraryId: activeTourData.id,
+                  date: selectedDate,
+                  guests,
+                  amount: totalAmount,
+                }),
+              }
+            );
 
             const verifyData = await verifyResponse.json();
-            
+
             if (!verifyResponse.ok) {
               const errorData = verifyData as { error?: string };
-              throw new Error(errorData?.error || 'Payment verification failed');
+              throw new Error(
+                errorData?.error || "Payment verification failed"
+              );
             }
 
             if (verifyData.success) {
               // Use the provided redirect URL or fallback to default
-              const redirectUrl = verifyData.redirectUrl || 
+              const redirectUrl =
+                verifyData.redirectUrl ||
                 `/booking?bookingId=${verifyData.bookingId}`;
-              
+
               // If onBookingSuccess callback is provided, use it
               if (onBookingSuccess) {
                 onBookingSuccess(verifyData.bookingId);
@@ -245,54 +277,66 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                 // Otherwise redirect to the confirmation page
                 window.location.href = redirectUrl;
               }
-              
+
               // Show success message
-              alert('Booking confirmed! Redirecting to your booking details...');
+              alert(
+                "Booking confirmed! Redirecting to your booking details..."
+              );
             } else {
-              throw new Error(verifyData.message || 'Payment verification failed');
+              throw new Error(
+                verifyData.message || "Payment verification failed"
+              );
             }
           } catch (error) {
-            console.error('Payment verification failed:', error);
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            alert(`Payment verification failed: ${errorMessage}. Please contact support with order ID: ${response.razorpay_order_id}`);
+            console.error("Payment verification failed:", error);
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "An unknown error occurred";
+            alert(
+              `Payment verification failed: ${errorMessage}. Please contact support with order ID: ${response.razorpay_order_id}`
+            );
           } finally {
             setLoading(false);
           }
         },
-        "prefill": {
-          "method": "card",
+        prefill: {
+          method: "card",
           "card[number]": "4111111111111111",
           "card[expiry]": "12/30",
           "card[cvv]": "123",
-          "card[name]": userDetails.name
+          "card[name]": userDetails.name,
         },
         theme: {
-          color: '#277A55',
+          color: "#277A55",
         },
         modal: {
           // force OTP mode in test environment
           confirm_close: true,
           escape: false,
           backdrop_close: false,
-          handle_back: true
+          handle_back: true,
         },
         notes: {
           merchant_order_id: `order_${Date.now()}`,
-        }
+        },
       };
 
       const razorpay = new window.Razorpay(options);
-      
-      razorpay.on('payment.failed', function(response: any) {
-        console.error('Payment failed:', response.error);
-        alert(`Payment failed: ${response.error.description || 'Unknown error'}`);
+
+      razorpay.on("payment.failed", function (response: any) {
+        console.error("Payment failed:", response.error);
+        alert(
+          `Payment failed: ${response.error.description || "Unknown error"}`
+        );
         setLoading(false);
       });
-      
+
       razorpay.open();
     } catch (error) {
-      console.error('Payment initialization failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error("Payment initialization failed:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
       alert(`Payment failed: ${errorMessage}`);
       setErrors({ general: errorMessage });
       setLoading(false);
@@ -317,7 +361,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
   };
 
   const formatDateForInput = (year: number, month: number, day: number) => {
-    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   };
 
   const renderCalendar = () => {
@@ -326,31 +370,34 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
     const daysInMonth = getDaysInMonth(currentMonth);
     const firstDay = getFirstDayOfMonth(currentMonth);
     const today = new Date();
-    
+
     const days = [];
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
     // Add day headers
-    dayNames.forEach(day => {
+    dayNames.forEach((day) => {
       days.push(
-        <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
+        <div
+          key={day}
+          className="text-center text-xs font-medium text-gray-500 py-2"
+        >
           {day}
         </div>
       );
     });
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`} className="p-2"></div>);
     }
-    
+
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = formatDateForInput(year, month, day);
       const isAvailable = isDateAvailable(dateStr);
       const isSelected = isDateSelected(dateStr);
       const isPast = new Date(dateStr) < today;
-      
+
       days.push(
         <button
           key={day}
@@ -358,19 +405,20 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
             if (isAvailable && !isPast) {
               setSelectedDate(dateStr);
               setShowCalendar(false);
-              if (errors.date) setErrors(prev => ({ ...prev, date: '' }));
+              if (errors.date) setErrors((prev) => ({ ...prev, date: "" }));
             }
           }}
           disabled={!isAvailable || isPast}
           className={`
             p-2 text-sm rounded-lg transition-all duration-200 relative
-            ${isSelected 
-              ? 'bg-emerald-600 text-white shadow-lg' 
-              : isAvailable && !isPast
-                ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' 
-                : isPast 
-                  ? 'text-gray-300 cursor-not-allowed'
-                  : 'text-gray-400 cursor-not-allowed'
+            ${
+              isSelected
+                ? "bg-emerald-600 text-white shadow-lg"
+                : isAvailable && !isPast
+                  ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
+                  : isPast
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-400 cursor-not-allowed"
             }
           `}
         >
@@ -381,21 +429,22 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
         </button>
       );
     }
-    
-    return (
-      <div className="grid grid-cols-7 gap-1">
-        {days}
-      </div>
-    );
+
+    return <div className="grid grid-cols-7 gap-1">{days}</div>;
   };
 
   const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
+    );
   };
 
   const prevMonth = () => {
     const today = new Date();
-    const prevMonthDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1);
+    const prevMonthDate = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() - 1
+    );
     if (prevMonthDate >= new Date(today.getFullYear(), today.getMonth())) {
       setCurrentMonth(prevMonthDate);
     }
@@ -416,32 +465,52 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
               per person
             </span>
           </div>
-          <p className="text-emerald-100 text-sm">{activeTourData.description}</p>
+          <p className="text-emerald-100 text-sm">
+            {activeTourData.description}
+          </p>
         </div>
 
         {/* Progress Indicator */}
         <div className="px-6 py-4 bg-gray-50">
           <div className="flex items-center justify-between text-sm">
-            <div className={`flex items-center ${step === 'booking' ? 'text-emerald-600' : 'text-gray-400'}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                step === 'booking' ? 'bg-emerald-600 text-white' : 'bg-gray-300 text-gray-600'
-              }`}>
+            <div
+              className={`flex items-center ${step === "booking" ? "text-emerald-600" : "text-gray-400"}`}
+            >
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  step === "booking"
+                    ? "bg-emerald-600 text-white"
+                    : "bg-gray-300 text-gray-600"
+                }`}
+              >
                 1
               </div>
               <span className="ml-2">Date & Guests</span>
             </div>
-            <div className={`flex items-center ${step === 'details' ? 'text-emerald-600' : 'text-gray-400'}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                step === 'details' ? 'bg-emerald-600 text-white' : 'bg-gray-300 text-gray-600'
-              }`}>
+            <div
+              className={`flex items-center ${step === "details" ? "text-emerald-600" : "text-gray-400"}`}
+            >
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  step === "details"
+                    ? "bg-emerald-600 text-white"
+                    : "bg-gray-300 text-gray-600"
+                }`}
+              >
                 2
               </div>
               <span className="ml-2">Details</span>
             </div>
-            <div className={`flex items-center ${step === 'summary' ? 'text-emerald-600' : 'text-gray-400'}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                step === 'summary' ? 'bg-emerald-600 text-white' : 'bg-gray-300 text-gray-600'
-              }`}>
+            <div
+              className={`flex items-center ${step === "summary" ? "text-emerald-600" : "text-gray-400"}`}
+            >
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  step === "summary"
+                    ? "bg-emerald-600 text-white"
+                    : "bg-gray-300 text-gray-600"
+                }`}
+              >
                 3
               </div>
               <span className="ml-2">Confirm</span>
@@ -451,7 +520,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
 
         <div className="p-6">
           {/* Step 1: Booking Details */}
-          {step === 'booking' && (
+          {step === "booking" && (
             <div className="space-y-6">
               <div className="relative">
                 <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
@@ -461,20 +530,19 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                 <button
                   onClick={() => setShowCalendar(!showCalendar)}
                   className={`w-full border rounded-lg px-3 py-2 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.date ? 'border-red-500' : 'border-gray-300'
-                  } ${selectedDate ? 'text-gray-900' : 'text-gray-500'}`}
+                    errors.date ? "border-red-500" : "border-gray-300"
+                  } ${selectedDate ? "text-gray-900" : "text-gray-500"}`}
                 >
-                  {selectedDate 
-                    ? new Date(selectedDate).toLocaleDateString('en-IN', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
+                  {selectedDate
+                    ? new Date(selectedDate).toLocaleDateString("en-IN", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       })
-                    : 'Choose your travel date'
-                  }
+                    : "Choose your travel date"}
                 </button>
-                
+
                 {/* Custom Calendar */}
                 {showCalendar && (
                   <div className="absolute top-full left-0 right-0 z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
@@ -486,7 +554,10 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                         <ChevronLeft className="w-4 h-4" />
                       </button>
                       <h4 className="font-semibold">
-                        {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        {currentMonth.toLocaleDateString("en-US", {
+                          month: "long",
+                          year: "numeric",
+                        })}
                       </h4>
                       <button
                         onClick={nextMonth}
@@ -510,7 +581,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                     </div>
                   </div>
                 )}
-                
+
                 {errors.date && (
                   <p className="mt-1 text-sm text-red-600 flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
@@ -540,7 +611,9 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-gray-600">Price per person</span>
-                  <span className="font-medium">₹{activeTourData.price.toLocaleString()}</span>
+                  <span className="font-medium">
+                    ₹{activeTourData.price.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-gray-600">Number of guests</span>
@@ -549,7 +622,9 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                 <div className="border-t border-gray-200 pt-2 mt-2">
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total Amount</span>
-                    <span className="text-emerald-600">₹{totalAmount.toLocaleString()}</span>
+                    <span className="text-emerald-600">
+                      ₹{totalAmount.toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -557,7 +632,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
           )}
 
           {/* Step 2: User Details */}
-          {step === 'details' && (
+          {step === "details" && (
             <div className="space-y-4">
               <div>
                 <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
@@ -570,7 +645,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                   value={userDetails.name}
                   onChange={handleInputChange}
                   className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.name ? 'border-red-500' : 'border-gray-300'
+                    errors.name ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter your full name"
                 />
@@ -593,7 +668,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                   value={userDetails.email}
                   onChange={handleInputChange}
                   className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
+                    errors.email ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="your.email@example.com"
                 />
@@ -616,7 +691,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                   value={userDetails.phone}
                   onChange={handleInputChange}
                   className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
+                    errors.phone ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="10-digit mobile number"
                 />
@@ -639,7 +714,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                   onChange={handleInputChange}
                   rows={3}
                   className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none ${
-                    errors.address ? 'border-red-500' : 'border-gray-300'
+                    errors.address ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter your complete address"
                 />
@@ -654,10 +729,12 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
           )}
 
           {/* Step 3: Summary */}
-          {step === 'summary' && (
+          {step === "summary" && (
             <div className="space-y-6">
               <div className="bg-emerald-50 rounded-lg p-4">
-                <h4 className="font-semibold text-emerald-800 mb-3">Booking Summary</h4>
+                <h4 className="font-semibold text-emerald-800 mb-3">
+                  Booking Summary
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tour:</span>
@@ -665,7 +742,9 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Date:</span>
-                    <span className="font-medium">{new Date(selectedDate).toLocaleDateString()}</span>
+                    <span className="font-medium">
+                      {new Date(selectedDate).toLocaleDateString()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Guests:</span>
@@ -706,16 +785,18 @@ const BookingCard: React.FC<BookingCardProps> = ({ tourData, onBookingSuccess })
 
           {/* Navigation Buttons */}
           <div className="mt-6 flex gap-3">
-            {step !== 'booking' && (
+            {step !== "booking" && (
               <button
-                onClick={() => setStep(step === 'summary' ? 'details' : 'booking')}
+                onClick={() =>
+                  setStep(step === "summary" ? "details" : "booking")
+                }
                 className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
               >
                 Back
               </button>
             )}
-            
-            {step !== 'summary' ? (
+
+            {step !== "summary" ? (
               <button
                 onClick={handleNext}
                 className="flex-1 bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-emerald-700 transition-colors"

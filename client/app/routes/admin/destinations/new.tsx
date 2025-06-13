@@ -42,13 +42,18 @@ export default function NewDestination() {
 
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">Add New Destination</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Add New Destination
+          </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Name
               </label>
               <input
@@ -62,7 +67,10 @@ export default function NewDestination() {
               />
             </div>
             <div>
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="country"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Country
               </label>
               <input
@@ -76,7 +84,10 @@ export default function NewDestination() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Description
               </label>
               <textarea
@@ -89,7 +100,10 @@ export default function NewDestination() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="image"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Image URL
               </label>
               <input
@@ -123,4 +137,4 @@ export default function NewDestination() {
       </div>
     </div>
   );
-} 
+}

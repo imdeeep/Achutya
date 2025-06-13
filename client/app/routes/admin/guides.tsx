@@ -33,7 +33,8 @@ export default function Guides() {
     const matchesSearch =
       guide.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       guide.specialization.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "All" || guide.status === filterStatus;
+    const matchesStatus =
+      filterStatus === "All" || guide.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -42,7 +43,9 @@ export default function Guides() {
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Tour Guides</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage your tour guides and their availability</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage your tour guides and their availability
+          </p>
         </div>
         <button
           onClick={() => console.log("Add new guide")}
@@ -121,13 +124,19 @@ export default function Guides() {
                   {filteredGuides.map((guide) => (
                     <tr key={guide.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{guide.name}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {guide.name}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{guide.specialization}</div>
+                        <div className="text-sm text-gray-900">
+                          {guide.specialization}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{guide.contact}</div>
+                        <div className="text-sm text-gray-900">
+                          {guide.contact}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -164,4 +173,4 @@ export default function Guides() {
       </div>
     </div>
   );
-} 
+}

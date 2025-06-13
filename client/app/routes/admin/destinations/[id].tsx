@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ArrowLeft, Calendar, MapPin, Users, Star, Edit, Save, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  Users,
+  Star,
+  Edit,
+  Save,
+  X,
+} from "lucide-react";
 import { countryData } from "~/lib/tour.data";
 
 export default function DestinationDetail() {
@@ -10,7 +19,7 @@ export default function DestinationDetail() {
   const [editedDestination, setEditedDestination] = useState<any>(null);
 
   // Find the destination from countryData
-  const destination = Object.entries(countryData).find(([country, cities]) => 
+  const destination = Object.entries(countryData).find(([country, cities]) =>
     cities.includes(id || "")
   );
 
@@ -18,7 +27,7 @@ export default function DestinationDetail() {
     if (destination) {
       setEditedDestination({
         country: destination[0],
-        city: id
+        city: id,
       });
     }
   }, [destination, id]);
@@ -27,8 +36,12 @@ export default function DestinationDetail() {
     return (
       <div className="p-6">
         <div className="text-center py-12">
-          <h3 className="text-lg font-medium text-gray-900 mb-1">Destination not found</h3>
-          <p className="text-gray-500">The destination you're looking for doesn't exist.</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">
+            Destination not found
+          </h3>
+          <p className="text-gray-500">
+            The destination you're looking for doesn't exist.
+          </p>
           <button
             onClick={() => navigate("/admin/destinations")}
             className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700"
@@ -49,7 +62,7 @@ export default function DestinationDetail() {
   const handleCancel = () => {
     setEditedDestination({
       country: destination[0],
-      city: id
+      city: id,
     });
     setIsEditing(false);
   };
@@ -71,20 +84,34 @@ export default function DestinationDetail() {
           {isEditing ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Country</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Country
+                </label>
                 <input
                   type="text"
                   value={editedDestination.country}
-                  onChange={(e) => setEditedDestination({ ...editedDestination, country: e.target.value })}
+                  onChange={(e) =>
+                    setEditedDestination({
+                      ...editedDestination,
+                      country: e.target.value,
+                    })
+                  }
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">City</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  City
+                </label>
                 <input
                   type="text"
                   value={editedDestination.city}
-                  onChange={(e) => setEditedDestination({ ...editedDestination, city: e.target.value })}
+                  onChange={(e) =>
+                    setEditedDestination({
+                      ...editedDestination,
+                      city: e.target.value,
+                    })
+                  }
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                 />
               </div>
@@ -123,7 +150,9 @@ export default function DestinationDetail() {
                   {destination[0]}
                 </div>
                 <div className="pt-4 border-t border-gray-100">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Available Cities</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Available Cities
+                  </h3>
                   <div className="grid grid-cols-2 gap-2">
                     {destination[1].map((city) => (
                       <div
@@ -142,4 +171,4 @@ export default function DestinationDetail() {
       </div>
     </div>
   );
-} 
+}

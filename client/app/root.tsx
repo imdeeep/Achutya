@@ -8,7 +8,6 @@ import {
 } from "react-router";
 import "./app.css";
 import { AuthProvider } from "./hooks/auth";
-// import Lenis from "lenis";
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -29,17 +28,6 @@ export const links = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  // useEffect(() => {
-  //   const lenis = new Lenis({
-  //     autoRaf: true,
-  //   });
-
-  //   function raf(time: number) {
-  //     lenis.raf(time);
-  //     requestAnimationFrame(raf);
-  //   }
-  //   requestAnimationFrame(raf);
-  // }, []);
   return (
     <html lang="en">
       <head>

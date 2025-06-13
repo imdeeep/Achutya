@@ -43,7 +43,9 @@ export default function Payment() {
     };
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setUserDetails((prev) => ({
       ...prev,
@@ -99,7 +101,8 @@ export default function Payment() {
 
             const verifyData = await verifyResponse.json();
             if (verifyData.success) {
-              navigate(`/booking-confirmation?bookingId=${verifyData.bookingId}`);
+              // Redirect to the booking details page with the booking ID
+              navigate(`/booking?bookingId=${verifyData.bookingId}`);
             }
           } catch (error) {
             console.error("Payment verification failed:", error);
@@ -141,13 +144,19 @@ export default function Payment() {
 
         <div className="bg-white shadow-sm rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-gray-900">Complete Your Booking</h1>
-            <p className="mt-1 text-sm text-gray-500">Please provide your details to proceed with the payment</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Complete Your Booking
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Please provide your details to proceed with the payment
+            </p>
           </div>
 
           <div className="p-6">
             <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium text-gray-900 mb-2">Booking Summary</h3>
+              <h3 className="font-medium text-gray-900 mb-2">
+                Booking Summary
+              </h3>
               <div className="space-y-2 text-sm text-gray-600">
                 <p>Date: {date}</p>
                 <p>Number of Guests: {guests}</p>
@@ -157,7 +166,10 @@ export default function Payment() {
 
             <form className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Full Name
                 </label>
                 <input
@@ -172,7 +184,10 @@ export default function Payment() {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email
                 </label>
                 <input
@@ -187,7 +202,10 @@ export default function Payment() {
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Phone Number
                 </label>
                 <input
@@ -202,7 +220,10 @@ export default function Payment() {
               </div>
 
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Address
                 </label>
                 <textarea
@@ -218,8 +239,12 @@ export default function Payment() {
 
               <div className="border-t border-gray-200 pt-6">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-lg font-medium text-gray-900">Total Amount</span>
-                  <span className="text-2xl font-bold text-emerald-600">₹{amount}</span>
+                  <span className="text-lg font-medium text-gray-900">
+                    Total Amount
+                  </span>
+                  <span className="text-2xl font-bold text-emerald-600">
+                    ₹{amount}
+                  </span>
                 </div>
 
                 <button
@@ -237,4 +262,4 @@ export default function Payment() {
       </div>
     </div>
   );
-} 
+}

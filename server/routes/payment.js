@@ -100,56 +100,61 @@ router.post('/verify-payment', async (req, res) => {
     // Parse user details if it's a string
     const userDetails = typeof userDetailsStr === 'string' 
       ? JSON.parse(userDetailsStr) 
-      : userDetailsStr;
+      : userDetailsStr || {};
 
     try {
-      // Here you would typically save to your database
-      // For example:
-      /*
-      const booking = await Booking.create({
-        bookingId: `B${Date.now()}`,
+      // Create booking data
+      const bookingData = {
         paymentId: razorpay_payment_id,
         orderId: razorpay_order_id,
-        amount: req.body.amount, // Pass this from frontend if needed
-        currency: 'INR',
+        amount: amount ? Number(amount) : 0,
+        currency,
         status: 'confirmed',
-        userDetails,
-        itineraryId,
-        travelDate: date,
         guests: parseInt(guests, 10) || 1,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-      */
+        itinerary: {
+          id: itineraryId || 'itinerary-123',
+          title: 'Sample Tour Package',
+          destination: 'Goa, India',
+          duration: '5 Days / 4 Nights',
+          startDate: date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          endDate: new Date(new Date(date).getTime() + 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || new Date(Date.now() + 11 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        },
+        userDetails: {
+          name: userDetails.name || 'Guest User',
+          email: userDetails.email || '',
+          phone: userDetails.phone || ''
+        }
+      };
 
+      // Save booking to database
+      const booking = await saveBookingToDatabase(bookingData);
       
-      // For now, we'll generate a booking ID
-      const bookingId = `B${Date.now()}`;
-      
-      // Here you would typically send a confirmation email
-      // await sendConfirmationEmail(userDetails.email, bookingId);
+      // In a real app, you would send a confirmation email here
+      // await sendConfirmationEmail(userDetails.email, booking.id);
 
+      // Return success response with booking details
       res.json({
         success: true,
-        bookingId,
+        bookingId: booking.id,
         paymentId: razorpay_payment_id,
         orderId: razorpay_order_id,
         message: 'Payment verified and booking confirmed',
-        redirectUrl: `/bookings?bookingId=${bookingId}`
+        redirectUrl: `/bookings?bookingId=${booking.id}&payment_success=true&payment_id=${razorpay_payment_id}&order_id=${razorpay_order_id}`
       });
       
     } catch (dbError) {
       console.error('Database error during booking:', dbError);
       // Even if database fails, we should still confirm payment to Razorpay
       // but log the error for manual reconciliation
+      const tempBookingId = `TEMP_${Date.now()}`;
       res.json({
         success: true,
-        bookingId: `TEMP_${Date.now()}`,
+        bookingId: tempBookingId,
         paymentId: razorpay_payment_id,
         orderId: razorpay_order_id,
         message: 'Payment verified but there was an issue saving booking details. Please contact support.',
         warning: 'Database error occurred',
-        redirectUrl: `/booking/confirmation?bookingId=TEMP_${Date.now()}&warning=1`
+        redirectUrl: `/bookings?bookingId=${tempBookingId}&payment_success=true&payment_id=${razorpay_payment_id}&order_id=${razorpay_order_id}&warning=1`
       });
     }
   } catch (error) {
