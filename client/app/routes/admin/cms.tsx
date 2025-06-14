@@ -5,7 +5,9 @@ export default function CMS() {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Content Management System (CMS)</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Content Management System (CMS)
+        </h1>
         <p className="mt-1 text-sm text-gray-500">
           Manage website content, pages, and media
         </p>
@@ -20,7 +22,9 @@ export default function CMS() {
             <FileText className="w-6 h-6" />
           </div>
           <h2 className="text-lg font-semibold text-gray-900">Pages</h2>
-          <p className="mt-1 text-sm text-gray-500">Edit and organize website pages</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Edit and organize website pages
+          </p>
         </Link>
 
         <Link
@@ -31,7 +35,9 @@ export default function CMS() {
             <Image className="w-6 h-6" />
           </div>
           <h2 className="text-lg font-semibold text-gray-900">Media Library</h2>
-          <p className="mt-1 text-sm text-gray-500">Manage images, videos, and other assets</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage images, videos, and other assets
+          </p>
         </Link>
 
         <Link
@@ -42,7 +48,9 @@ export default function CMS() {
             <ListChecks className="w-6 h-6" />
           </div>
           <h2 className="text-lg font-semibold text-gray-900">Forms</h2>
-          <p className="mt-1 text-sm text-gray-500">Create and manage website forms</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Create and manage website forms
+          </p>
         </Link>
 
         <Link
@@ -53,9 +61,11 @@ export default function CMS() {
             <Settings className="w-6 h-6" />
           </div>
           <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
-          <p className="mt-1 text-sm text-gray-500">Configure CMS general settings</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Configure CMS general settings
+          </p>
         </Link>
       </div>
     </div>
   );
-} 
+}

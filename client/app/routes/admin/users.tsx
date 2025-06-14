@@ -29,11 +29,12 @@ export default function Users() {
   const [selectedStatus, setSelectedStatus] = useState("All");
 
   const filteredUsers = users.filter((user) => {
-    const matchesSearch = 
+    const matchesSearch =
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = selectedRole === "All" || user.role === selectedRole;
-    const matchesStatus = selectedStatus === "All" || user.status === selectedStatus;
+    const matchesStatus =
+      selectedStatus === "All" || user.status === selectedStatus;
     return matchesSearch && matchesRole && matchesStatus;
   });
 
@@ -129,7 +130,9 @@ export default function Users() {
                       </div>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {user.name}
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -151,11 +154,15 @@ export default function Users() {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    user.status === "Active" ? "bg-green-100 text-green-800" :
-                    user.status === "Inactive" ? "bg-gray-100 text-gray-800" :
-                    "bg-red-100 text-red-800"
-                  }`}>
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      user.status === "Active"
+                        ? "bg-green-100 text-green-800"
+                        : user.status === "Inactive"
+                          ? "bg-gray-100 text-gray-800"
+                          : "bg-red-100 text-red-800"
+                    }`}
+                  >
                     {user.status}
                   </span>
                 </td>
@@ -187,7 +194,9 @@ export default function Users() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
             <Search className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No users found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">
+            No users found
+          </h3>
           <p className="text-gray-500">
             Try adjusting your search or filter criteria
           </p>
@@ -195,4 +204,4 @@ export default function Users() {
       )}
     </div>
   );
-} 
+}

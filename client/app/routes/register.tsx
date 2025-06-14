@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../lib/auth";
+import { useAuth } from "~/hooks/auth";
 import { Mail, Lock, User, Loader2 } from "lucide-react";
 
 export default function Register() {
@@ -38,14 +38,19 @@ export default function Register() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link to="/" className="flex justify-center">
-          <h1 className="text-4xl font-bold text-emerald-600 tracking-tight">Achyuta</h1>
+          <h1 className="text-4xl font-bold text-emerald-600 tracking-tight">
+            Achyuta
+          </h1>
         </Link>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
           Create your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Already have an account?{" "}
-          <Link to="/login" className="font-medium text-emerald-600 hover:text-emerald-500">
+          <Link
+            to="/login"
+            className="font-medium text-emerald-600 hover:text-emerald-500"
+          >
             Sign in
           </Link>
         </p>
@@ -61,7 +66,10 @@ export default function Register() {
             )}
 
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Full name
               </label>
               <div className="mt-1 relative">
@@ -83,7 +91,10 @@ export default function Register() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <div className="mt-1 relative">
@@ -105,7 +116,10 @@ export default function Register() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <div className="mt-1 relative">
@@ -127,7 +141,10 @@ export default function Register() {
             </div>
 
             <div>
-              <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="confirm-password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Confirm password
               </label>
               <div className="mt-1 relative">
@@ -169,4 +186,4 @@ export default function Register() {
       </div>
     </div>
   );
-} 
+}

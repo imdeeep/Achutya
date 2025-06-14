@@ -23,7 +23,9 @@ export default function NewItinerary() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -46,13 +48,18 @@ export default function NewItinerary() {
 
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">Add New Itinerary</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Add New Itinerary
+          </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Title
               </label>
               <input
@@ -66,7 +73,10 @@ export default function NewItinerary() {
               />
             </div>
             <div>
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="country"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Country
               </label>
               <input
@@ -80,7 +90,10 @@ export default function NewItinerary() {
               />
             </div>
             <div>
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="city"
+                className="block text-sm font-medium text-gray-700"
+              >
                 City
               </label>
               <input
@@ -94,7 +107,10 @@ export default function NewItinerary() {
               />
             </div>
             <div>
-              <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="duration"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Duration
               </label>
               <input
@@ -109,7 +125,10 @@ export default function NewItinerary() {
               />
             </div>
             <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="price"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Price
               </label>
               <input
@@ -123,7 +142,10 @@ export default function NewItinerary() {
               />
             </div>
             <div>
-              <label htmlFor="groupType" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="groupType"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Group Type
               </label>
               <select
@@ -140,7 +162,10 @@ export default function NewItinerary() {
               </select>
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="image"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Image URL
               </label>
               <input
@@ -154,7 +179,10 @@ export default function NewItinerary() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Description
               </label>
               <textarea
@@ -187,4 +215,4 @@ export default function NewItinerary() {
       </div>
     </div>
   );
-} 
+}

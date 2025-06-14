@@ -7,7 +7,8 @@ const mockReviews = [
     customer: "Alice Wonderland",
     itinerary: "Goa Beach Retreat",
     rating: 5,
-    comment: "Absolutely loved the trip! Seamless experience and beautiful places.",
+    comment:
+      "Absolutely loved the trip! Seamless experience and beautiful places.",
     date: "2024-03-20",
     status: "Published",
   },
@@ -25,7 +26,8 @@ const mockReviews = [
     customer: "Charlie Chaplin",
     itinerary: "Rajasthan Desert Safari",
     rating: 5,
-    comment: "A truly royal experience! The forts and culture were mesmerizing.",
+    comment:
+      "A truly royal experience! The forts and culture were mesmerizing.",
     date: "2024-03-15",
     status: "Published",
   },
@@ -49,7 +51,8 @@ export default function Reviews() {
       review.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       review.itinerary.toLowerCase().includes(searchTerm.toLowerCase()) ||
       review.comment.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "All" || review.status === filterStatus;
+    const matchesStatus =
+      filterStatus === "All" || review.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -57,7 +60,9 @@ export default function Reviews() {
     <div className="p-6">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Customer Reviews</h1>
-        <p className="mt-1 text-sm text-gray-500">Manage and moderate customer feedback</p>
+        <p className="mt-1 text-sm text-gray-500">
+          Manage and moderate customer feedback
+        </p>
       </div>
 
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
@@ -141,10 +146,14 @@ export default function Reviews() {
                   {filteredReviews.map((review) => (
                     <tr key={review.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{review.customer}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {review.customer}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{review.itinerary}</div>
+                        <div className="text-sm text-gray-900">
+                          {review.itinerary}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -152,7 +161,9 @@ export default function Reviews() {
                             <Star
                               key={i}
                               className={`h-4 w-4 ${
-                                i < review.rating ? "text-yellow-400" : "text-gray-300"
+                                i < review.rating
+                                  ? "text-yellow-400"
+                                  : "text-gray-300"
                               }`}
                               fill="currentColor"
                             />
@@ -160,10 +171,14 @@ export default function Reviews() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 line-clamp-2">{review.comment}</div>
+                        <div className="text-sm text-gray-900 line-clamp-2">
+                          {review.comment}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{review.date}</div>
+                        <div className="text-sm text-gray-900">
+                          {review.date}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -171,8 +186,8 @@ export default function Reviews() {
                             review.status === "Published"
                               ? "bg-green-100 text-green-800"
                               : review.status === "Pending"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-gray-100 text-gray-800"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-gray-100 text-gray-800"
                           }`}
                         >
                           {review.status}
@@ -186,7 +201,9 @@ export default function Reviews() {
                           <Edit className="w-5 h-5 inline" />
                         </button>
                         <button
-                          onClick={() => console.log("Delete review:", review.id)}
+                          onClick={() =>
+                            console.log("Delete review:", review.id)
+                          }
                           className="text-red-600 hover:text-red-900"
                         >
                           <Trash2 className="w-5 h-5 inline" />
@@ -202,4 +219,4 @@ export default function Reviews() {
       </div>
     </div>
   );
-} 
+}

@@ -33,7 +33,9 @@ export default function Marketing() {
   const [filterType, setFilterType] = useState("All");
 
   const filteredCampaigns = mockMarketingCampaigns.filter((campaign) => {
-    const matchesSearch = campaign.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = campaign.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     const matchesType = filterType === "All" || campaign.type === filterType;
     return matchesSearch && matchesType;
   });
@@ -41,7 +43,9 @@ export default function Marketing() {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Marketing Campaigns</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Marketing Campaigns
+        </h1>
         <p className="mt-1 text-sm text-gray-500">
           Manage your marketing initiatives and promotions
         </p>
@@ -77,7 +81,9 @@ export default function Marketing() {
 
         <div className="p-6">
           {filteredCampaigns.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No marketing campaigns found.</p>
+            <p className="text-gray-500 text-center py-8">
+              No marketing campaigns found.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -122,10 +128,14 @@ export default function Marketing() {
                   {filteredCampaigns.map((campaign) => (
                     <tr key={campaign.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{campaign.name}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {campaign.name}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{campaign.type}</div>
+                        <div className="text-sm text-gray-900">
+                          {campaign.type}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -133,28 +143,39 @@ export default function Marketing() {
                             campaign.status === "Active"
                               ? "bg-green-100 text-green-800"
                               : campaign.status === "Completed"
-                              ? "bg-gray-100 text-gray-800"
-                              : "bg-yellow-100 text-yellow-800"
+                                ? "bg-gray-100 text-gray-800"
+                                : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
                           {campaign.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{campaign.startDate}</div>
+                        <div className="text-sm text-gray-900">
+                          {campaign.startDate}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{campaign.endDate}</div>
+                        <div className="text-sm text-gray-900">
+                          {campaign.endDate}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
-                          onClick={() => console.log("Edit campaign:", campaign.id)}
+                          onClick={() =>
+                            console.log("Edit campaign:", campaign.id)
+                          }
                           className="text-emerald-600 hover:text-emerald-900 mr-3"
                         >
                           <Send className="w-5 h-5 inline" />
                         </button>
                         <button
-                          onClick={() => console.log("View analytics for campaign:", campaign.id)}
+                          onClick={() =>
+                            console.log(
+                              "View analytics for campaign:",
+                              campaign.id
+                            )
+                          }
                           className="text-blue-600 hover:text-blue-900"
                         >
                           <BarChart className="w-5 h-5 inline" />
@@ -170,4 +191,4 @@ export default function Marketing() {
       </div>
     </div>
   );
-} 
+}

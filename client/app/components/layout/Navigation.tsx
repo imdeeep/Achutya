@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 import { Link } from "react-router";
-import { useAuth } from "../../lib/auth";
+import { useAuth } from "~/hooks/auth";
 
 type DropdownContentType = {
   "International Trips": string[];
@@ -42,8 +42,11 @@ const Navigation = () => {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur shadow-sm">
         {/* Desktop Line 1 - Hidden on mobile */}
         <div className="hidden lg:block">
-          <div className="max-w-9/12 mx-auto px-4 py-3 flex items-center justify-between">
-            <Link to="/" className="text-3xl font-bold text-emerald-600 tracking-tight">
+          <div className="max-w-10/12 mx-auto px-4 py-3 flex items-center justify-between">
+            <Link
+              to="/"
+              className="text-3xl font-bold text-emerald-600 tracking-tight"
+            >
               Achyuta
             </Link>
 
@@ -64,51 +67,57 @@ const Navigation = () => {
             </div>
 
             <div className="flex space-x-6 md:mr-10">
-              {[
-                "Upcoming Trips",
-                "Corporate Tours",
-                "Blogs",
-                "About Us",
-              ].map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors duration-200 flex items-center text-sm group"
-                >
-                  {item === "Upcoming Trips" && (
-                    <Calendar size={16} className="mr-2 text-emerald-500" />
-                  )}
-                  <span className="relative after:bg-emerald-600 after:transition-all group-hover:after:w-full">
-                    {item}
-                  </span>
-                </a>
-              ))}
+              {["Upcoming Trips", "Corporate Tours", "Blogs", "About Us"].map(
+                (item) => (
+                  <a
+                    key={item}
+                    href="#"
+                    className="text-gray-600 hover:text-emerald-600 transition-colors duration-200 flex items-center text-sm group"
+                  >
+                    {item === "Upcoming Trips" && (
+                      <Calendar size={16} className="mr-2 text-emerald-500" />
+                    )}
+                    <span className="relative after:bg-emerald-600 after:transition-all group-hover:after:w-full">
+                      {item}
+                    </span>
+                  </a>
+                )
+              )}
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="font-semibold bg-emerald-600 text-white px-4 py-2 rounded-full text-sm hover:bg-emerald-700 transition-colors shadow-sm">
+              {/* <div className="font-semibold bg-emerald-600 text-white px-4 py-2 rounded-full text-sm hover:bg-emerald-700 transition-colors shadow-sm">
                 +91-9090403075
-              </div>
-              
+              </div> */}
+
               {user ? (
                 <div className="relative group">
                   <button className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition-colors">
                     <User size={20} />
                     <span className="text-sm font-medium">{user.name}</span>
-                    <ChevronDown size={16} className="text-gray-500" />
+                    <ChevronDown
+                      size={16}
+                      className="text-gray-500 transition-transform duration-200 group-hover:rotate-180"
+                    />
                   </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 hidden group-hover:block">
-                    {user.role === 'admin' && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 opacity-0 invisible translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
+                    {user.role === "admin" && (
                       <Link
-                        to="/admin/dashboard"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+                        to="/admin"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-150"
                       >
                         Admin Dashboard
                       </Link>
                     )}
+                    <Link
+                      to={`/bookings`}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-150"
+                    >
+                      Bookings
+                    </Link>
                     <button
                       onClick={logout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-150"
                     >
                       Logout
                     </button>
@@ -118,7 +127,7 @@ const Navigation = () => {
                 <div className="flex items-center gap-3">
                   <Link
                     to="/login"
-                    className="text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors"
+                    className="text-sm  text-gray-600 hover:text-emerald-600 transition-colors"
                   >
                     Login
                   </Link>
@@ -215,7 +224,10 @@ const Navigation = () => {
         <div className="lg:hidden">
           {/* Mobile Header */}
           <div className="flex items-center justify-between px-4 py-3">
-            <Link to="/" className="text-2xl font-bold text-emerald-600 tracking-tight">
+            <Link
+              to="/"
+              className="text-2xl font-bold text-emerald-600 tracking-tight"
+            >
               Achyuta
             </Link>
 
@@ -263,11 +275,13 @@ const Navigation = () => {
               <>
                 <div className="flex items-center gap-2 px-3 py-2.5">
                   <User size={20} className="text-emerald-500" />
-                  <span className="text-sm font-medium text-gray-700">{user.name}</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {user.name}
+                  </span>
                 </div>
-                {user.role === 'admin' && (
+                {user.role === "admin" && (
                   <Link
-                    to="/admin/dashboard"
+                    to="/admin"
                     className="flex items-center text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2.5 rounded-lg text-sm font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -283,6 +297,12 @@ const Navigation = () => {
                 >
                   Logout
                 </button>
+                <Link
+                  to={`/bookings`}
+                  className="flex items-center text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2.5 rounded-lg text-sm font-medium w-full"
+                >
+                  Bookings
+                </Link>
               </>
             ) : (
               <div className="flex flex-col gap-2 px-3 py-2">

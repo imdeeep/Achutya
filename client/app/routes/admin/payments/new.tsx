@@ -4,8 +4,18 @@ import { ArrowLeft } from "lucide-react";
 
 // Mock data - replace with actual API call
 const bookings = [
-  { id: "BK001", tourName: "Kerala Backwaters", customer: "John Doe", amount: 45999 },
-  { id: "BK002", tourName: "Goa Beach Holiday", customer: "Jane Smith", amount: 35999 },
+  {
+    id: "BK001",
+    tourName: "Kerala Backwaters",
+    customer: "John Doe",
+    amount: 45999,
+  },
+  {
+    id: "BK002",
+    tourName: "Goa Beach Holiday",
+    customer: "Jane Smith",
+    amount: 35999,
+  },
 ];
 
 export default function NewPayment() {
@@ -26,15 +36,19 @@ export default function NewPayment() {
     console.log(formData);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const selectedBooking = bookings.find(b => b.id === formData.bookingId);
+  const selectedBooking = bookings.find((b) => b.id === formData.bookingId);
 
   return (
     <div className="p-6">
@@ -56,7 +70,9 @@ export default function NewPayment() {
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Booking</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Booking
+              </label>
               <select
                 name="bookingId"
                 value={formData.bookingId}
@@ -65,16 +81,19 @@ export default function NewPayment() {
                 required
               >
                 <option value="">Select a booking</option>
-                {bookings.map(booking => (
+                {bookings.map((booking) => (
                   <option key={booking.id} value={booking.id}>
-                    {booking.tourName} - {booking.customer} (₹{booking.amount.toLocaleString()})
+                    {booking.tourName} - {booking.customer} (₹
+                    {booking.amount.toLocaleString()})
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Amount</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Amount
+              </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span className="text-gray-500 sm:text-sm">₹</span>
@@ -92,7 +111,9 @@ export default function NewPayment() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Payment Method</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Payment Method
+              </label>
               <select
                 name="paymentMethod"
                 value={formData.paymentMethod}
@@ -110,7 +131,9 @@ export default function NewPayment() {
             {formData.paymentMethod.includes("Card") && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Card Number</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Card Number
+                  </label>
                   <input
                     type="text"
                     name="cardNumber"
@@ -123,7 +146,9 @@ export default function NewPayment() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Card Expiry</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Card Expiry
+                  </label>
                   <input
                     type="text"
                     name="cardExpiry"
@@ -136,7 +161,9 @@ export default function NewPayment() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">CVC</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    CVC
+                  </label>
                   <input
                     type="text"
                     name="cardCVC"
@@ -149,7 +176,9 @@ export default function NewPayment() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Cardholder Name</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Cardholder Name
+                  </label>
                   <input
                     type="text"
                     name="cardName"
@@ -164,7 +193,9 @@ export default function NewPayment() {
             )}
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">Notes</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Notes
+              </label>
               <textarea
                 name="notes"
                 value={formData.notes}
@@ -194,4 +225,4 @@ export default function NewPayment() {
       </div>
     </div>
   );
-} 
+}

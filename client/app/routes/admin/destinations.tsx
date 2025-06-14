@@ -9,7 +9,8 @@ const destinations = [
     id: 1,
     name: "Goa",
     country: "India",
-    description: "Famous for its beaches, nightlife, and Portuguese architecture",
+    description:
+      "Famous for its beaches, nightlife, and Portuguese architecture",
     image: "https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg",
     attractions: ["Beaches", "Nightlife", "Water Sports"],
     status: "Active",
@@ -133,9 +134,13 @@ export default function Destinations() {
                   </button>
                 </div>
               </div>
-              <p className="mt-2 text-sm text-gray-500">{destination.description}</p>
+              <p className="mt-2 text-sm text-gray-500">
+                {destination.description}
+              </p>
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-700">Attractions</h4>
+                <h4 className="text-sm font-medium text-gray-700">
+                  Attractions
+                </h4>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {destination.attractions.map((attraction) => (
                     <span
@@ -148,7 +153,9 @@ export default function Destinations() {
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
-                <span className="text-sm text-gray-500">{destination.country}</span>
+                <span className="text-sm text-gray-500">
+                  {destination.country}
+                </span>
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     destination.status === "Active"
@@ -165,4 +172,4 @@ export default function Destinations() {
       </div>
     </div>
   );
-} 
+}
