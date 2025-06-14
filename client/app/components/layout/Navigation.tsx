@@ -103,7 +103,7 @@ const Navigation = () => {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 opacity-0 invisible translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
                     {user.role === "admin" && (
                       <Link
-                        to="/admin/dashboard"
+                        to="/admin"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-150"
                       >
                         Admin Dashboard
@@ -281,7 +281,7 @@ const Navigation = () => {
                 </div>
                 {user.role === "admin" && (
                   <Link
-                    to="/admin/dashboard"
+                    to="/admin"
                     className="flex items-center text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-3 py-2.5 rounded-lg text-sm font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
