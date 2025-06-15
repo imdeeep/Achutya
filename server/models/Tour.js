@@ -86,25 +86,31 @@ const tourSchema = new mongoose.Schema({
   }],
   
   // AVAILABLE DATES - When this tour can be offered
+  // This is simplified - just the basic date info
   availableDates: [{
-    date: {
+    startDate: {
       type: Date,
       required: true
     },
-    maxBookings: {
-      type: Number,
-      default: 1 // How many people/groups can book this date
+    endDate: {
+      type: Date,
+      required: true
     },
-    currentBookings: {
+    price: {
+      type: Number,
+      required: true
+    },
+    availableSlots: {
+      type: Number,
+      default: 16
+    },
+    bookedSlots: {
       type: Number,
       default: 0
     },
     isAvailable: {
       type: Boolean,
       default: true
-    },
-    price: {
-      type: Number // Optional: different price for different dates
     },
     notes: {
       type: String // Optional: special notes for this date
@@ -205,36 +211,71 @@ tourSchema.pre('save', function(next) {
   next();
 });
 
-// Method to get available dates (not fully booked)
+// Method to get available dates (not booked)
 tourSchema.methods.getAvailableDates = function() {
+  const currentDate = new Date();
   return this.availableDates.filter(dateObj => 
     dateObj.isAvailable && 
-    dateObj.currentBookings < dateObj.maxBookings &&
-    dateObj.date >= new Date()
+    dateObj.bookedSlots === 0 && // Changed: must be completely unbooked
+    dateObj.startDate >= currentDate
   );
 };
 
-// Method to book a date
-tourSchema.methods.bookDate = function(dateId) {
+// Method to check if a date is available for booking
+tourSchema.methods.isDateAvailable = function(dateId) {
+  const dateObj = this.availableDates.id(dateId);
+  if (!dateObj) return false;
+  
+  return dateObj.isAvailable && dateObj.bookedSlots === 0;
+};
+
+// Method to book a date (marks entire date as booked)
+tourSchema.methods.bookDate = function(dateId, numberOfGuests) {
   const dateObj = this.availableDates.id(dateId);
   if (!dateObj) {
     throw new Error('Date not found');
   }
   
-  if (dateObj.currentBookings >= dateObj.maxBookings) {
-    throw new Error('No slots available for this date');
+  if (dateObj.bookedSlots > 0 || !dateObj.isAvailable) {
+    throw new Error('This date is already booked');
   }
   
-  dateObj.currentBookings += 1;
-  
-  // If fully booked, mark as unavailable
-  if (dateObj.currentBookings >= dateObj.maxBookings) {
-    dateObj.isAvailable = false;
-  }
+  // Book the entire date for this group
+  dateObj.bookedSlots = numberOfGuests;
+  dateObj.isAvailable = false; // Mark as unavailable since it's now booked
   
   return this.save();
 };
 
+// Method to cancel a booking and make date available again
+tourSchema.methods.cancelDateBooking = function(dateId) {
+  const dateObj = this.availableDates.id(dateId);
+  if (!dateObj) {
+    throw new Error('Date not found');
+  }
+  
+  // Reset the date availability
+  dateObj.bookedSlots = 0;
+  dateObj.isAvailable = true;
+  
+  return this.save();
+};
+
+// Method to get booking status for a date
+tourSchema.methods.getDateBookingStatus = function(dateId) {
+  const dateObj = this.availableDates.id(dateId);
+  if (!dateObj) return null;
+  
+  return {
+    dateId: dateId,
+    startDate: dateObj.startDate,
+    endDate: dateObj.endDate,
+    price: dateObj.price,
+    bookedSlots: dateObj.bookedSlots,
+    isAvailable: dateObj.isAvailable,
+    status: dateObj.bookedSlots > 0 ? 'Booked' : 'Available'
+  };
+};
 tourSchema.set('toJSON', { virtuals: true });
 tourSchema.set('toObject', { virtuals: true });
 

@@ -3,9 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
-const paymentRoutes = require('./routes/payment');
 const destinationRoutes = require('./routes/destination');
 const tourRoutes = require('./routes/tourRoutes');
+const bookRoutes = require('./routes/bookRoutes')
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,9 +21,9 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api', paymentRoutes);
 app.use('/api/destinations', destinationRoutes);
 app.use('/api/tour',tourRoutes)
+app.use('/api/book',bookRoutes)
 
 // Health check route
 app.get("/", (req, res) => {
