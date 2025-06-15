@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { mockTourData } from "~/lib/mockTourData";
-import type { TourData } from "~/types/tour";
+import { useNavigate, useParams } from "react-router";
 import Layout from "~/components/layout/Layout";
 import TourHeader from "~/components/sections/TourDetails/TourHeader";
 import TourNotFound from "~/components/sections/TourDetails/TourNotFound";
 import { Error } from "~/components/sections/TourDetails/Error";
 import BookingCard from "~/components/sections/TourDetails/BookingCard";
 import MainContent from "~/components/sections/TourDetails/MainContent";
+import { itineraryApi } from "~/services/adminApi";
 
 declare global {
   interface Window {
@@ -24,9 +23,10 @@ interface UserDetails {
 
 const TourDetails = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tourData, setTourData] = useState<TourData | null>(null);
+  const [tourData, setTourData] = useState<any>(null);
   const [selectedTab, setSelectedTab] = useState("overview");
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -48,17 +48,38 @@ const TourDetails = () => {
     const fetchTourData = async () => {
       try {
         setLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setTourData(mockTourData);
+        const response = await itineraryApi.getItinerary(id!);
+        if (response.success) {
+          // Transform the API data into the expected format
+          const transformedData = {
+            ...response.data,
+            overview: {
+              description: response.data.description,
+              features: response.data.features
+            },
+            location: `${response.data.city}, ${response.data.country}`,
+            subtitle: response.data.description.substring(0, 100) + '...',
+            rating: 4.5, // Default values for now
+            reviewCount: 0,
+            maxGroupSize: 20,
+            price: Number(response.data.price)
+          };
+          setTourData(transformedData);
+        } else {
+          throw Error(response.error || 'Failed to fetch itinerary details');
+        }
       } catch (err) {
         setError("Failed to load tour details. Please try again.");
+        console.error('Error fetching tour data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTourData();
-  }, []);
+    if (id) {
+      fetchTourData();
+    }
+  }, [id]);
 
   const toggleAccordion = (dayIndex: number) => {
     setExpandedDay(expandedDay === dayIndex ? null : dayIndex);
@@ -69,7 +90,7 @@ const TourDetails = () => {
     return text.substr(0, maxLength) + "...";
   };
 
-  if (loading || !tourData) {
+  if (loading) {
     return (
       <Layout>
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -93,6 +114,10 @@ const TourDetails = () => {
 
   if (error) {
     return <Error error={error} />;
+  }
+
+  if (!tourData) {
+    return <TourNotFound />;
   }
 
   return (

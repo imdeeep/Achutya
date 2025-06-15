@@ -18,7 +18,7 @@ export const links = () => [
   },
   {
     rel: "icon",
-    href: "/images/logo.jpeg",
+    href: "/logo.jpg",
     type: "image/jpeg",
   },
   {

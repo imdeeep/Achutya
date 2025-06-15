@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { ArrowLeft, Save, X } from "lucide-react";
-import { uploadImage } from "~/services/cloudinary";
-import { itineraryApi } from "~/services/adminApi";
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router';
+import { ArrowLeft, Save, X } from 'lucide-react';
+import { uploadImage } from '~/services/cloudinary';
+import { itineraryApi } from '~/services/adminApi';
 
-interface TourFormData {
+interface ItineraryFormData {
   title: string;
   country: string;
   city: string;
@@ -33,39 +33,61 @@ interface TourFormData {
 
 type ArrayField = 'highlights' | 'inclusions' | 'exclusions' | 'essentials' | 'notes';
 
-export default function NewItinerary() {
+export default function EditItinerary() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [formData, setFormData] = useState<TourFormData>({
-    title: "",
-    country: "",
-    city: "",
-    duration: "",
-    price: "",
-    groupType: "Group",
-    image: "",
-    description: "",
-    highlights: [""],
-    inclusions: [""],
-    exclusions: [""],
-    essentials: [""],
-    notes: [""],
-    features: [{ title: "", description: "" }],
-    itinerary: [
-      {
-        day: 1,
-        title: "",
-        description: "",
-        activities: [""],
-        distance: "",
-        duration: "",
-        accommodation: "",
-        meals: ""
-      }
-    ]
+  const [formData, setFormData] = useState<ItineraryFormData>({
+    title: '',
+    country: 'India',
+    city: '',
+    duration: '',
+    price: '',
+    groupType: 'Group',
+    image: '',
+    description: '',
+    highlights: [''],
+    inclusions: [''],
+    exclusions: [''],
+    essentials: [''],
+    notes: [''],
+    features: [{ title: '', description: '' }],
+    itinerary: [{
+      day: 1,
+      title: '',
+      description: '',
+      activities: [''],
+      distance: '',
+      duration: '',
+      accommodation: '',
+      meals: ''
+    }]
   });
+
+  useEffect(() => {
+    const fetchItinerary = async () => {
+      try {
+        setLoading(true);
+        const response = await itineraryApi.getItinerary(id!);
+        if (response.success) {
+          setFormData(response.data);
+        } else {
+          throw new Error(response.error || 'Failed to fetch itinerary');
+        }
+      } catch (err) {
+        console.error('Error fetching itinerary:', err);
+        setError('Failed to fetch itinerary');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchItinerary();
+    }
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,16 +95,15 @@ export default function NewItinerary() {
       setLoading(true);
       setError(null);
       
-      // Create the itinerary using the API
-      const response = await itineraryApi.createItinerary(formData);
+      const response = await itineraryApi.updateItinerary(id!, formData);
       
       if (response.success) {
         navigate("/admin/itineraries");
       } else {
-        throw new Error(response.error || "Failed to create itinerary");
+        throw new Error(response.error || "Failed to update itinerary");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create itinerary");
+      setError(err instanceof Error ? err.message : "Failed to update itinerary");
     } finally {
       setLoading(false);
     }
@@ -153,6 +174,14 @@ export default function NewItinerary() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       <div className="mb-8">
@@ -168,7 +197,7 @@ export default function NewItinerary() {
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h1 className="text-2xl font-bold text-gray-900">
-            Add New Itinerary
+            Edit Itinerary
           </h1>
         </div>
 
@@ -282,23 +311,6 @@ export default function NewItinerary() {
             </div>
             <div className="sm:col-span-2">
               <label
-                htmlFor="image"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Image URL
-              </label>
-              <input
-                type="url"
-                name="image"
-                id="image"
-                value={formData.image}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label
                 htmlFor="description"
                 className="block text-sm font-medium text-gray-700"
               >
@@ -373,7 +385,7 @@ export default function NewItinerary() {
           </div>
 
           {/* Highlights */}
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white shadow rounded-lg p-6 mt-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-medium">Highlights</h2>
               <button
@@ -407,7 +419,7 @@ export default function NewItinerary() {
           </div>
 
           {/* Itinerary */}
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white shadow rounded-lg p-6 mt-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-medium">Itinerary</h2>
               <button
@@ -623,7 +635,7 @@ export default function NewItinerary() {
           </div>
 
           {/* Inclusions & Exclusions */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 mt-6">
             {/* Inclusions */}
             <div className="bg-white shadow rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
@@ -694,7 +706,7 @@ export default function NewItinerary() {
           </div>
 
           {/* Essentials & Notes */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 mt-6">
             {/* Essentials */}
             <div className="bg-white shadow rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
@@ -765,7 +777,7 @@ export default function NewItinerary() {
           </div>
 
           {/* Features */}
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white shadow rounded-lg p-6 mt-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-medium">Features</h2>
               <button
@@ -839,13 +851,13 @@ export default function NewItinerary() {
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end">
+          <div className="flex justify-end mt-6">
             <button
               type="submit"
               disabled={loading}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
             >
-              {loading ? 'Creating...' : 'Create Itinerary'}
+              {loading ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
 
