@@ -196,7 +196,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
       const totalAmount = activeTourData.price * guests;
 
       // Create payment order
-      const response = await fetch("http://localhost:3000/api/create-payment", {
+      const response = await fetch("http://localhost:3000/api/book/create-payment-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -236,7 +236,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
         handler: async function (response: any) {
           try {
             const verifyResponse = await fetch(
-              "http://localhost:3000/api/verify-payment",
+              "http://localhost:3000/api/book/complete-booking",
               {
                 method: "POST",
                 headers: {
