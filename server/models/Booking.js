@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
+uuidv4();
 
 const bookingSchema = new mongoose.Schema({
   bookingId: {
     type: String,
-    unique: true,
+    default : uuidv4,
     required: true
   },
   user: {
@@ -22,11 +24,12 @@ const bookingSchema = new mongoose.Schema({
     required: true
   },
   
-  // Booking detailss
+  // Booking details
   numberOfGuests: {
     type: Number,
     required: true,
-    min: 1
+    min: 1,
+    max: 16 // Maximum guests per booking
   },
   totalAmount: {
     type: Number,
@@ -76,14 +79,6 @@ const bookingSchema = new mongoose.Schema({
     default: 0
   },
   
-//   specialRequests: {
-//     type: String
-//   },
-//   dietaryRequirements: [{
-//     type: String,
-//     enum: ['Vegetarian', 'Vegan', 'Jain', 'Gluten-Free', 'No Preference']
-//   }],
-  
   // Timestamps
   bookingDate: {
     type: Date,
@@ -116,15 +111,15 @@ const bookingSchema = new mongoose.Schema({
 });
 
 // Generating unique booking ID
-bookingSchema.pre('save', function(next) {
-  if (!this.bookingId) {
-    const timestamp = Date.now().toString(36);
-    const randomStr = Math.random().toString(36).substr(2, 5);
-    this.bookingId = `WO${timestamp}${randomStr}`.toUpperCase();
-  }
-  this.updatedAt = Date.now();
-  next();
-});
+// bookingSchema.pre('save', function(next) {
+//   if (!this.bookingId) {
+//     const timestamp = Date.now().toString(36);
+//     const randomStr = Math.random().toString(36).substr(2, 5);
+//     this.bookingId = `WO${timestamp}${randomStr}`.toUpperCase();
+//   }
+//   this.updatedAt = Date.now();
+//   next();
+// });
 
 const Booking = mongoose.model('Booking', bookingSchema);
 

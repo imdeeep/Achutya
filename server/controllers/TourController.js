@@ -17,19 +17,39 @@ const tourController = {
           });
         }
       }
-
+  
       const tour = new Tour(req.body);
       const savedTour = await tour.save();
-      
+  
+      // If availableDates are provided, create corresponding TourDate documents
+      if (req.body.availableDates && req.body.availableDates.length > 0) {
+        const tourDatePromises = req.body.availableDates.map(dateObj => {
+          const tourDate = new TourDate({
+            tour: savedTour._id,
+            startDate: new Date(dateObj.startDate),
+            endDate: new Date(dateObj.endDate),
+            price: dateObj.price || savedTour.price,
+            availableSlots: dateObj.availableSlots || savedTour.maxGroupSize || 16,
+            bookedSlots: 0,
+            status: 'Available',
+            isActive: true
+          });
+          return tourDate.save();
+        });
+  
+        await Promise.all(tourDatePromises);
+      }
+  
       // Populate destination details
       await savedTour.populate('destination', 'name country description image heroImage');
-      
+  
       res.status(201).json({
         success: true,
         message: 'Tour created successfully',
         data: savedTour
       });
     } catch (error) {
+      console.error('Error creating tour:', error);
       res.status(400).json({
         success: false,
         message: 'Error creating tour',
@@ -182,7 +202,7 @@ const tourController = {
   permanentDeleteTour: async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       // Check if tour exists
       const tour = await Tour.findById(id);
       if (!tour) {
@@ -192,14 +212,14 @@ const tourController = {
         });
       }
 
-    //   Sec-Check : Check if tour has any bookings before permanent deletion
-    //   const hasBookings = await Booking.findOne({ tour: id });
-    //   if (hasBookings) {
-    //     return res.status(400).json({
-    //       success: false,
-    //       message: 'Cannot permanently delete tour with existing bookings'
-    //     });
-    //   }
+      //   Sec-Check : Check if tour has any bookings before permanent deletion
+      //   const hasBookings = await Booking.findOne({ tour: id });
+      //   if (hasBookings) {
+      //     return res.status(400).json({
+      //       success: false,
+      //       message: 'Cannot permanently delete tour with existing bookings'
+      //     });
+      //   }
 
       await Tour.findByIdAndDelete(id);
 
@@ -298,12 +318,12 @@ const tourController = {
     }
   },
 
-  // Add available dates to a tour
+  // addAvailableDates method for tour controller
   addAvailableDates: async (req, res) => {
     try {
       const { id } = req.params;
       const { dates } = req.body; // Array of date objects
-
+  
       const tour = await Tour.findById(id);
       if (!tour) {
         return res.status(404).json({
@@ -311,34 +331,73 @@ const tourController = {
           message: 'Tour not found'
         });
       }
-
-      // Add new dates
-      dates.forEach(dateObj => {
-        tour.availableDates.push({
-          date: new Date(dateObj.date),
-          maxBookings: dateObj.maxBookings || 1,
-          price: dateObj.price || tour.price,
-          notes: dateObj.notes
+  
+      // Add new dates to tour's availableDates array
+      const addedDates = [];
+      const tourDateDocuments = [];
+  
+      for (const dateObj of dates) {
+        // Check if this date already exists for this tour
+        const existingTourDate = await TourDate.findOne({
+          tour: tour._id,
+          startDate: new Date(dateObj.startDate)
         });
-      });
-
+  
+        if (existingTourDate) {
+          continue; // Skip if already exists
+        }
+  
+        // Add to tour's embedded availableDates
+        const newAvailableDate = {
+          startDate: new Date(dateObj.startDate),
+          endDate: new Date(dateObj.endDate),
+          price: dateObj.price || tour.price,
+          availableSlots: dateObj.availableSlots || tour.maxGroupSize || 16,
+          bookedSlots: 0,
+          isAvailable: true,
+          notes: dateObj.notes
+        };
+  
+        tour.availableDates.push(newAvailableDate);
+        addedDates.push(newAvailableDate);
+  
+        // Create corresponding TourDate document
+        const tourDate = new TourDate({
+          tour: tour._id,
+          startDate: new Date(dateObj.startDate),
+          endDate: new Date(dateObj.endDate),
+          price: dateObj.price || tour.price,
+          availableSlots: dateObj.availableSlots || tour.maxGroupSize || 16,
+          bookedSlots: 0,
+          status: 'Available',
+          isActive: true
+        });
+  
+        const savedTourDate = await tourDate.save();
+        tourDateDocuments.push(savedTourDate);
+      }
+  
       await tour.save();
-
+  
       res.status(200).json({
         success: true,
         message: 'Available dates added successfully',
-        data: tour.availableDates
+        data: {
+          addedDates: addedDates,
+          tourDateDocuments: tourDateDocuments,
+          totalAvailableDates: tour.availableDates.length
+        }
       });
     } catch (error) {
+      console.error('Error adding available dates:', error);
       res.status(400).json({
         success: false,
         message: 'Error adding available dates',
         error: error.message
       });
     }
-  },
+  },  
 
-  
   // Remove/Update available date
   updateAvailableDate: async (req, res) => {
     try {
@@ -376,7 +435,7 @@ const tourController = {
         data: dateObj
       });
     } catch (error) {
-        res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Error updating available date',
         error: error.message
@@ -395,8 +454,8 @@ const tourController = {
       );
 
       if (!tour) {
-          return res.status(404).json({
-              success: false,
+        return res.status(404).json({
+          success: false,
           message: 'Tour not found'
         });
       }
@@ -414,7 +473,7 @@ const tourController = {
       });
     }
   },
-  
+
   // Delete tour (soft delete by setting isActive to false)
   deleteTour: async (req, res) => {
     try {
@@ -426,7 +485,7 @@ const tourController = {
       );
 
       if (!tour) {
-          return res.status(404).json({
+        return res.status(404).json({
           success: false,
           message: 'Tour not found'
         });
@@ -455,8 +514,8 @@ const tourController = {
       // Text search
       if (q) {
         searchFilter.$or = [
-            { title: new RegExp(q, 'i') },
-            { description: new RegExp(q, 'i') },
+          { title: new RegExp(q, 'i') },
+          { description: new RegExp(q, 'i') },
           { city: new RegExp(q, 'i') },
           { location: new RegExp(q, 'i') }
         ];
@@ -473,24 +532,24 @@ const tourController = {
         .populate('additionalDestinations', 'name country image')
         .sort({ rating: -1, reviewCount: -1 })
         .limit(20);
-        
+
       res.status(200).json({
         success: true,
         data: tours,
         count: tours.length
-    });
+      });
     } catch (error) {
-        res.status(500).json({
+      res.status(500).json({
         success: false,
         message: 'Error searching tours',
         error: error.message
-    });
+      });
     }
   },
 
   // Get tours by destination
   getToursByDestination: async (req, res) => {
-      try {
+    try {
       const { destinationId } = req.params;
       const { page = 1, limit = 10 } = req.query;
 
@@ -503,7 +562,7 @@ const tourController = {
       }
 
       const skip = (page - 1) * limit;
-      
+
       const tours = await Tour.find({
         $or: [
           { destination: destinationId },
@@ -511,19 +570,19 @@ const tourController = {
         ],
         isActive: true
       })
-      .populate('destination', 'name country image')
-      .populate('additionalDestinations', 'name country image')
-      .sort({ rating: -1, createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit));
+        .populate('destination', 'name country image')
+        .populate('additionalDestinations', 'name country image')
+        .sort({ rating: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit));
 
       const total = await Tour.countDocuments({
-          $or: [
+        $or: [
           { destination: destinationId },
           { additionalDestinations: destinationId }
         ],
         isActive: true
-    });
+      });
 
       res.status(200).json({
         success: true,
@@ -531,70 +590,106 @@ const tourController = {
           destination,
           tours,
           pagination: {
-              current: Number(page),
+            current: Number(page),
             pages: Math.ceil(total / limit),
             total,
             hasNext: page * limit < total,
             hasPrev: page > 1
-        }
+          }
         }
       });
     } catch (error) {
       res.status(500).json({
-          success: false,
+        success: false,
         message: 'Error fetching tours by destination',
         error: error.message
-    });
-    }
-},
-
-// Book a specific date
-    bookTourDate: async (req, res) => {
-    try {
-      const { tourId, dateId } = req.params;
-      const { customerInfo } = req.body;
-  
-      const tour = await Tour.findById(tourId);
-      if (!tour) {
-        return res.status(404).json({
-          success: false,
-          message: 'Tour not found'
-        });
-      }
-  
-      // Book the date
-      await tour.bookDate(dateId);
-  
-      // Create a TourDate record for this booking
-      const bookedDate = tour.availableDates.id(dateId);
-      const tourDate = new TourDate({
-        tour: tourId,
-        startDate: bookedDate.date,
-        endDate: new Date(bookedDate.date.getTime() + (parseInt(tour.duration) * 24 * 60 * 60 * 1000)),
-        price: bookedDate.price || tour.price,
-        availableSlots: tour.maxGroupSize,
-        bookedSlots: 1,
-        // status: 'confirmed',
-        customerInfo: customerInfo
       });
-  
-      await tourDate.save();
-  
-      res.status(200).json({
+    }
+  },
+
+  // Book a specific date {not needed rn}
+  //     bookTourDate: async (req, res) => {
+  //     try {
+  //       const { tourId, dateId } = req.params;
+  //       const { customerInfo } = req.body;
+
+  //       const tour = await Tour.findById(tourId);
+  //       if (!tour) {
+  //         return res.status(404).json({
+  //           success: false,
+  //           message: 'Tour not found'
+  //         });
+  //       }
+
+  //       // Book the date
+  //       await tour.bookDate(dateId);
+
+  //       // Create a TourDate record for this booking
+  //       const bookedDate = tour.availableDates.id(dateId);
+  //       const tourDate = new TourDate({
+  //         tour: tourId,
+  //         startDate: bookedDate.date,
+  //         endDate: new Date(bookedDate.date.getTime() + (parseInt(tour.duration) * 24 * 60 * 60 * 1000)),
+  //         price: bookedDate.price || tour.price,
+  //         availableSlots: tour.maxGroupSize,
+  //         bookedSlots: 1,
+  //         // status: 'confirmed',
+  //         customerInfo: customerInfo
+  //       });
+
+  //       await tourDate.save();
+
+  //       res.status(200).json({
+  //         success: true,
+  //         message: 'Tour date booked successfully',
+  //         data: {
+  //           tourDate: tourDate,
+  //           remainingSlots: bookedDate.maxBookings - bookedDate.currentBookings
+  //         }
+  //       });
+  //     } catch (error) {
+  //       res.status(400).json({
+  //         success: false,
+  //         message: 'Error booking tour date',
+  //         error: error.message
+  //       });
+  //     }
+  // },
+
+  // Get available tour dates with booking info
+  getTourDatesWithAvailability: async (req, res) => {
+    try {
+      const { tourId } = req.params;
+
+      const tourDates = await TourDate.find({
+        tour: tourId,
+        isActive: true,
+        startDate: { $gte: new Date() } // Only future dates
+      }).sort({ startDate: 1 });
+
+      const datesWithAvailability = tourDates.map(date => ({
+        _id: date._id,
+        startDate: date.startDate,
+        endDate: date.endDate,
+        price: date.price,
+        totalSlots: date.availableSlots,
+        bookedSlots: date.bookedSlots,
+        availableSlots: date.availableSlots - date.bookedSlots,
+        status: date.status,
+        isBookable: (date.availableSlots - date.bookedSlots) > 0
+      }));
+
+      res.json({
         success: true,
-        message: 'Tour date booked successfully',
-        data: {
-          tourDate: tourDate,
-          remainingSlots: bookedDate.maxBookings - bookedDate.currentBookings
-        }
+        data: datesWithAvailability
       });
     } catch (error) {
-      res.status(400).json({
+      res.status(500).json({
         success: false,
-        message: 'Error booking tour date',
+        message: 'Error fetching tour dates',
         error: error.message
       });
     }
-},
+  }
 };
 module.exports = tourController;

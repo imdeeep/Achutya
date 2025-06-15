@@ -15,8 +15,11 @@ router.get('/:id/available-dates', tourController.getAvailableDates);
 router.post('/:id/available-dates', tourController.addAvailableDates);
 router.put('/:tourId/available-dates/:dateId', tourController.updateAvailableDate);
 
-// Booking specific dates
-router.post('/:tourId/book-date/:dateId', tourController.bookTourDate);
+// Booking specific dates {not needed rn}
+// router.post('/:tourId/book-date/:dateId', tourController.bookTourDate);
+
+
+router.get('/:tourId/available-dates', tourController.getTourDatesWithAvailability);
 
 // Tours by destination
 router.get('/destination/:destinationId', tourController.getToursByDestination);
