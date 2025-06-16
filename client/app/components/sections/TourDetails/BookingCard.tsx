@@ -26,6 +26,7 @@ interface TourData {
 }
 
 interface UserDetails {
+  _id: null;
   name: string;
   email: string;
   phone: string;
@@ -51,6 +52,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
   const [selectedDate, setSelectedDate] = useState("");
   const [guests, setGuests] = useState(1);
   const [userDetails, setUserDetails] = useState<UserDetails>({
+    _id: null,
     name: "",
     email: "",
     phone: "",
@@ -196,47 +198,42 @@ const BookingCard: React.FC<BookingCardProps> = ({
       const totalAmount = activeTourData.price * guests;
 
       // Create payment order
-      const response = await fetch("http://localhost:3000/api/book/create-payment-order", {
+      const response = await fetch("http://localhost:3000/api/booking/create-payment-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: totalAmount, // Server will convert to paise
-          currency: "INR",
-          receipt: `receipt_${Date.now()}`,
-          userDetails,
-          itineraryId: activeTourData.id,
-          date: selectedDate,
-          guests,
+          tourId: activeTourData.id,
+          tourDateId: selectedDate,
+          numberOfGuests: guests,
+          userDetails: {
+            _id: userDetails._id || null,
+            name: userDetails.name,
+            email: userDetails.email,
+            phone: userDetails.phone
+          }
         }),
       });
 
       if (!response.ok) {
-        const errorData = (await response.json()) as { error?: string };
-        throw new Error(errorData?.error || "Failed to create payment");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create payment");
       }
 
       const orderData = await response.json();
 
       const options = {
-        key: "rzp_test_pQLbxWbQ5iwwZe",
-        amount: orderData.amount,
-        currency: orderData.currency,
+        key: process.env.RAZORPAY_KEY_ID || "rzp_test_pQLbxWbQ5iwwZe",
+        amount: orderData.data.amount,
+        currency: orderData.data.currency,
         name: "Achyuta Travel",
         description: `Booking for ${activeTourData.title}`,
-        order_id: orderData.id,
-        config: {
-          display: {
-            preferences: {
-              show_default_blocks: true,
-            },
-          },
-        },
+        order_id: orderData.data.orderId,
         handler: async function (response: any) {
           try {
             const verifyResponse = await fetch(
-              "http://localhost:3000/api/book/complete-booking",
+              "http://localhost:3000/api/booking/complete-booking",
               {
                 method: "POST",
                 headers: {
@@ -246,11 +243,15 @@ const BookingCard: React.FC<BookingCardProps> = ({
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_signature: response.razorpay_signature,
-                  userDetails,
-                  itineraryId: activeTourData.id,
-                  date: selectedDate,
-                  guests,
-                  amount: totalAmount,
+                  tourId: activeTourData.id,
+                  tourDateId: selectedDate,
+                  numberOfGuests: guests,
+                  userDetails: {
+                    _id: userDetails._id || null,
+                    name: userDetails.name,
+                    email: userDetails.email,
+                    phone: userDetails.phone
+                  }
                 }),
               }
             );
@@ -258,85 +259,62 @@ const BookingCard: React.FC<BookingCardProps> = ({
             const verifyData = await verifyResponse.json();
 
             if (!verifyResponse.ok) {
-              const errorData = verifyData as { error?: string };
-              throw new Error(
-                errorData?.error || "Payment verification failed"
-              );
+              throw new Error(verifyData.message || "Payment verification failed");
             }
 
             if (verifyData.success) {
               // Use the provided redirect URL or fallback to default
-              const redirectUrl =
-                verifyData.redirectUrl ||
-                `/booking?bookingId=${verifyData.bookingId}`;
+              const redirectUrl = `/booking?bookingId=${verifyData.data.booking._id}`;
 
               // If onBookingSuccess callback is provided, use it
               if (onBookingSuccess) {
-                onBookingSuccess(verifyData.bookingId);
+                onBookingSuccess(verifyData.data.booking._id);
               } else {
                 // Otherwise redirect to the confirmation page
                 window.location.href = redirectUrl;
               }
 
               // Show success message
-              alert(
-                "Booking confirmed! Redirecting to your booking details..."
-              );
+              alert("Booking confirmed! Redirecting to your booking details...");
             } else {
-              throw new Error(
-                verifyData.message || "Payment verification failed"
-              );
+              throw new Error(verifyData.message || "Payment verification failed");
             }
           } catch (error) {
             console.error("Payment verification failed:", error);
-            const errorMessage =
-              error instanceof Error
-                ? error.message
-                : "An unknown error occurred";
-            alert(
-              `Payment verification failed: ${errorMessage}. Please contact support with order ID: ${response.razorpay_order_id}`
-            );
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            alert(`Payment verification failed: ${errorMessage}. Please contact support with order ID: ${response.razorpay_order_id}`);
           } finally {
             setLoading(false);
           }
         },
         prefill: {
-          method: "card",
-          "card[number]": "4111111111111111",
-          "card[expiry]": "12/30",
-          "card[cvv]": "123",
-          "card[name]": userDetails.name,
+          name: userDetails.name,
+          email: userDetails.email,
+          contact: userDetails.phone
         },
         theme: {
-          color: "#277A55",
+          color: "#277A55"
         },
         modal: {
-          // force OTP mode in test environment
           confirm_close: true,
           escape: false,
           backdrop_close: false,
-          handle_back: true,
-        },
-        notes: {
-          merchant_order_id: `order_${Date.now()}`,
-        },
+          handle_back: true
+        }
       };
 
       const razorpay = new window.Razorpay(options);
 
       razorpay.on("payment.failed", function (response: any) {
         console.error("Payment failed:", response.error);
-        alert(
-          `Payment failed: ${response.error.description || "Unknown error"}`
-        );
+        alert(`Payment failed: ${response.error.description || "Unknown error"}`);
         setLoading(false);
       });
 
       razorpay.open();
     } catch (error) {
       console.error("Payment initialization failed:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       alert(`Payment failed: ${errorMessage}`);
       setErrors({ general: errorMessage });
       setLoading(false);

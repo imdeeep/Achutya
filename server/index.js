@@ -12,8 +12,6 @@ const uploadRoutes = require('./routes/upload');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 const destinationRoutes = require('./routes/destination');
-const tourRoutes = require('./routes/tourRoutes');
-const bookRoutes = require('./routes/bookRoutes')
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -33,14 +31,13 @@ mongoose.connect(process.env.MONGODB_URI)
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/bookings', bookingRoutes);
+app.use('/api/booking', bookingRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tours', tourRoutes);
 app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/destinations', destinationRoutes);
-app.use('/api/tour',tourRoutes)
-app.use('/api/book',bookRoutes)
+app.use('/api/tour', tourRoutes);
 
 // Health check route
 app.get("/", (req, res) => {
