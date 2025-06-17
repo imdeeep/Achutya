@@ -9,6 +9,8 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 const destinationRoutes = require('./routes/destination');
 const bookRoutes = require('./routes/bookRoutes')
+const uploadRoutes = require('./routes/uploadRoutes');
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,6 +33,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/destinations', destinationRoutes);
 app.use('/api/tour',tourRoutes)
 app.use('/api/book',bookRoutes)
+app.use('/api/upload', uploadRoutes);
 
 // Health check route
 app.get("/", (req, res) => {

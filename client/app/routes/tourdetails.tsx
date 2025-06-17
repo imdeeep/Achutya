@@ -7,7 +7,7 @@ import { Error } from "~/components/sections/TourDetails/Error";
 import BookingCard from "~/components/sections/TourDetails/BookingCard";
 import MainContent from "~/components/sections/TourDetails/MainContent";
 import { itineraryApi } from "~/services/adminApi";
-
+import { mockTourData } from "~/lib/mockTourData";
 declare global {
   interface Window {
     Razorpay: any;
@@ -24,9 +24,9 @@ interface UserDetails {
 const TourDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tourData, setTourData] = useState<any>(null);
+  const [tourData, setTourData] = useState<any>(mockTourData);
   const [selectedTab, setSelectedTab] = useState("overview");
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
