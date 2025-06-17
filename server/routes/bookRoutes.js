@@ -4,8 +4,8 @@ const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const bookingController = require('../controllers/BookingController');
 
 // Payment and booking creation routes
-router.post('/create-payment-order', bookingController.createPaymentOrder);
-router.post('/complete-booking', bookingController.completeBooking);
+router.post('/create-payment-order',isAuthenticated, bookingController.createPaymentOrder);
+router.post('/complete-booking',isAuthenticated, bookingController.completeBooking);
 
 // Get all bookings (admin only)
 router.get('/admin/all', isAdmin, bookingController.getAllBookings);
