@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ProtectedRoute from "~/components/ProtectedRoute";
 import { Outlet, NavLink, useLocation } from "react-router";
 import {
   Home,
@@ -21,11 +22,13 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useAuth } from "~/hooks/auth";
 
-export default function ModernAdminLayout() {
+function AdminLayoutInner() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { logout, user } = useAuth();
 
   const navigationItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, href: "/admin/" },
@@ -78,10 +81,16 @@ export default function ModernAdminLayout() {
     },
   ];
 
-  const handleLogout = () => {
-    // In a real app, this would handle the logout logic
-    alert("Logging out");
-    // logout();
+  const handleLogout = async () => {
+    try {
+      logout();
+      // The logout function should handle navigation, but we can add a fallback
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force navigation even if logout fails
+      window.location.href = '/login';
+    }
   };
 
   // Get current route information
@@ -248,9 +257,11 @@ export default function ModernAdminLayout() {
                 </div>
                 <div className="hidden md:block">
                   <p className="text-sm font-medium text-gray-800">
-                    Admin User
+                    {user?.name || 'Admin User'}
                   </p>
-                  <p className="text-xs text-gray-500">Super Admin</p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    {user?.role || 'Admin'}
+                  </p>
                 </div>
               </div>
 
@@ -272,5 +283,14 @@ export default function ModernAdminLayout() {
         </div>
       </main>
     </div>
+  );
+}
+
+// Export the protected admin layout
+export default function AdminLayout() {
+  return (
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <AdminLayoutInner />
+    </ProtectedRoute>
   );
 }
