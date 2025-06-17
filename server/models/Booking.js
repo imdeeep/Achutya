@@ -15,13 +15,15 @@ const bookingSchema = new mongoose.Schema({
   },
   tour: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Tour',
-    required: true
+    ref: 'Tour'
+  },
+  itinerary: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Itinerary'
   },
   tourDate: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'TourDate',
-    required: true
+    ref: 'TourDate'
   },
   
   // Booking details
@@ -120,6 +122,17 @@ const bookingSchema = new mongoose.Schema({
 //   this.updatedAt = Date.now();
 //   next();
 // });
+
+// Validate that either tour or itinerary is present
+bookingSchema.pre('save', function(next) {
+  if (!this.tour && !this.itinerary) {
+    next(new Error('Either tour or itinerary must be specified'));
+  }
+  if (this.tour && this.itinerary) {
+    next(new Error('Cannot specify both tour and itinerary'));
+  }
+  next();
+});
 
 const Booking = mongoose.model('Booking', bookingSchema);
 

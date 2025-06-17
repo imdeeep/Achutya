@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import {
   Plus,
@@ -9,30 +9,129 @@ import {
   MapPin,
   Users,
   Star,
+  Upload,
+  Eye,
 } from "lucide-react";
-import { tours } from "~/lib/tour.data";
+import { itineraryApi } from '../../services/adminApi';
+import { uploadImage } from '../../services/cloudinary';
+
+interface Itinerary {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  price: string;
+  duration: string;
+  country: string;
+  city: string;
+  groupType: string;
+  highlights: string[];
+  inclusions: string[];
+  exclusions: string[];
+  essentials: string[];
+  notes: string[];
+  features: Array<{
+    title: string;
+    description: string;
+  }>;
+  itinerary: Array<{
+    day: number;
+    title: string;
+    description: string;
+    activities: string[];
+    distance: string;
+    duration: string;
+    accommodation: string;
+    meals: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function Itineraries() {
+  const [itineraries, setItineraries] = useState<Itinerary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [selectedCity, setSelectedCity] = useState("All");
   const [selectedGroupType, setSelectedGroupType] = useState("All");
+  const [uploadingImage, setUploadingImage] = useState(false);
 
-  const filteredTours = tours.filter((tour) => {
-    const matchesSearch = tour.title
+  useEffect(() => {
+    fetchItineraries();
+  }, []);
+
+  const fetchItineraries = async () => {
+    try {
+      setLoading(true);
+      const response = await itineraryApi.getAllItineraries();
+      if (response.success) {
+        setItineraries(response.data);
+        setError(null);
+      } else {
+        throw new Error(response.error || 'Failed to fetch itineraries');
+      }
+    } catch (err) {
+      setError('Failed to fetch itineraries');
+      console.error('Error fetching itineraries:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteItinerary = async (itineraryId: string) => {
+    if (window.confirm('Are you sure you want to delete this itinerary?')) {
+      try {
+        const response = await itineraryApi.deleteItinerary(itineraryId);
+        if (response.success) {
+          setItineraries(itineraries.filter(itinerary => itinerary._id !== itineraryId));
+        } else {
+          throw new Error(response.error || 'Failed to delete itinerary');
+        }
+      } catch (err) {
+        setError('Failed to delete itinerary');
+        console.error('Error deleting itinerary:', err);
+      }
+    }
+  };
+
+  const handleImageUpload = async (file: File, itineraryId: string) => {
+    try {
+      setUploadingImage(true);
+      const imageUrl = await uploadImage(file);
+      const response = await itineraryApi.updateItinerary(itineraryId, { image: imageUrl });
+      if (response.success) {
+        await fetchItineraries(); // Refresh the itineraries list
+      } else {
+        throw new Error(response.error || 'Failed to update image');
+      }
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      setError('Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const filteredItineraries = itineraries.filter((itinerary) => {
+    const matchesSearch = itinerary.title
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesCountry =
-      selectedCountry === "All" || tour.country === selectedCountry;
-    const matchesCity = selectedCity === "All" || tour.city === selectedCity;
+      selectedCountry === "All" || itinerary.country === selectedCountry;
+    const matchesCity = selectedCity === "All" || itinerary.city === selectedCity;
     const matchesGroupType =
-      selectedGroupType === "All" || tour.groupType === selectedGroupType;
+      selectedGroupType === "All" || itinerary.groupType === selectedGroupType;
     return matchesSearch && matchesCountry && matchesCity && matchesGroupType;
   });
 
-  const countries = ["All", ...new Set(tours.map((tour) => tour.country))];
-  const cities = ["All", ...new Set(tours.map((tour) => tour.city))];
+  const countries = ["All", ...new Set(itineraries.map((itinerary) => itinerary.country))];
+  const cities = ["All", ...new Set(itineraries.map((itinerary) => itinerary.city))];
   const groupTypes = ["All", "Group", "Private", "Custom"];
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="p-6">
@@ -103,28 +202,32 @@ export default function Itineraries() {
 
       {/* Itineraries Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredTours.map((tour) => (
+        {filteredItineraries.map((itinerary) => (
           <div
-            key={tour.id}
+            key={itinerary._id}
             className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200"
           >
             <div className="relative">
               <img
-                src={tour.image}
-                alt={tour.title}
+                src={itinerary.image}
+                alt={itinerary.title}
                 className="w-full h-48 object-cover"
               />
               <div className="absolute top-4 right-4 flex items-center space-x-2">
                 <Link
-                  to={`/admin/itineraries/${tour.id}`}
+                  to={`/tour/${itinerary._id}`}
+                  className="p-2 bg-white rounded-full shadow-sm hover:bg-emerald-50 text-gray-600 hover:text-emerald-600 transition-colors duration-200"
+                >
+                  <Eye className="w-4 h-4" />
+                </Link>
+                <Link
+                  to={`/admin/itineraries/update/${itinerary._id}`}
                   className="p-2 bg-white rounded-full shadow-sm hover:bg-emerald-50 text-gray-600 hover:text-emerald-600 transition-colors duration-200"
                 >
                   <Edit className="w-4 h-4" />
                 </Link>
                 <button
-                  onClick={() => {
-                    // Handle delete
-                  }}
+                  onClick={() => handleDeleteItinerary(itinerary._id)}
                   className="p-2 bg-white rounded-full shadow-sm hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors duration-200"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -133,34 +236,27 @@ export default function Itineraries() {
             </div>
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {tour.title}
+                {itinerary.title}
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center text-sm text-gray-500">
                   <Calendar className="w-4 h-4 mr-2" />
-                  {tour.duration}
+                  {itinerary.duration}
                 </div>
                 <div className="flex items-center text-sm text-gray-500">
                   <MapPin className="w-4 h-4 mr-2" />
-                  {tour.city}, {tour.country}
+                  {itinerary.city}, {itinerary.country}
                 </div>
                 <div className="flex items-center text-sm text-gray-500">
                   <Users className="w-4 h-4 mr-2" />
-                  {tour.groupType}
-                </div>
-                <div className="flex items-center text-sm">
-                  <Star className="w-4 h-4 mr-1 text-yellow-400" />
-                  <span className="text-gray-700">{tour.rating}</span>
-                  <span className="text-gray-400 ml-1">
-                    ({tour.reviews} reviews)
-                  </span>
+                  {itinerary.groupType}
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                   <span className="text-lg font-semibold text-emerald-600">
-                    ₹{tour.price.toLocaleString()}
+                    ₹{itinerary.price}
                   </span>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                    {tour.groupType}
+                    {itinerary.groupType}
                   </span>
                 </div>
               </div>
@@ -170,7 +266,7 @@ export default function Itineraries() {
       </div>
 
       {/* Empty State */}
-      {filteredTours.length === 0 && (
+      {filteredItineraries.length === 0 && (
         <div className="text-center py-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
             <Search className="w-8 h-8 text-gray-400" />

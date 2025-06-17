@@ -2,6 +2,12 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { Search, Edit, Trash2, CreditCard, Calendar, User } from "lucide-react";
 
+// Helper function to format date consistently
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toISOString().split('T')[0].split('-').reverse().join('/');
+};
+
 // Mock data - replace with actual API call
 const payments = [
   {
@@ -155,7 +161,7 @@ export default function Payments() {
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-2 text-gray-400" />
                     <div className="text-sm text-gray-900">
-                      {new Date(payment.date).toLocaleDateString()}
+                      {formatDate(payment.date)}
                     </div>
                   </div>
                 </td>

@@ -97,8 +97,7 @@ const bookingController = {
         tourId,
         tourDateId,
         numberOfGuests,
-        primaryContact,
-        userId
+        userDetails
       } = req.body;
 
       // Verify payment signature
@@ -107,9 +106,6 @@ const bookingController = {
         .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'htb3dEruoc4vtPVNr6Pvu7i0')
         .update(body)
         .digest('hex');
-
-      console.log(`Expected Signature : ${expectedSignature}`)
-      console.log(`Response Signature : ${razorpay_signature}`)
 
       if (expectedSignature !== razorpay_signature) {
         return res.status(400).json({
@@ -160,26 +156,30 @@ const bookingController = {
           endDate: tourDate.endDate,
           price: tourDate.price,
           availableSlots: tourDate.availableSlots,
-          bookedSlots: numberOfGuests, // Set to numberOfGuests since this booking takes the entire date
-          status: 'Sold Out' // Mark as sold out since only one booking per date
+          bookedSlots: numberOfGuests,
+          status: 'Sold Out'
         });
         await tourDateDoc.save();
       } else {
-        // Update existing TourDate document - mark as fully booked
+        // Update existing TourDate document
         tourDateDoc.bookedSlots = numberOfGuests;
         tourDateDoc.status = 'Sold Out';
         await tourDateDoc.save();
       }
 
-      // Create booking with auto-generated bookingId
+      // Create booking
       const booking = new Booking({
-        user: userId,
+        user: userDetails._id || null,
         tour: tourId,
         tourDate: tourDateDoc._id,
         numberOfGuests: numberOfGuests,
         totalAmount: totalAmount,
         pricePerPerson: tourDate.price,
-        primaryContact: primaryContact,
+        primaryContact: {
+          name: userDetails.name,
+          email: userDetails.email,
+          phone: userDetails.phone
+        },
         status: 'Confirmed',
         paymentStatus: 'Completed',
         transactionId: razorpay_payment_id,
@@ -187,45 +187,35 @@ const bookingController = {
         confirmationDate: new Date()
       });
 
-      await booking.save(); // bookingId will be auto-generated in pre-save hook
+      await booking.save();
 
-      // Update the tour date's bookedSlots in the embedded document and mark as unavailable
+      // Update the tour date's bookedSlots in the embedded document
       tourDate.bookedSlots = numberOfGuests;
-      tourDate.isAvailable = false; // Mark as unavailable since it's now booked
+      tourDate.isAvailable = false;
       await tour.save();
 
       // Create payment record
       const payment = new Payment({
         booking: booking._id,
         amount: totalAmount,
-        paymentMethod: 'Online',
+        currency: 'INR',
+        paymentMethod: 'Razorpay',
+        status: 'Completed',
         transactionId: razorpay_payment_id,
-        status: 'Success',
-        gatewayResponse: {
-          orderId: razorpay_order_id,
-          paymentId: razorpay_payment_id,
-          signature: razorpay_signature
-        }
+        orderId: razorpay_order_id,
+        paymentDate: new Date()
       });
 
       await payment.save();
 
-      // Populate booking for response
-      const populatedBooking = await Booking.findById(booking._id)
-        .populate('tour', 'title duration')
-        .populate('tourDate')
-        .populate('user', 'name email');
-
       res.json({
         success: true,
-        message: 'Booking confirmed successfully',
+        message: 'Booking completed successfully',
         data: {
-          booking: populatedBooking,
-          payment: payment,
-          bookingId: booking.bookingId // Return the generated bookingId
+          booking: booking,
+          payment: payment
         }
       });
-
     } catch (error) {
       console.error('Error completing booking:', error);
       res.status(500).json({
@@ -473,6 +463,77 @@ const bookingController = {
       res.status(500).json({
         success: false,
         message: 'Error fetching bookings',
+        error: error.message
+      });
+    }
+  },
+
+  // Update booking status
+  updateBookingStatus: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const booking = await Booking.findById(id);
+      if (!booking) {
+        return res.status(404).json({
+          success: false,
+          message: 'Booking not found'
+        });
+      }
+
+      booking.status = status;
+      await booking.save();
+
+      res.json({
+        success: true,
+        message: 'Booking status updated successfully',
+        data: booking
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error updating booking status',
+        error: error.message
+      });
+    }
+  },
+
+  // Get booking statistics
+  getBookingStats: async (req, res) => {
+    try {
+      const stats = await Booking.aggregate([
+        {
+          $group: {
+            _id: '$status',
+            count: { $sum: 1 },
+            totalAmount: { $sum: '$totalAmount' }
+          }
+        }
+      ]);
+
+      const totalBookings = await Booking.countDocuments();
+      const totalRevenue = await Booking.aggregate([
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$totalAmount' }
+          }
+        }
+      ]);
+
+      res.json({
+        success: true,
+        data: {
+          stats,
+          totalBookings,
+          totalRevenue: totalRevenue[0]?.total || 0
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching booking statistics',
         error: error.message
       });
     }
