@@ -55,22 +55,22 @@ const TourDetails = () => {
             ...response.data,
             overview: {
               description: response.data.description,
-              features: response.data.features
+              features: response.data.features,
             },
             location: `${response.data.city}, ${response.data.country}`,
-            subtitle: response.data.description.substring(0, 100) + '...',
+            subtitle: response.data.description.substring(0, 100) + "...",
             rating: 4.5, // Default values for now
             reviewCount: 0,
             maxGroupSize: 20,
-            price: Number(response.data.price)
+            price: Number(response.data.price),
           };
           setTourData(transformedData);
         } else {
-          throw Error(response.error || 'Failed to fetch itinerary details');
+          throw Error(response.error || "Failed to fetch itinerary details");
         }
       } catch (err) {
         setError("Failed to load tour details. Please try again.");
-        console.error('Error fetching tour data:', err);
+        console.error("Error fetching tour data:", err);
       } finally {
         setLoading(false);
       }

@@ -12,8 +12,8 @@ import {
   Upload,
   Eye,
 } from "lucide-react";
-import { itineraryApi } from '../../services/adminApi';
-import { uploadImage } from '../../services/cloudinary';
+import { itineraryApi } from "../../services/adminApi";
+import { uploadImage } from "../../services/cloudinary";
 
 interface Itinerary {
   _id: string;
@@ -70,28 +70,30 @@ export default function Itineraries() {
         setItineraries(response.data);
         setError(null);
       } else {
-        throw new Error(response.error || 'Failed to fetch itineraries');
+        throw new Error(response.error || "Failed to fetch itineraries");
       }
     } catch (err) {
-      setError('Failed to fetch itineraries');
-      console.error('Error fetching itineraries:', err);
+      setError("Failed to fetch itineraries");
+      console.error("Error fetching itineraries:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteItinerary = async (itineraryId: string) => {
-    if (window.confirm('Are you sure you want to delete this itinerary?')) {
+    if (window.confirm("Are you sure you want to delete this itinerary?")) {
       try {
         const response = await itineraryApi.deleteItinerary(itineraryId);
         if (response.success) {
-          setItineraries(itineraries.filter(itinerary => itinerary._id !== itineraryId));
+          setItineraries(
+            itineraries.filter((itinerary) => itinerary._id !== itineraryId)
+          );
         } else {
-          throw new Error(response.error || 'Failed to delete itinerary');
+          throw new Error(response.error || "Failed to delete itinerary");
         }
       } catch (err) {
-        setError('Failed to delete itinerary');
-        console.error('Error deleting itinerary:', err);
+        setError("Failed to delete itinerary");
+        console.error("Error deleting itinerary:", err);
       }
     }
   };
@@ -100,15 +102,17 @@ export default function Itineraries() {
     try {
       setUploadingImage(true);
       const imageUrl = await uploadImage(file);
-      const response = await itineraryApi.updateItinerary(itineraryId, { image: imageUrl });
+      const response = await itineraryApi.updateItinerary(itineraryId, {
+        image: imageUrl,
+      });
       if (response.success) {
         await fetchItineraries(); // Refresh the itineraries list
       } else {
-        throw new Error(response.error || 'Failed to update image');
+        throw new Error(response.error || "Failed to update image");
       }
     } catch (err) {
-      console.error('Error uploading image:', err);
-      setError('Failed to upload image');
+      console.error("Error uploading image:", err);
+      setError("Failed to upload image");
     } finally {
       setUploadingImage(false);
     }
@@ -120,14 +124,21 @@ export default function Itineraries() {
       .includes(searchQuery.toLowerCase());
     const matchesCountry =
       selectedCountry === "All" || itinerary.country === selectedCountry;
-    const matchesCity = selectedCity === "All" || itinerary.city === selectedCity;
+    const matchesCity =
+      selectedCity === "All" || itinerary.city === selectedCity;
     const matchesGroupType =
       selectedGroupType === "All" || itinerary.groupType === selectedGroupType;
     return matchesSearch && matchesCountry && matchesCity && matchesGroupType;
   });
 
-  const countries = ["All", ...new Set(itineraries.map((itinerary) => itinerary.country))];
-  const cities = ["All", ...new Set(itineraries.map((itinerary) => itinerary.city))];
+  const countries = [
+    "All",
+    ...new Set(itineraries.map((itinerary) => itinerary.country)),
+  ];
+  const cities = [
+    "All",
+    ...new Set(itineraries.map((itinerary) => itinerary.city)),
+  ];
   const groupTypes = ["All", "Group", "Private", "Custom"];
 
   if (loading) return <div>Loading...</div>;

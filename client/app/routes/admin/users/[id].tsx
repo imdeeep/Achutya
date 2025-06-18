@@ -10,7 +10,7 @@ import {
   User,
   Shield,
 } from "lucide-react";
-import { userApi } from '../../../services/adminApi';
+import { userApi } from "../../../services/adminApi";
 
 interface UserData {
   _id: string;
@@ -34,17 +34,17 @@ export default function UserDetail() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (id === 'newUser') {
+    if (id === "newUser") {
       // Initialize empty user for new user form
       const newUser: UserData = {
-        _id: '',
-        name: '',
-        email: '',
-        phone: '',
-        role: 'user',
-        status: 'active',
+        _id: "",
+        name: "",
+        email: "",
+        phone: "",
+        role: "user",
+        status: "active",
         createdAt: new Date().toISOString(),
-        password: ''
+        password: "",
       };
       setOriginalUser(newUser);
       setEditedUser(newUser);
@@ -65,13 +65,14 @@ export default function UserDetail() {
       setLoading(true);
       setError(null);
       const response = await userApi.getUser(id);
-      console.log('Fetched user data:', response); // Debug log
+      console.log("Fetched user data:", response); // Debug log
       setOriginalUser(response.data);
       setEditedUser(response.data);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to fetch user data';
+      const errorMessage =
+        err.response?.data?.message || "Failed to fetch user data";
       setError(errorMessage);
-      console.error('Error fetching user:', err);
+      console.error("Error fetching user:", err);
     } finally {
       setLoading(false);
     }
@@ -88,25 +89,27 @@ export default function UserDetail() {
     try {
       setSaving(true);
       setError(null);
-      
-      if (id === 'newUser') {
+
+      if (id === "newUser") {
         // Create new user
         const { _id, ...userData } = editedUser;
-        console.log('Creating user with data:', userData); // Debug log
+        console.log("Creating user with data:", userData); // Debug log
         await userApi.createUser(userData);
-        navigate('/admin/users');
+        navigate("/admin/users");
       } else {
         // Update existing user
-        console.log('Updating user with data:', editedUser); // Debug log
+        console.log("Updating user with data:", editedUser); // Debug log
         await userApi.updateUser(editedUser._id, editedUser);
         setOriginalUser(editedUser);
         setIsEditing(false);
         await fetchUser();
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'An error occurred while saving the user';
+      const errorMessage =
+        err.response?.data?.message ||
+        "An error occurred while saving the user";
       setError(errorMessage);
-      console.error('Error saving user:', err);
+      console.error("Error saving user:", err);
     } finally {
       setSaving(false);
     }
@@ -142,9 +145,7 @@ export default function UserDetail() {
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
             <X className="h-6 w-6 text-red-600" />
           </div>
-          <h3 className="mt-3 text-lg font-medium text-gray-900">
-            {error}
-          </h3>
+          <h3 className="mt-3 text-lg font-medium text-gray-900">{error}</h3>
           <p className="mt-1 text-sm text-gray-500">
             There was an error loading the user data.
           </p>
@@ -183,13 +184,15 @@ export default function UserDetail() {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-lg font-medium text-gray-900">
-                {id === 'newUser' ? 'Create New User' : 'User Details'}
+                {id === "newUser" ? "Create New User" : "User Details"}
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                {isEditing ? 'Edit user information' : 'View and manage user information'}
+                {isEditing
+                  ? "Edit user information"
+                  : "View and manage user information"}
               </p>
             </div>
-            {!isEditing && id !== 'newUser' && (
+            {!isEditing && id !== "newUser" && (
               <button
                 onClick={handleEdit}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-150"
@@ -200,7 +203,7 @@ export default function UserDetail() {
             )}
           </div>
         </div>
-        
+
         <div className="p-6">
           {error && (
             <div className="mb-6 rounded-md bg-red-50 p-4">
@@ -219,7 +222,10 @@ export default function UserDetail() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Full Name *
                   </label>
                   <div className="mt-1">
@@ -228,7 +234,9 @@ export default function UserDetail() {
                       name="name"
                       id="name"
                       value={editedUser.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
                       className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                       required
                       disabled={saving}
@@ -237,7 +245,10 @@ export default function UserDetail() {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Email Address *
                   </label>
                   <div className="mt-1">
@@ -246,7 +257,9 @@ export default function UserDetail() {
                       name="email"
                       id="email"
                       value={editedUser.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
                       className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                       required
                       disabled={saving}
@@ -254,9 +267,12 @@ export default function UserDetail() {
                   </div>
                 </div>
 
-                {id === 'newUser' && (
+                {id === "newUser" && (
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Password *
                     </label>
                     <div className="mt-1">
@@ -264,8 +280,10 @@ export default function UserDetail() {
                         type="password"
                         name="password"
                         id="password"
-                        value={editedUser.password || ''}
-                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        value={editedUser.password || ""}
+                        onChange={(e) =>
+                          handleInputChange("password", e.target.value)
+                        }
                         className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                         required
                         disabled={saving}
@@ -275,7 +293,10 @@ export default function UserDetail() {
                 )}
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Phone Number
                   </label>
                   <div className="mt-1">
@@ -284,7 +305,9 @@ export default function UserDetail() {
                       name="phone"
                       id="phone"
                       value={editedUser.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
+                      }
                       className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                       disabled={saving}
                     />
@@ -292,7 +315,10 @@ export default function UserDetail() {
                 </div>
 
                 <div>
-                  <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="role"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Role
                   </label>
                   <div className="mt-1">
@@ -300,7 +326,9 @@ export default function UserDetail() {
                       id="role"
                       name="role"
                       value={editedUser.role}
-                      onChange={(e) => handleInputChange('role', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("role", e.target.value)
+                      }
                       className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                       disabled={saving}
                     >
@@ -309,8 +337,6 @@ export default function UserDetail() {
                     </select>
                   </div>
                 </div>
-
-
               </div>
 
               <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
@@ -331,16 +357,32 @@ export default function UserDetail() {
                 >
                   {saving ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
-                      {id === 'newUser' ? 'Creating...' : 'Saving...'}
+                      {id === "newUser" ? "Creating..." : "Saving..."}
                     </>
                   ) : (
                     <>
                       <Save className="w-4 h-4 mr-2" />
-                      {id === 'newUser' ? 'Create User' : 'Save Changes'}
+                      {id === "newUser" ? "Create User" : "Save Changes"}
                     </>
                   )}
                 </button>
@@ -360,12 +402,17 @@ export default function UserDetail() {
                     User ID: {editedUser._id}
                   </p>
                   <div className="mt-2">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      editedUser.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {editedUser.role ? editedUser.role.charAt(0).toUpperCase() + editedUser.role.slice(1) : 'Unknown'}
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        editedUser.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {editedUser.role
+                        ? editedUser.role.charAt(0).toUpperCase() +
+                          editedUser.role.slice(1)
+                        : "Unknown"}
                     </span>
                   </div>
                 </div>
@@ -380,12 +427,20 @@ export default function UserDetail() {
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Email</label>
-                        <p className="text-sm text-gray-900 mt-1">{editedUser.email}</p>
+                        <label className="text-sm font-medium text-gray-500">
+                          Email
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1">
+                          {editedUser.email}
+                        </p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Phone</label>
-                        <p className="text-sm text-gray-900 mt-1">{editedUser.phone || 'Not provided'}</p>
+                        <label className="text-sm font-medium text-gray-500">
+                          Phone
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1">
+                          {editedUser.phone || "Not provided"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -399,17 +454,26 @@ export default function UserDetail() {
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Role</label>
-                        <p className="text-sm text-gray-900 mt-1 capitalize">{editedUser.role}</p>
+                        <label className="text-sm font-medium text-gray-500">
+                          Role
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1 capitalize">
+                          {editedUser.role}
+                        </p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Member Since</label>
+                        <label className="text-sm font-medium text-gray-500">
+                          Member Since
+                        </label>
                         <p className="text-sm text-gray-900 mt-1">
-                          {new Date(editedUser.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
+                          {new Date(editedUser.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
                         </p>
                       </div>
                     </div>

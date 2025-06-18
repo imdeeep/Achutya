@@ -11,7 +11,7 @@ export default function ProtectedRoute({
   children,
   allowedRoles,
 }: ProtectedRouteProps) {
-  const { user, loading } = useAuth(); 
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (

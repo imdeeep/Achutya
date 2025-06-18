@@ -85,11 +85,11 @@ function AdminLayoutInner() {
     try {
       logout();
       // The logout function should handle navigation, but we can add a fallback
-      window.location.href = '/login';
+      window.location.href = "/login";
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       // Force navigation even if logout fails
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
   };
 
@@ -257,10 +257,10 @@ function AdminLayoutInner() {
                 </div>
                 <div className="hidden md:block">
                   <p className="text-sm font-medium text-gray-800">
-                    {user?.name || 'Admin User'}
+                    {user?.name || ""}
                   </p>
                   <p className="text-xs text-gray-500 capitalize">
-                    {user?.role || 'Admin'}
+                    {user?.role || "Admin"}
                   </p>
                 </div>
               </div>

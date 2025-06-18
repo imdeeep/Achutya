@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { userApi } from "../../services/adminApi";
-import {
-  Mail,
-  Phone,
-  User,
-  Calendar,
-  Shield,
-} from "lucide-react";
+import { Mail, Phone, User, Calendar, Shield } from "lucide-react";
 
 interface UserProfile {
   _id: string;
@@ -27,7 +21,7 @@ export default function UserProfile() {
   useEffect(() => {
     const fetchUser = async () => {
       if (!slug) {
-        setError('User ID is required');
+        setError("User ID is required");
         setLoading(false);
         return;
       }
@@ -38,8 +32,8 @@ export default function UserProfile() {
         setUser(response.data);
         setError(null);
       } catch (err) {
-        setError('Failed to load user profile');
-        console.error('Error fetching user:', err);
+        setError("Failed to load user profile");
+        console.error("Error fetching user:", err);
       } finally {
         setLoading(false);
       }
@@ -67,10 +61,12 @@ export default function UserProfile() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-1">
-              {error || 'Profile not found'}
+              {error || "Profile not found"}
             </h3>
             <p className="text-gray-500">
-              {error ? 'There was an error loading the profile.' : "The profile you're looking for doesn't exist."}
+              {error
+                ? "There was an error loading the profile."
+                : "The profile you're looking for doesn't exist."}
             </p>
           </div>
         </div>
@@ -88,8 +84,12 @@ export default function UserProfile() {
                 <User className="h-10 w-10 text-gray-500" />
               </div>
               <div className="ml-6">
-                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-                <p className="text-sm text-gray-500">Member since {new Date(user.createdAt).toLocaleDateString()}</p>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {user.name}
+                </h1>
+                <p className="text-sm text-gray-500">
+                  Member since {new Date(user.createdAt).toLocaleDateString()}
+                </p>
               </div>
             </div>
 
@@ -142,4 +142,4 @@ export default function UserProfile() {
       </div>
     </div>
   );
-} 
+}

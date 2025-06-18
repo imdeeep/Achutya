@@ -11,30 +11,34 @@
 export const uploadImage = async (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append("image", file);
 
     fetch(`http://localhost:3000/api/upload/image`, {
-      method: 'POST',
-      body: formData
+      method: "POST",
+      body: formData,
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          return response.json().then(err => {
-            throw new Error(err.error || 'Upload failed');
+          return response.json().then((err) => {
+            throw new Error(err.error || "Upload failed");
           });
         }
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         if (data.success && data.url) {
           resolve(data.url);
         } else {
-          reject(new Error('Upload failed: No URL returned'));
+          reject(new Error("Upload failed: No URL returned"));
         }
       })
-      .catch(error => {
-        console.error('Upload error:', error);
-        reject(new Error(error.message || 'Failed to upload image. Please try again.'));
+      .catch((error) => {
+        console.error("Upload error:", error);
+        reject(
+          new Error(
+            error.message || "Failed to upload image. Please try again."
+          )
+        );
       });
   });
 };
