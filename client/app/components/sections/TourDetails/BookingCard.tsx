@@ -198,23 +198,26 @@ const BookingCard: React.FC<BookingCardProps> = ({
       const totalAmount = activeTourData.price * guests;
 
       // Create payment order
-      const response = await fetch("http://localhost:3000/api/booking/create-payment-order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          tourId: activeTourData.id,
-          tourDateId: selectedDate,
-          numberOfGuests: guests,
-          userDetails: {
-            _id: userDetails._id || null,
-            name: userDetails.name,
-            email: userDetails.email,
-            phone: userDetails.phone
-          }
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:3000/api/booking/create-payment-order",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            tourId: activeTourData.id,
+            tourDateId: selectedDate,
+            numberOfGuests: guests,
+            userDetails: {
+              _id: userDetails._id || null,
+              name: userDetails.name,
+              email: userDetails.email,
+              phone: userDetails.phone,
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -250,8 +253,8 @@ const BookingCard: React.FC<BookingCardProps> = ({
                     _id: userDetails._id || null,
                     name: userDetails.name,
                     email: userDetails.email,
-                    phone: userDetails.phone
-                  }
+                    phone: userDetails.phone,
+                  },
                 }),
               }
             );
@@ -259,7 +262,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
             const verifyData = await verifyResponse.json();
 
             if (!verifyResponse.ok) {
-              throw new Error(verifyData.message || "Payment verification failed");
+              throw new Error(
+                verifyData.message || "Payment verification failed"
+              );
             }
 
             if (verifyData.success) {
@@ -275,14 +280,23 @@ const BookingCard: React.FC<BookingCardProps> = ({
               }
 
               // Show success message
-              alert("Booking confirmed! Redirecting to your booking details...");
+              alert(
+                "Booking confirmed! Redirecting to your booking details..."
+              );
             } else {
-              throw new Error(verifyData.message || "Payment verification failed");
+              throw new Error(
+                verifyData.message || "Payment verification failed"
+              );
             }
           } catch (error) {
             console.error("Payment verification failed:", error);
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            alert(`Payment verification failed: ${errorMessage}. Please contact support with order ID: ${response.razorpay_order_id}`);
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "An unknown error occurred";
+            alert(
+              `Payment verification failed: ${errorMessage}. Please contact support with order ID: ${response.razorpay_order_id}`
+            );
           } finally {
             setLoading(false);
           }
@@ -290,31 +304,34 @@ const BookingCard: React.FC<BookingCardProps> = ({
         prefill: {
           name: userDetails.name,
           email: userDetails.email,
-          contact: userDetails.phone
+          contact: userDetails.phone,
         },
         theme: {
-          color: "#277A55"
+          color: "#277A55",
         },
         modal: {
           confirm_close: true,
           escape: false,
           backdrop_close: false,
-          handle_back: true
-        }
+          handle_back: true,
+        },
       };
 
       const razorpay = new window.Razorpay(options);
 
       razorpay.on("payment.failed", function (response: any) {
         console.error("Payment failed:", response.error);
-        alert(`Payment failed: ${response.error.description || "Unknown error"}`);
+        alert(
+          `Payment failed: ${response.error.description || "Unknown error"}`
+        );
         setLoading(false);
       });
 
       razorpay.open();
     } catch (error) {
       console.error("Payment initialization failed:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
       alert(`Payment failed: ${errorMessage}`);
       setErrors({ general: errorMessage });
       setLoading(false);

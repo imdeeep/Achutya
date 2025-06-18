@@ -11,6 +11,10 @@ const destinationSchema = new mongoose.Schema({
     required: true,
     enum: ['India', 'International']
   },
+  countryName:{
+    type:String,
+    required:true,
+  },
   description: {
     type: String,
     required: true

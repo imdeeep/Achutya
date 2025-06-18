@@ -5,7 +5,7 @@ import { Search, Edit, Trash2, CreditCard, Calendar, User } from "lucide-react";
 // Helper function to format date consistently
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toISOString().split('T')[0].split('-').reverse().join('/');
+  return date.toISOString().split("T")[0].split("-").reverse().join("/");
 };
 
 // Mock data - replace with actual API call

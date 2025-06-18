@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = "http://localhost:3000/api";
 
 // User API calls
 export const userApi = {
   getAllUsers: async () => {
-    const response = await axios.get(`${API_URL}/users`);
+    const response = await axios.get(`${API_URL}/users/`);
     return response.data;
   },
 
@@ -15,7 +15,7 @@ export const userApi = {
   },
 
   createUser: async (userData: any) => {
-    const response = await axios.post(`${API_URL}/users`, userData);
+    const response = await axios.post(`${API_URL}/users/`, userData);
     return response.data;
   },
 
@@ -27,7 +27,37 @@ export const userApi = {
   deleteUser: async (id: string) => {
     const response = await axios.delete(`${API_URL}/users/${id}`);
     return response.data;
-  }
+  },
+};
+
+// Destination API calls
+export const destinationApi = {
+  getAllDestinations: async () => {
+    const response = await axios.get(`${API_URL}/destinations/`);
+    return response.data;
+  },
+  getDestinationById: async (id: string) => {
+    const response = await axios.get(`${API_URL}/destinations/${id}`);
+    return response.data;
+  },
+  createDestination: async (destinationData: any) => {
+    const response = await axios.post(
+      `${API_URL}/destinations/`,
+      destinationData
+    );
+    return response.data;
+  },
+  editDestination: async (id: string, destinationData: any) => {
+    const response = await axios.put(
+      `${API_URL}/destinations/${id}`,
+      destinationData
+    );
+    return response.data;
+  },
+  deleteDestination: async (id: string) => {
+    const response = await axios.delete(`${API_URL}/destinations/${id}`);
+    return response.data;
+  },
 };
 
 // Tour API calls
@@ -55,7 +85,7 @@ export const tourApi = {
   deleteTour: async (id: string) => {
     const response = await axios.delete(`${API_URL}/tours/${id}`);
     return response.data;
-  }
+  },
 };
 
 // Itinerary API calls
@@ -76,12 +106,15 @@ export const itineraryApi = {
   },
 
   updateItinerary: async (id: string, itineraryData: any) => {
-    const response = await axios.put(`${API_URL}/itineraries/${id}`, itineraryData);
+    const response = await axios.put(
+      `${API_URL}/itineraries/${id}`,
+      itineraryData
+    );
     return response.data;
   },
 
   deleteItinerary: async (id: string) => {
     const response = await axios.delete(`${API_URL}/itineraries/${id}`);
     return response.data;
-  }
+  },
 };

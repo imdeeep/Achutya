@@ -109,13 +109,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Overview of your travel management platform
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {/* Card 1: Total Bookings */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">

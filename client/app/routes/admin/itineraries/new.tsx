@@ -31,7 +31,12 @@ interface TourFormData {
   }[];
 }
 
-type ArrayField = 'highlights' | 'inclusions' | 'exclusions' | 'essentials' | 'notes';
+type ArrayField =
+  | "highlights"
+  | "inclusions"
+  | "exclusions"
+  | "essentials"
+  | "notes";
 
 export default function NewItinerary() {
   const navigate = useNavigate();
@@ -62,9 +67,9 @@ export default function NewItinerary() {
         distance: "",
         duration: "",
         accommodation: "",
-        meals: ""
-      }
-    ]
+        meals: "",
+      },
+    ],
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,17 +77,19 @@ export default function NewItinerary() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Create the itinerary using the API
       const response = await itineraryApi.createItinerary(formData);
-      
+
       if (response.success) {
         navigate("/admin/itineraries");
       } else {
         throw new Error(response.error || "Failed to create itinerary");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create itinerary");
+      setError(
+        err instanceof Error ? err.message : "Failed to create itinerary"
+      );
     } finally {
       setLoading(false);
     }
@@ -101,23 +108,27 @@ export default function NewItinerary() {
   };
 
   const handleAddArrayItem = (field: ArrayField) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: [...prev[field], ""]
+      [field]: [...prev[field], ""],
     }));
   };
 
-  const handleArrayInputChange = (index: number, value: string, field: ArrayField) => {
-    setFormData(prev => ({
+  const handleArrayInputChange = (
+    index: number,
+    value: string,
+    field: ArrayField
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: prev[field].map((item, i) => i === index ? value : item)
+      [field]: prev[field].map((item, i) => (i === index ? value : item)),
     }));
   };
 
   const handleRemoveArrayItem = (index: number, field: ArrayField) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: prev[field].filter((_, i) => i !== index)
+      [field]: prev[field].filter((_, i) => i !== index),
     }));
   };
 
@@ -130,21 +141,21 @@ export default function NewItinerary() {
       setError(null);
 
       // Validate file type
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      const validTypes = ["image/jpeg", "image/png", "image/gif"];
       if (!validTypes.includes(file.type)) {
-        throw new Error('Please upload a valid image file (JPEG, PNG, or GIF)');
+        throw new Error("Please upload a valid image file (JPEG, PNG, or GIF)");
       }
 
       // Validate file size (max 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        throw new Error('Image size should be less than 5MB');
+        throw new Error("Image size should be less than 5MB");
       }
 
       const imageUrl = await uploadImage(file);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        image: imageUrl
+        image: imageUrl,
       }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload image");
@@ -319,7 +330,9 @@ export default function NewItinerary() {
           <div className="bg-white shadow rounded-lg p-6 mt-6">
             <h2 className="text-lg font-medium mb-4">Images</h2>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tour Image</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Tour Image
+              </label>
               <div className="mt-1 flex items-center">
                 <input
                   type="file"
@@ -332,33 +345,51 @@ export default function NewItinerary() {
                 <label
                   htmlFor="image-upload"
                   className={`cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 ${
-                    uploadingImage ? 'opacity-50 cursor-not-allowed' : ''
+                    uploadingImage ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
                   {uploadingImage ? (
                     <div className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
                       Uploading...
                     </div>
                   ) : (
-                    'Upload Image'
+                    "Upload Image"
                   )}
                 </label>
               </div>
               {formData.image && (
                 <div className="mt-4">
                   <div className="relative inline-block">
-                    <img 
-                      src={formData.image} 
-                      alt="Tour" 
+                    <img
+                      src={formData.image}
+                      alt="Tour"
                       className="h-32 w-32 object-cover rounded-lg"
                     />
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, image: "" }))
+                      }
                       className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none"
                     >
                       <X className="w-4 h-4" />
@@ -378,7 +409,7 @@ export default function NewItinerary() {
               <h2 className="text-lg font-medium">Highlights</h2>
               <button
                 type="button"
-                onClick={() => handleAddArrayItem('highlights')}
+                onClick={() => handleAddArrayItem("highlights")}
                 className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200"
               >
                 Add Highlight
@@ -390,13 +421,19 @@ export default function NewItinerary() {
                   <input
                     type="text"
                     value={highlight}
-                    onChange={(e) => handleArrayInputChange(index, e.target.value, 'highlights')}
+                    onChange={(e) =>
+                      handleArrayInputChange(
+                        index,
+                        e.target.value,
+                        "highlights"
+                      )
+                    }
                     className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                     placeholder="Enter highlight"
                   />
                   <button
                     type="button"
-                    onClick={() => handleRemoveArrayItem(index, 'highlights')}
+                    onClick={() => handleRemoveArrayItem(index, "highlights")}
                     className="p-1 text-red-600 hover:text-red-800"
                   >
                     <X className="w-4 h-4" />
@@ -413,22 +450,22 @@ export default function NewItinerary() {
               <button
                 type="button"
                 onClick={() => {
-                  setFormData(prev => ({
+                  setFormData((prev) => ({
                     ...prev,
                     itinerary: [
                       ...prev.itinerary,
                       {
                         day: prev.itinerary.length + 1,
-                        title: '',
-                        description: '',
-                        activities: [''],
-                        distance: '',
-                        duration: '',
-                        accommodation: '',
-                        meals: ''
-                      }
-                    ]
-                  }))
+                        title: "",
+                        description: "",
+                        activities: [""],
+                        distance: "",
+                        duration: "",
+                        accommodation: "",
+                        meals: "",
+                      },
+                    ],
+                  }));
                 }}
                 className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200"
               >
@@ -443,10 +480,12 @@ export default function NewItinerary() {
                     <button
                       type="button"
                       onClick={() => {
-                        setFormData(prev => ({
+                        setFormData((prev) => ({
                           ...prev,
-                          itinerary: prev.itinerary.filter((_, i) => i !== dayIndex)
-                        }))
+                          itinerary: prev.itinerary.filter(
+                            (_, i) => i !== dayIndex
+                          ),
+                        }));
                       }}
                       className="p-1 text-red-600 hover:text-red-800"
                     >
@@ -455,57 +494,75 @@ export default function NewItinerary() {
                   </div>
                   <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Title</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Title
+                      </label>
                       <input
                         type="text"
                         value={day.title}
                         onChange={(e) => {
-                          setFormData(prev => ({
+                          setFormData((prev) => ({
                             ...prev,
-                            itinerary: prev.itinerary.map((d, i) => 
-                              i === dayIndex ? { ...d, title: e.target.value } : d
-                            )
-                          }))
+                            itinerary: prev.itinerary.map((d, i) =>
+                              i === dayIndex
+                                ? { ...d, title: e.target.value }
+                                : d
+                            ),
+                          }));
                         }}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Description</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Description
+                      </label>
                       <textarea
                         value={day.description}
                         onChange={(e) => {
-                          setFormData(prev => ({
+                          setFormData((prev) => ({
                             ...prev,
-                            itinerary: prev.itinerary.map((d, i) => 
-                              i === dayIndex ? { ...d, description: e.target.value } : d
-                            )
-                          }))
+                            itinerary: prev.itinerary.map((d, i) =>
+                              i === dayIndex
+                                ? { ...d, description: e.target.value }
+                                : d
+                            ),
+                          }));
                         }}
                         rows={3}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Activities</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Activities
+                      </label>
                       <div className="space-y-2">
                         {day.activities.map((activity, activityIndex) => (
-                          <div key={activityIndex} className="flex items-center gap-2">
+                          <div
+                            key={activityIndex}
+                            className="flex items-center gap-2"
+                          >
                             <input
                               type="text"
                               value={activity}
                               onChange={(e) => {
-                                setFormData(prev => ({
+                                setFormData((prev) => ({
                                   ...prev,
-                                  itinerary: prev.itinerary.map((d, i) => 
-                                    i === dayIndex ? {
-                                      ...d,
-                                      activities: d.activities.map((a, j) => 
-                                        j === activityIndex ? e.target.value : a
-                                      )
-                                    } : d
-                                  )
-                                }))
+                                  itinerary: prev.itinerary.map((d, i) =>
+                                    i === dayIndex
+                                      ? {
+                                          ...d,
+                                          activities: d.activities.map(
+                                            (a, j) =>
+                                              j === activityIndex
+                                                ? e.target.value
+                                                : a
+                                          ),
+                                        }
+                                      : d
+                                  ),
+                                }));
                               }}
                               className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                               placeholder="Enter activity"
@@ -513,15 +570,19 @@ export default function NewItinerary() {
                             <button
                               type="button"
                               onClick={() => {
-                                setFormData(prev => ({
+                                setFormData((prev) => ({
                                   ...prev,
-                                  itinerary: prev.itinerary.map((d, i) => 
-                                    i === dayIndex ? {
-                                      ...d,
-                                      activities: d.activities.filter((_, j) => j !== activityIndex)
-                                    } : d
-                                  )
-                                }))
+                                  itinerary: prev.itinerary.map((d, i) =>
+                                    i === dayIndex
+                                      ? {
+                                          ...d,
+                                          activities: d.activities.filter(
+                                            (_, j) => j !== activityIndex
+                                          ),
+                                        }
+                                      : d
+                                  ),
+                                }));
                               }}
                               className="p-1 text-red-600 hover:text-red-800"
                             >
@@ -532,15 +593,17 @@ export default function NewItinerary() {
                         <button
                           type="button"
                           onClick={() => {
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
-                              itinerary: prev.itinerary.map((d, i) => 
-                                i === dayIndex ? {
-                                  ...d,
-                                  activities: [...d.activities, '']
-                                } : d
-                              )
-                            }))
+                              itinerary: prev.itinerary.map((d, i) =>
+                                i === dayIndex
+                                  ? {
+                                      ...d,
+                                      activities: [...d.activities, ""],
+                                    }
+                                  : d
+                              ),
+                            }));
                           }}
                           className="text-sm text-emerald-600 hover:text-emerald-700"
                         >
@@ -550,33 +613,41 @@ export default function NewItinerary() {
                     </div>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Distance</label>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Distance
+                        </label>
                         <input
                           type="text"
                           value={day.distance}
                           onChange={(e) => {
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
-                              itinerary: prev.itinerary.map((d, i) => 
-                                i === dayIndex ? { ...d, distance: e.target.value } : d
-                              )
-                            }))
+                              itinerary: prev.itinerary.map((d, i) =>
+                                i === dayIndex
+                                  ? { ...d, distance: e.target.value }
+                                  : d
+                              ),
+                            }));
                           }}
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Duration</label>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Duration
+                        </label>
                         <input
                           type="text"
                           value={day.duration}
                           onChange={(e) => {
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
-                              itinerary: prev.itinerary.map((d, i) => 
-                                i === dayIndex ? { ...d, duration: e.target.value } : d
-                              )
-                            }))
+                              itinerary: prev.itinerary.map((d, i) =>
+                                i === dayIndex
+                                  ? { ...d, duration: e.target.value }
+                                  : d
+                              ),
+                            }));
                           }}
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                         />
@@ -584,33 +655,41 @@ export default function NewItinerary() {
                     </div>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Accommodation</label>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Accommodation
+                        </label>
                         <input
                           type="text"
                           value={day.accommodation}
                           onChange={(e) => {
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
-                              itinerary: prev.itinerary.map((d, i) => 
-                                i === dayIndex ? { ...d, accommodation: e.target.value } : d
-                              )
-                            }))
+                              itinerary: prev.itinerary.map((d, i) =>
+                                i === dayIndex
+                                  ? { ...d, accommodation: e.target.value }
+                                  : d
+                              ),
+                            }));
                           }}
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Meals</label>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Meals
+                        </label>
                         <input
                           type="text"
                           value={day.meals}
                           onChange={(e) => {
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
-                              itinerary: prev.itinerary.map((d, i) => 
-                                i === dayIndex ? { ...d, meals: e.target.value } : d
-                              )
-                            }))
+                              itinerary: prev.itinerary.map((d, i) =>
+                                i === dayIndex
+                                  ? { ...d, meals: e.target.value }
+                                  : d
+                              ),
+                            }));
                           }}
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                         />
@@ -630,7 +709,7 @@ export default function NewItinerary() {
                 <h2 className="text-lg font-medium">Inclusions</h2>
                 <button
                   type="button"
-                  onClick={() => handleAddArrayItem('inclusions')}
+                  onClick={() => handleAddArrayItem("inclusions")}
                   className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200"
                 >
                   Add Inclusion
@@ -642,13 +721,19 @@ export default function NewItinerary() {
                     <input
                       type="text"
                       value={inclusion}
-                      onChange={(e) => handleArrayInputChange(index, e.target.value, 'inclusions')}
+                      onChange={(e) =>
+                        handleArrayInputChange(
+                          index,
+                          e.target.value,
+                          "inclusions"
+                        )
+                      }
                       className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                       placeholder="Enter inclusion"
                     />
                     <button
                       type="button"
-                      onClick={() => handleRemoveArrayItem(index, 'inclusions')}
+                      onClick={() => handleRemoveArrayItem(index, "inclusions")}
                       className="p-1 text-red-600 hover:text-red-800"
                     >
                       <X className="w-4 h-4" />
@@ -664,7 +749,7 @@ export default function NewItinerary() {
                 <h2 className="text-lg font-medium">Exclusions</h2>
                 <button
                   type="button"
-                  onClick={() => handleAddArrayItem('exclusions')}
+                  onClick={() => handleAddArrayItem("exclusions")}
                   className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200"
                 >
                   Add Exclusion
@@ -676,13 +761,19 @@ export default function NewItinerary() {
                     <input
                       type="text"
                       value={exclusion}
-                      onChange={(e) => handleArrayInputChange(index, e.target.value, 'exclusions')}
+                      onChange={(e) =>
+                        handleArrayInputChange(
+                          index,
+                          e.target.value,
+                          "exclusions"
+                        )
+                      }
                       className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                       placeholder="Enter exclusion"
                     />
                     <button
                       type="button"
-                      onClick={() => handleRemoveArrayItem(index, 'exclusions')}
+                      onClick={() => handleRemoveArrayItem(index, "exclusions")}
                       className="p-1 text-red-600 hover:text-red-800"
                     >
                       <X className="w-4 h-4" />
@@ -701,7 +792,7 @@ export default function NewItinerary() {
                 <h2 className="text-lg font-medium">Essentials</h2>
                 <button
                   type="button"
-                  onClick={() => handleAddArrayItem('essentials')}
+                  onClick={() => handleAddArrayItem("essentials")}
                   className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200"
                 >
                   Add Essential
@@ -713,13 +804,19 @@ export default function NewItinerary() {
                     <input
                       type="text"
                       value={essential}
-                      onChange={(e) => handleArrayInputChange(index, e.target.value, 'essentials')}
+                      onChange={(e) =>
+                        handleArrayInputChange(
+                          index,
+                          e.target.value,
+                          "essentials"
+                        )
+                      }
                       className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                       placeholder="Enter essential item"
                     />
                     <button
                       type="button"
-                      onClick={() => handleRemoveArrayItem(index, 'essentials')}
+                      onClick={() => handleRemoveArrayItem(index, "essentials")}
                       className="p-1 text-red-600 hover:text-red-800"
                     >
                       <X className="w-4 h-4" />
@@ -735,7 +832,7 @@ export default function NewItinerary() {
                 <h2 className="text-lg font-medium">Notes</h2>
                 <button
                   type="button"
-                  onClick={() => handleAddArrayItem('notes')}
+                  onClick={() => handleAddArrayItem("notes")}
                   className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200"
                 >
                   Add Note
@@ -747,13 +844,15 @@ export default function NewItinerary() {
                     <input
                       type="text"
                       value={note}
-                      onChange={(e) => handleArrayInputChange(index, e.target.value, 'notes')}
+                      onChange={(e) =>
+                        handleArrayInputChange(index, e.target.value, "notes")
+                      }
                       className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                       placeholder="Enter note"
                     />
                     <button
                       type="button"
-                      onClick={() => handleRemoveArrayItem(index, 'notes')}
+                      onClick={() => handleRemoveArrayItem(index, "notes")}
                       className="p-1 text-red-600 hover:text-red-800"
                     >
                       <X className="w-4 h-4" />
@@ -771,10 +870,13 @@ export default function NewItinerary() {
               <button
                 type="button"
                 onClick={() => {
-                  setFormData(prev => ({
+                  setFormData((prev) => ({
                     ...prev,
-                    features: [...prev.features, { title: '', description: '' }]
-                  }))
+                    features: [
+                      ...prev.features,
+                      { title: "", description: "" },
+                    ],
+                  }));
                 }}
                 className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200"
               >
@@ -789,10 +891,10 @@ export default function NewItinerary() {
                     <button
                       type="button"
                       onClick={() => {
-                        setFormData(prev => ({
+                        setFormData((prev) => ({
                           ...prev,
-                          features: prev.features.filter((_, i) => i !== index)
-                        }))
+                          features: prev.features.filter((_, i) => i !== index),
+                        }));
                       }}
                       className="p-1 text-red-600 hover:text-red-800"
                     >
@@ -801,32 +903,38 @@ export default function NewItinerary() {
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Title</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Title
+                      </label>
                       <input
                         type="text"
                         value={feature.title}
                         onChange={(e) => {
-                          setFormData(prev => ({
+                          setFormData((prev) => ({
                             ...prev,
-                            features: prev.features.map((f, i) => 
+                            features: prev.features.map((f, i) =>
                               i === index ? { ...f, title: e.target.value } : f
-                            )
-                          }))
+                            ),
+                          }));
                         }}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Description</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Description
+                      </label>
                       <textarea
                         value={feature.description}
                         onChange={(e) => {
-                          setFormData(prev => ({
+                          setFormData((prev) => ({
                             ...prev,
-                            features: prev.features.map((f, i) => 
-                              i === index ? { ...f, description: e.target.value } : f
-                            )
-                          }))
+                            features: prev.features.map((f, i) =>
+                              i === index
+                                ? { ...f, description: e.target.value }
+                                : f
+                            ),
+                          }));
                         }}
                         rows={3}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
@@ -845,15 +953,11 @@ export default function NewItinerary() {
               disabled={loading}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
             >
-              {loading ? 'Creating...' : 'Create Itinerary'}
+              {loading ? "Creating..." : "Create Itinerary"}
             </button>
           </div>
 
-          {error && (
-            <div className="text-red-600 text-sm mt-2">
-              {error}
-            </div>
-          )}
+          {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
         </form>
       </div>
     </div>
