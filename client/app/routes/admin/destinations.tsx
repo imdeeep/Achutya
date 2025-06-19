@@ -355,7 +355,7 @@ export default function Destinations() {
                           e.stopPropagation();
                           navigate(`/admin/destinations/${destination._id}`);
                         }}
-                        className="text-white hover:bg-white/20 p-2 rounded-full transition-colors bg-white/10 backdrop-blur-sm"
+                        className="text-gray-800 hover:text-green-800 p-2 rounded-full transition-colors bg-white"
                         title="Edit"
                       >
                         <Edit className="h-4 w-4" />
@@ -366,7 +366,7 @@ export default function Destinations() {
                           handleDelete(destination._id);
                         }}
                         disabled={deletingId === destination._id}
-                        className="text-white hover:bg-white/20 p-2 rounded-full transition-colors disabled:opacity-50 bg-white/10 backdrop-blur-sm"
+                        className="text-gray-800 hover:text-red-600 p-2 rounded-full transition-colors disabled:opacity-50 bg-white"
                         title="Delete"
                       >
                         {deletingId === destination._id ? (

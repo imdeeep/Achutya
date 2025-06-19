@@ -58,63 +58,78 @@ export const destinationApi = {
     const response = await axios.delete(`${API_URL}/destinations/${id}`);
     return response.data;
   },
+  getDestinationsBySearch: async (query: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/destinations/search`, {
+        params: { query },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error searching destinations:", error);
+      throw error;
+    }
+  },
 };
 
-// Tour API calls
+// Tours and Itinerary API calls
 export const tourApi = {
   getAllTours: async () => {
-    const response = await axios.get(`${API_URL}/tours`);
+    const response = await axios.get(`${API_URL}/tour/admin/all`);
     return response.data;
   },
 
   getTour: async (id: string) => {
-    const response = await axios.get(`${API_URL}/tours/${id}`);
+    const response = await axios.get(`${API_URL}/tour/${id}`);
+    return response.data;
+  },
+
+  getTourByDestination: async (id: string) => {
+    const response = await axios.get(`${API_URL}/tour/destination/${id}`);
     return response.data;
   },
 
   createTour: async (tourData: any) => {
-    const response = await axios.post(`${API_URL}/tours`, tourData);
+    const response = await axios.post(`${API_URL}/tour/`, tourData);
     return response.data;
   },
 
   updateTour: async (id: string, tourData: any) => {
-    const response = await axios.put(`${API_URL}/tours/${id}`, tourData);
+    const response = await axios.put(`${API_URL}/tour/${id}`, tourData);
+    return response.data;
+  },
+
+  searchTour: async (query: string) => {
+    const response = await axios.get(`${API_URL}/tour/search?q=${query}`);
     return response.data;
   },
 
   deleteTour: async (id: string) => {
-    const response = await axios.delete(`${API_URL}/tours/${id}`);
-    return response.data;
-  },
-};
-
-// Itinerary API calls
-export const itineraryApi = {
-  getAllItineraries: async () => {
-    const response = await axios.get(`${API_URL}/itineraries`);
+    const response = await axios.delete(`${API_URL}/tour/${id}/permanent`);
     return response.data;
   },
 
-  getItinerary: async (id: string) => {
-    const response = await axios.get(`${API_URL}/itineraries/${id}`);
+  softDeleteTour: async (id: string) => {
+    const response = await axios.delete(`${API_URL}/tour/${id}`);
     return response.data;
   },
 
-  createItinerary: async (itineraryData: any) => {
-    const response = await axios.post(`${API_URL}/itineraries`, itineraryData);
+  getAvailableDates: async (id: string) => {
+    const response = await axios.get(`${API_URL}/tour/${id}/available-dates`);
     return response.data;
   },
 
-  updateItinerary: async (id: string, itineraryData: any) => {
-    const response = await axios.put(
-      `${API_URL}/itineraries/${id}`,
-      itineraryData
+  addAvailableDates: async (id: string, dates: string[]) => {
+    const response = await axios.post(
+      `${API_URL}/tour/${id}/available-dates`,
+      dates
     );
     return response.data;
   },
-
-  deleteItinerary: async (id: string) => {
-    const response = await axios.delete(`${API_URL}/itineraries/${id}`);
+  updateAvailableDates: async (id: string, dateId: string, dates: string[]) => {
+    const response = await axios.put(
+      `${API_URL}/tour/${id}/available-dates/${dateId}`,
+      dates
+    );
     return response.data;
   },
 };

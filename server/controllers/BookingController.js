@@ -43,7 +43,7 @@ const bookingController = {
       }
 
       // Calculate amount
-      const totalAmount = tourDate.price * numberOfGuests;
+      const totalAmount = tour.price * numberOfGuests;
       const amountInPaise = Math.round(totalAmount * 100);
 
       const options = {

@@ -33,8 +33,8 @@ function AdminLayoutInner() {
   const navigationItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, href: "/admin/" },
     {
-      id: "itineraries",
-      label: "Itineraries",
+      id: "tours and itineraries",
+      label: "Tours and Itineraries",
       icon: Package,
       href: "/admin/itineraries",
     },

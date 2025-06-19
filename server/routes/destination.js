@@ -6,18 +6,23 @@ const {
     getDestination,
     updateDestination,
     deleteDestination,
-    getDestinationByName
+    getDestinationByName,
+    searchDestinations
 } = require('../controllers/Destination');
 
 router.route('/')
     .get(getDestinations)          
     .post(createDestination);      
 
+router.get('/search', searchDestinations);
+
 router.get('/name/:name', getDestinationByName); 
 
 router.route('/:id')
     .get(getDestination)           
     .put(updateDestination)        
-    .delete(deleteDestination);    
+    .delete(deleteDestination);
+    
+
 
 module.exports = router;
