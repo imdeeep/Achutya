@@ -10,6 +10,10 @@ const swaggerSpec = require('./swagger');
 const destinationRoutes = require('./routes/destination');
 const bookRoutes = require('./routes/bookRoutes')
 const uploadRoutes = require('./routes/uploadRoutes');
+const { getStats } = require('./controllers/statsController');
+const { isAdmin } = require('./middleware/auth');
+
+
 
 
 const app = express();
@@ -34,6 +38,7 @@ app.use('/api/destinations', destinationRoutes);
 app.use('/api/tour',tourRoutes)
 app.use('/api/book',bookRoutes)
 app.use('/api/upload', uploadRoutes);
+app.get('/api/admin/stats', isAdmin, getStats);
 
 // Health check route
 app.get("/", (req, res) => {

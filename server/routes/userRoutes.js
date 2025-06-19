@@ -7,6 +7,7 @@ const {
   updateUser,
   deleteUser
 } = require('../controllers/userController');
+const { isAdmin } = require('../middleware/auth');
 
 /**
  * @swagger
@@ -51,7 +52,7 @@ const {
  *       400:
  *         description: Invalid input
  */
-router.post('/', createUser);
+router.post('/',isAdmin, createUser);
 
 /**
  * @swagger
@@ -63,7 +64,7 @@ router.post('/', createUser);
  *       200:
  *         description: List of users
  */
-router.get('/', getUsers);
+router.get('/',isAdmin, getUsers);
 
 /**
  * @swagger
@@ -83,7 +84,7 @@ router.get('/', getUsers);
  *       404:
  *         description: User not found
  */
-router.get('/:id', getUser);
+router.get('/:id',isAdmin, getUser);
 
 /**
  * @swagger
@@ -109,7 +110,7 @@ router.get('/:id', getUser);
  *       404:
  *         description: User not found
  */
-router.put('/:id', updateUser);
+router.put('/:id',isAdmin, updateUser);
 
 /**
  * @swagger
@@ -129,6 +130,6 @@ router.put('/:id', updateUser);
  *       404:
  *         description: User not found
  */
-router.delete('/:id', deleteUser);
+router.delete('/:id',isAdmin, deleteUser);
 
 module.exports = router;
