@@ -6,8 +6,8 @@ import TourNotFound from "~/components/sections/TourDetails/TourNotFound";
 import { Error } from "~/components/sections/TourDetails/Error";
 import BookingCard from "~/components/sections/TourDetails/BookingCard";
 import MainContent from "~/components/sections/TourDetails/MainContent";
-import { itineraryApi } from "~/services/adminApi";
 import { mockTourData } from "~/lib/mockTourData";
+
 declare global {
   interface Window {
     Razorpay: any;
@@ -44,42 +44,42 @@ const TourDetails = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchTourData = async () => {
-      try {
-        setLoading(true);
-        const response = await itineraryApi.getItinerary(id!);
-        if (response.success) {
-          // Transform the API data into the expected format
-          const transformedData = {
-            ...response.data,
-            overview: {
-              description: response.data.description,
-              features: response.data.features,
-            },
-            location: `${response.data.city}, ${response.data.country}`,
-            subtitle: response.data.description.substring(0, 100) + "...",
-            rating: 4.5, // Default values for now
-            reviewCount: 0,
-            maxGroupSize: 20,
-            price: Number(response.data.price),
-          };
-          setTourData(transformedData);
-        } else {
-          throw Error(response.error || "Failed to fetch itinerary details");
-        }
-      } catch (err) {
-        setError("Failed to load tour details. Please try again.");
-        console.error("Error fetching tour data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchTourData = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const response = await itineraryApi.getItinerary(id!);
+  //       if (response.success) {
+  //         // Transform the API data into the expected format
+  //         const transformedData = {
+  //           ...response.data,
+  //           overview: {
+  //             description: response.data.description,
+  //             features: response.data.features,
+  //           },
+  //           location: `${response.data.city}, ${response.data.country}`,
+  //           subtitle: response.data.description.substring(0, 100) + "...",
+  //           rating: 4.5, // Default values for now
+  //           reviewCount: 0,
+  //           maxGroupSize: 20,
+  //           price: Number(response.data.price),
+  //         };
+  //         setTourData(transformedData);
+  //       } else {
+  //         throw Error(response.error || "Failed to fetch itinerary details");
+  //       }
+  //     } catch (err) {
+  //       setError("Failed to load tour details. Please try again.");
+  //       console.error("Error fetching tour data:", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    if (id) {
-      fetchTourData();
-    }
-  }, [id]);
+  //   if (id) {
+  //     fetchTourData();
+  //   }
+  // }, [id]);
 
   const toggleAccordion = (dayIndex: number) => {
     setExpandedDay(expandedDay === dayIndex ? null : dayIndex);

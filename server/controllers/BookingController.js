@@ -107,6 +107,8 @@ const bookingController = {
         .update(body)
         .digest('hex');
 
+      console.log(expectedSignature)
+
       if (expectedSignature !== razorpay_signature) {
         return res.status(400).json({
           success: false,
@@ -140,7 +142,7 @@ const bookingController = {
       }
 
       // Calculate amount
-      const totalAmount = tourDate.price * numberOfGuests;
+      const totalAmount = tour.price * numberOfGuests;
 
       // Create or update TourDate document
       let tourDateDoc = await TourDate.findOne({ 
@@ -154,7 +156,7 @@ const bookingController = {
           tour: tourId,
           startDate: tourDate.startDate,
           endDate: tourDate.endDate,
-          price: tourDate.price,
+          price: tour.price,
           availableSlots: tourDate.availableSlots,
           bookedSlots: numberOfGuests,
           status: 'Sold Out'
@@ -174,7 +176,7 @@ const bookingController = {
         tourDate: tourDateDoc._id,
         numberOfGuests: numberOfGuests,
         totalAmount: totalAmount,
-        pricePerPerson: tourDate.price,
+        pricePerPerson: tour.price,
         primaryContact: {
           name: userDetails.name,
           email: userDetails.email,
@@ -200,7 +202,7 @@ const bookingController = {
         amount: totalAmount,
         currency: 'INR',
         paymentMethod: 'Razorpay',
-        status: 'Completed',
+        status: 'Success',
         transactionId: razorpay_payment_id,
         orderId: razorpay_order_id,
         paymentDate: new Date()

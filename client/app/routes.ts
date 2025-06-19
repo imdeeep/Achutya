@@ -20,8 +20,6 @@ export default [
     route("users/:id", "routes/admin/users/[id].tsx"),
     route("bookings", "routes/admin/bookings.tsx"),
     route("bookings/:id", "routes/admin/bookings/[id].tsx"),
-    route("payments", "routes/admin/payments.tsx"),
-    route("payments/:id", "routes/admin/payments/[id].tsx"),
     route("cms", "routes/admin/cms.tsx"),
     route("blog", "routes/admin/blog.tsx"),
     route("blog/new", "routes/admin/blog/new.tsx"),

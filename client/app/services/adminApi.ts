@@ -2,30 +2,51 @@ import axios from "axios";
 
 const API_URL = "http://localhost:3000/api";
 
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    console.log(token)
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // User API calls
 export const userApi = {
   getAllUsers: async () => {
-    const response = await axios.get(`${API_URL}/users/`);
+    const response = await api.get('/users/');
     return response.data;
   },
 
   getUser: async (id: string) => {
-    const response = await axios.get(`${API_URL}/users/${id}`);
+    const response = await api.get(`/users/${id}`);
     return response.data;
   },
 
   createUser: async (userData: any) => {
-    const response = await axios.post(`${API_URL}/users/`, userData);
+    const response = await api.post('/users/', userData);
     return response.data;
   },
 
   updateUser: async (id: string, userData: any) => {
-    const response = await axios.put(`${API_URL}/users/${id}`, userData);
+    const response = await api.put(`/users/${id}`, userData);
     return response.data;
   },
 
   deleteUser: async (id: string) => {
-    const response = await axios.delete(`${API_URL}/users/${id}`);
+    const response = await api.delete(`/users/${id}`);
     return response.data;
   },
 };
@@ -33,36 +54,28 @@ export const userApi = {
 // Destination API calls
 export const destinationApi = {
   getAllDestinations: async () => {
-    const response = await axios.get(`${API_URL}/destinations/`);
+    const response = await api.get('/destinations/');
     return response.data;
   },
   getDestinationById: async (id: string) => {
-    const response = await axios.get(`${API_URL}/destinations/${id}`);
+    const response = await api.get(`/destinations/${id}`);
     return response.data;
   },
   createDestination: async (destinationData: any) => {
-    const response = await axios.post(
-      `${API_URL}/destinations/`,
-      destinationData
-    );
+    const response = await api.post('/destinations/', destinationData);
     return response.data;
   },
   editDestination: async (id: string, destinationData: any) => {
-    const response = await axios.put(
-      `${API_URL}/destinations/${id}`,
-      destinationData
-    );
+    const response = await api.put(`/destinations/${id}`, destinationData);
     return response.data;
   },
   deleteDestination: async (id: string) => {
-    const response = await axios.delete(`${API_URL}/destinations/${id}`);
+    const response = await api.delete(`/destinations/${id}`);
     return response.data;
   },
   getDestinationsBySearch: async (query: string) => {
     try {
-      const response = await axios.get(`${API_URL}/destinations/search`, {
-        params: { query },
-      });
+      const response = await api.get(`/destinations/search?query=${query}`);
       return response.data;
     } catch (error) {
       console.error("Error searching destinations:", error);
@@ -74,62 +87,82 @@ export const destinationApi = {
 // Tours and Itinerary API calls
 export const tourApi = {
   getAllTours: async () => {
-    const response = await axios.get(`${API_URL}/tour/admin/all`);
+    const response = await api.get('/tour/admin/all');
     return response.data;
   },
 
   getTour: async (id: string) => {
-    const response = await axios.get(`${API_URL}/tour/${id}`);
+    const response = await api.get(`/tour/${id}`);
     return response.data;
   },
 
   getTourByDestination: async (id: string) => {
-    const response = await axios.get(`${API_URL}/tour/destination/${id}`);
+    const response = await api.get(`/tour/destination/${id}`);
     return response.data;
   },
 
   createTour: async (tourData: any) => {
-    const response = await axios.post(`${API_URL}/tour/`, tourData);
+    const response = await api.post('/tour/', tourData);
     return response.data;
   },
 
   updateTour: async (id: string, tourData: any) => {
-    const response = await axios.put(`${API_URL}/tour/${id}`, tourData);
+    const response = await api.put(`/tour/${id}`, tourData);
     return response.data;
   },
 
   searchTour: async (query: string) => {
-    const response = await axios.get(`${API_URL}/tour/search?q=${query}`);
+    const response = await api.get(`/tour/search?q=${query}`);
     return response.data;
   },
 
   deleteTour: async (id: string) => {
-    const response = await axios.delete(`${API_URL}/tour/${id}/permanent`);
+    const response = await api.delete(`/tour/${id}/permanent`);
     return response.data;
   },
 
   softDeleteTour: async (id: string) => {
-    const response = await axios.delete(`${API_URL}/tour/${id}`);
+    const response = await api.delete(`/tour/${id}`);
     return response.data;
   },
 
   getAvailableDates: async (id: string) => {
-    const response = await axios.get(`${API_URL}/tour/${id}/available-dates`);
+    const response = await api.get(`/tour/${id}/available-dates`);
     return response.data;
   },
 
   addAvailableDates: async (id: string, dates: string[]) => {
-    const response = await axios.post(
-      `${API_URL}/tour/${id}/available-dates`,
-      dates
-    );
+    const response = await api.post(`/tour/${id}/available-dates`, dates);
     return response.data;
   },
   updateAvailableDates: async (id: string, dateId: string, dates: string[]) => {
-    const response = await axios.put(
-      `${API_URL}/tour/${id}/available-dates/${dateId}`,
-      dates
-    );
+    const response = await api.put(`/tour/${id}/available-dates/${dateId}`, dates);
     return response.data;
   },
 };
+
+// Booking API calls 
+export const BookingApi = {
+  getAllBookings: async()=>{
+    const response = await api.get('/book/admin/all');
+    return response.data
+  } ,
+  getBookingById: async(bookingId:string)=>{
+    const response = await api.get(`/book/${bookingId}`);
+    return response.data
+  },
+  cancelBooking: async(bookingId:string)=>{
+    const response = await api.put(`/book/${bookingId}/cancel`);
+    return response.data
+  },
+  updateBooking: async(id:string,status:string)=>{
+    const response = await api.patch(`/book/${id}/status`,{status});
+    return response.data
+  }
+}
+
+// Stats
+ export const statsApi = async () => {
+    const response = await api.get('/admin/stats');
+    return response.data;
+  }

@@ -9,10 +9,11 @@ const {
     getDestinationByName,
     searchDestinations
 } = require('../controllers/Destination');
+const { isAdmin } = require('../middleware/auth');
 
 router.route('/')
     .get(getDestinations)          
-    .post(createDestination);      
+    .post(isAdmin,createDestination);      
 
 router.get('/search', searchDestinations);
 
@@ -20,8 +21,8 @@ router.get('/name/:name', getDestinationByName);
 
 router.route('/:id')
     .get(getDestination)           
-    .put(updateDestination)        
-    .delete(deleteDestination);
+    .put(isAdmin,updateDestination)        
+    .delete(isAdmin,deleteDestination);
     
 
 

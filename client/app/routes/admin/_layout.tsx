@@ -47,15 +47,9 @@ function AdminLayoutInner() {
     { id: "users", label: "Users", icon: Users, href: "/admin/users" },
     {
       id: "bookings",
-      label: "Bookings",
-      icon: BookOpen,
-      href: "/admin/bookings",
-    },
-    {
-      id: "payments",
-      label: "Payments",
+      label: "Bookings and Payments",
       icon: CreditCard,
-      href: "/admin/payments",
+      href: "/admin/bookings",
     },
     { id: "cms", label: "CMS", icon: FileText, href: "/admin/cms" },
     { id: "blog", label: "Blog", icon: Newspaper, href: "/admin/blog" },

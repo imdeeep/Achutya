@@ -12,7 +12,7 @@ const paymentSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['Online', 'Cash', 'Bank Transfer', 'UPI'],
+    enum: ['Online', 'Cash', 'Bank Transfer', 'UPI','Razorpay'],
     required: true
   },
   transactionId: {
