@@ -89,3 +89,22 @@ exports.deleteDestination = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
+exports.searchDestinations = async (req, res) => {
+    try {
+        const { query } = req.query;
+
+        if (!query || query.trim() === '') {
+            return res.status(400).json({ success: false, error: 'Search query is required' });
+        }
+
+        // Case-insensitive, partial match
+        const destinations = await Destination.find({
+            name: { $regex: query, $options: 'i' }
+        });
+
+        res.status(200).json({ success: true, count: destinations.length, data: destinations });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};

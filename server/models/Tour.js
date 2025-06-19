@@ -98,7 +98,7 @@ const tourSchema = new mongoose.Schema({
     },
     price: {
       type: Number,
-      required: true
+      required: false
     },
     availableSlots: {
       type: Number,

@@ -12,8 +12,7 @@ import {
   Upload,
   Eye,
 } from "lucide-react";
-import { itineraryApi } from "../../services/adminApi";
-import { uploadImage } from "../../services/cloudinary";
+import { tourApi } from "~/services/adminApi";
 
 interface Itinerary {
   _id: string;
@@ -56,7 +55,6 @@ export default function Itineraries() {
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [selectedCity, setSelectedCity] = useState("All");
   const [selectedGroupType, setSelectedGroupType] = useState("All");
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     fetchItineraries();
@@ -65,12 +63,19 @@ export default function Itineraries() {
   const fetchItineraries = async () => {
     try {
       setLoading(true);
-      const response = await itineraryApi.getAllItineraries();
-      if (response.success) {
+      const response = await tourApi.getAllTours();
+      console.log("API Response:", response); // Debug log
+
+      // Handle different response structures
+      if (response.success && response.data) {
         setItineraries(response.data);
         setError(null);
+      } else if (Array.isArray(response)) {
+        // If response is directly an array
+        setItineraries(response);
+        setError(null);
       } else {
-        throw new Error(response.error || "Failed to fetch itineraries");
+        throw new Error(response.message || "Failed to fetch itineraries");
       }
     } catch (err) {
       setError("Failed to fetch itineraries");
@@ -81,40 +86,20 @@ export default function Itineraries() {
   };
 
   const handleDeleteItinerary = async (itineraryId: string) => {
-    if (window.confirm("Are you sure you want to delete this itinerary?")) {
+    if (window.confirm("Are you sure you want to delete this tour?")) {
       try {
-        const response = await itineraryApi.deleteItinerary(itineraryId);
-        if (response.success) {
+        const response = await tourApi.deleteTour(itineraryId);
+        if (response.success || response.message) {
           setItineraries(
             itineraries.filter((itinerary) => itinerary._id !== itineraryId)
           );
         } else {
-          throw new Error(response.error || "Failed to delete itinerary");
+          throw new Error(response.error || "Failed to delete tour");
         }
       } catch (err) {
-        setError("Failed to delete itinerary");
-        console.error("Error deleting itinerary:", err);
+        setError("Failed to delete tour");
+        console.error("Error deleting tour:", err);
       }
-    }
-  };
-
-  const handleImageUpload = async (file: File, itineraryId: string) => {
-    try {
-      setUploadingImage(true);
-      const imageUrl = await uploadImage(file);
-      const response = await itineraryApi.updateItinerary(itineraryId, {
-        image: imageUrl,
-      });
-      if (response.success) {
-        await fetchItineraries(); // Refresh the itineraries list
-      } else {
-        throw new Error(response.error || "Failed to update image");
-      }
-    } catch (err) {
-      console.error("Error uploading image:", err);
-      setError("Failed to upload image");
-    } finally {
-      setUploadingImage(false);
     }
   };
 
@@ -133,38 +118,54 @@ export default function Itineraries() {
 
   const countries = [
     "All",
-    ...new Set(itineraries.map((itinerary) => itinerary.country)),
+    ...new Set(
+      itineraries.map((itinerary) => itinerary.country).filter(Boolean)
+    ),
   ];
   const cities = [
     "All",
-    ...new Set(itineraries.map((itinerary) => itinerary.city)),
+    ...new Set(itineraries.map((itinerary) => itinerary.city).filter(Boolean)),
   ];
   const groupTypes = ["All", "Group", "Private", "Custom"];
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">Error</h3>
+              <div className="mt-2 text-sm text-red-700">
+                <p>{error}</p>
+              </div>
+              <div className="mt-4">
+                <button
+                  onClick={fetchItineraries}
+                  className="text-sm bg-red-100 text-red-800 rounded-md px-3 py-2 hover:bg-red-200"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <div className="mb-8 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Itineraries</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage your tour itineraries and packages
-          </p>
-        </div>
-        <Link
-          to="/admin/itineraries/new"
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Add New Itinerary
-        </Link>
-      </div>
-
-      {/* Filters */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="relative">
+    <div className="px-3">
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-8 items-start sm:items-center">
+        <div className="relative flex-1 w-full sm:w-auto">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
           </div>
@@ -173,42 +174,42 @@ export default function Itineraries() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search itineraries..."
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm h-10"
           />
         </div>
-        <select
-          value={selectedCountry}
-          onChange={(e) => setSelectedCountry(e.target.value)}
-          className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md"
+        <div className="w-full sm:w-auto">
+          <select
+            value={selectedCountry}
+            onChange={(e) => setSelectedCountry(e.target.value)}
+            className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm h-10"
+          >
+            {countries.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="w-full sm:w-auto">
+          <select
+            value={selectedGroupType}
+            onChange={(e) => setSelectedGroupType(e.target.value)}
+            className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm h-10"
+          >
+            {groupTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Link
+          to="/admin/itineraries/new"
+          className="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 h-10 whitespace-nowrap"
         >
-          {countries.map((country) => (
-            <option key={country} value={country}>
-              {country}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedCity}
-          onChange={(e) => setSelectedCity(e.target.value)}
-          className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md"
-        >
-          {cities.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedGroupType}
-          onChange={(e) => setSelectedGroupType(e.target.value)}
-          className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md"
-        >
-          {groupTypes.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
+          <Plus className="w-5 h-5 mr-2" />
+          Add New Tour
+        </Link>
       </div>
 
       {/* Itineraries Grid */}
@@ -220,51 +221,68 @@ export default function Itineraries() {
           >
             <div className="relative">
               <img
-                src={itinerary.image}
+                src={itinerary.image || "/placeholder-image.jpg"}
                 alt={itinerary.title}
                 className="w-full h-48 object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder-image.jpg";
+                }}
               />
               <div className="absolute top-4 right-4 flex items-center space-x-2">
                 <Link
                   to={`/tour/${itinerary._id}`}
                   className="p-2 bg-white rounded-full shadow-sm hover:bg-emerald-50 text-gray-600 hover:text-emerald-600 transition-colors duration-200"
+                  title="View Tour"
                 >
                   <Eye className="w-4 h-4" />
                 </Link>
                 <Link
                   to={`/admin/itineraries/update/${itinerary._id}`}
                   className="p-2 bg-white rounded-full shadow-sm hover:bg-emerald-50 text-gray-600 hover:text-emerald-600 transition-colors duration-200"
+                  title="Edit Tour"
                 >
                   <Edit className="w-4 h-4" />
                 </Link>
                 <button
                   onClick={() => handleDeleteItinerary(itinerary._id)}
                   className="p-2 bg-white rounded-full shadow-sm hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors duration-200"
+                  title="Delete Tour"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
             <div className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 mb-2 line-clamp-2">
                 {itinerary.title}
               </h3>
+              <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                {itinerary.description}
+              </p>
               <div className="space-y-3">
                 <div className="flex items-center text-sm text-gray-500">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  {itinerary.duration}
+                  <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>{itinerary.duration}</span>
                 </div>
                 <div className="flex items-center text-sm text-gray-500">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  {itinerary.city}, {itinerary.country}
+                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>
+                    {itinerary.city}
+                    {itinerary.city && itinerary.country && ", "}
+                    {itinerary.country}
+                  </span>
                 </div>
                 <div className="flex items-center text-sm text-gray-500">
-                  <Users className="w-4 h-4 mr-2" />
-                  {itinerary.groupType}
+                  <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>{itinerary.groupType}</span>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                   <span className="text-lg font-semibold text-emerald-600">
-                    ₹{itinerary.price}
+                    ₹
+                    {itinerary.price
+                      ? Number(itinerary.price).toLocaleString()
+                      : "N/A"}
                   </span>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                     {itinerary.groupType}
@@ -277,7 +295,7 @@ export default function Itineraries() {
       </div>
 
       {/* Empty State */}
-      {filteredItineraries.length === 0 && (
+      {filteredItineraries.length === 0 && !loading && (
         <div className="text-center py-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
             <Search className="w-8 h-8 text-gray-400" />
@@ -285,9 +303,26 @@ export default function Itineraries() {
           <h3 className="text-lg font-medium text-gray-900 mb-1">
             No itineraries found
           </h3>
-          <p className="text-gray-500">
-            Try adjusting your search or filter criteria
+          <p className="text-gray-500 mb-4">
+            {searchQuery ||
+            selectedCountry !== "All" ||
+            selectedCity !== "All" ||
+            selectedGroupType !== "All"
+              ? "Try adjusting your search or filter criteria"
+              : "Get started by creating your first itinerary"}
           </p>
+          {!searchQuery &&
+            selectedCountry === "All" &&
+            selectedCity === "All" &&
+            selectedGroupType === "All" && (
+              <Link
+                to="/admin/itineraries/new"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add New Tour
+              </Link>
+            )}
         </div>
       )}
     </div>
