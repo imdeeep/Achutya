@@ -85,7 +85,7 @@ export default function BookingDetail() {
 
   const handleStatusUpdate = async () => {
     if (!booking || !selectedStatus) return;
-    
+
     try {
       setUpdating(true);
       await BookingApi.updateBooking(booking._id, selectedStatus);
@@ -101,9 +101,9 @@ export default function BookingDetail() {
 
   const handleCancelBooking = async () => {
     if (!booking) return;
-    
+
     if (!confirm("Are you sure you want to cancel this booking?")) return;
-    
+
     try {
       setUpdating(true);
       await BookingApi.cancelBooking(booking._id);
@@ -234,7 +234,9 @@ export default function BookingDetail() {
         </Link>
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Booking Details</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Booking Details
+            </h1>
             <p className="mt-2 text-gray-600">
               Booking ID: {booking.bookingId}
             </p>
@@ -257,7 +259,9 @@ export default function BookingDetail() {
 
       {/* Status Update Section */}
       <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6 mb-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Status Management</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Status Management
+        </h3>
         <div className="flex items-center space-x-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -321,7 +325,7 @@ export default function BookingDetail() {
                     Tour Name
                   </div>
                   <div className="text-lg font-semibold text-gray-900">
-                    {booking.tour?.title || 'N/A'}
+                    {booking.tour?.title || "N/A"}
                   </div>
                 </div>
                 <div>
@@ -329,7 +333,7 @@ export default function BookingDetail() {
                     Location
                   </div>
                   <div className="text-lg font-semibold text-gray-900">
-                    {booking.tour?.location || 'N/A'}
+                    {booking.tour?.location || "N/A"}
                   </div>
                 </div>
                 <div>
@@ -337,7 +341,9 @@ export default function BookingDetail() {
                     Start Date
                   </div>
                   <div className="text-lg font-semibold text-gray-900">
-                    {booking.tourDate?.startDate ? formatDate(booking.tourDate.startDate) : 'N/A'}
+                    {booking.tourDate?.startDate
+                      ? formatDate(booking.tourDate.startDate)
+                      : "N/A"}
                   </div>
                 </div>
                 <div>
@@ -345,7 +351,9 @@ export default function BookingDetail() {
                     End Date
                   </div>
                   <div className="text-lg font-semibold text-gray-900">
-                    {booking.tourDate?.endDate ? formatDate(booking.tourDate.endDate) : 'N/A'}
+                    {booking.tourDate?.endDate
+                      ? formatDate(booking.tourDate.endDate)
+                      : "N/A"}
                   </div>
                 </div>
               </div>
@@ -367,7 +375,7 @@ export default function BookingDetail() {
                     Primary Contact
                   </div>
                   <div className="text-lg font-semibold text-gray-900">
-                    {booking.primaryContact?.name || 'N/A'}
+                    {booking.primaryContact?.name || "N/A"}
                   </div>
                 </div>
                 <div>
@@ -385,7 +393,7 @@ export default function BookingDetail() {
                   </div>
                   <div className="text-lg font-semibold text-gray-900 flex items-center">
                     <Phone className="w-5 h-5 mr-2 text-emerald-600" />
-                    {booking.primaryContact?.phone || 'N/A'}
+                    {booking.primaryContact?.phone || "N/A"}
                   </div>
                 </div>
                 <div>
@@ -394,7 +402,7 @@ export default function BookingDetail() {
                   </div>
                   <div className="text-lg font-semibold text-gray-900 flex items-center">
                     <Mail className="w-5 h-5 mr-2 text-emerald-600" />
-                    {booking.primaryContact?.email || 'N/A'}
+                    {booking.primaryContact?.email || "N/A"}
                   </div>
                 </div>
               </div>
@@ -439,9 +447,13 @@ export default function BookingDetail() {
                   <div className="text-sm font-medium text-gray-500 mb-1">
                     Payment Status
                   </div>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPaymentStatusColor(booking.paymentStatus || 'pending')}`}>
-                    {getStatusIcon(booking.paymentStatus || 'pending')}
-                    <span className="ml-1">{booking.paymentStatus || 'Pending'}</span>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPaymentStatusColor(booking.paymentStatus || "pending")}`}
+                  >
+                    {getStatusIcon(booking.paymentStatus || "pending")}
+                    <span className="ml-1">
+                      {booking.paymentStatus || "Pending"}
+                    </span>
                   </span>
                 </div>
                 {booking.transactionId && (
@@ -480,16 +492,23 @@ export default function BookingDetail() {
           {/* Current Status */}
           <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <h3 className="text-lg font-medium text-gray-900">Current Status</h3>
+              <h3 className="text-lg font-medium text-gray-900">
+                Current Status
+              </h3>
             </div>
             <div className="p-6">
               <div className="text-center">
-                <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(booking.status || 'pending')}`}>
-                  {getStatusIcon(booking.status || 'pending')}
-                  <span className="ml-2">{booking.status || 'Pending'}</span>
+                <div
+                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(booking.status || "pending")}`}
+                >
+                  {getStatusIcon(booking.status || "pending")}
+                  <span className="ml-2">{booking.status || "Pending"}</span>
                 </div>
                 <div className="mt-4 text-sm text-gray-500">
-                  Last updated: {booking.updatedAt ? formatDateTime(booking.updatedAt) : 'N/A'}
+                  Last updated:{" "}
+                  {booking.updatedAt
+                    ? formatDateTime(booking.updatedAt)
+                    : "N/A"}
                 </div>
               </div>
             </div>
@@ -516,7 +535,9 @@ export default function BookingDetail() {
                       Booking Created
                     </div>
                     <div className="text-sm text-gray-500">
-                      {booking.bookingDate ? formatDateTime(booking.bookingDate) : 'N/A'}
+                      {booking.bookingDate
+                        ? formatDateTime(booking.bookingDate)
+                        : "N/A"}
                     </div>
                   </div>
                 </div>
@@ -552,7 +573,7 @@ export default function BookingDetail() {
                     <div className="text-sm text-gray-500">
                       {booking.tourDate?.startDate && booking.tourDate?.endDate
                         ? `${formatDate(booking.tourDate.startDate)} - ${formatDate(booking.tourDate.endDate)}`
-                        : 'N/A'}
+                        : "N/A"}
                     </div>
                   </div>
                 </div>
@@ -563,25 +584,31 @@ export default function BookingDetail() {
           {/* Quick Actions */}
           <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
+              <h3 className="text-lg font-medium text-gray-900">
+                Quick Actions
+              </h3>
             </div>
             <div className="p-6 space-y-3">
               <button
-                onClick={() => copyToClipboard(booking.primaryContact?.phone || '')}
+                onClick={() =>
+                  copyToClipboard(booking.primaryContact?.phone || "")
+                }
                 className="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
                 <Phone className="w-4 h-4 mr-2" />
                 Copy Phone Number
               </button>
               <button
-                onClick={() => copyToClipboard(booking.primaryContact?.email || '')}
+                onClick={() =>
+                  copyToClipboard(booking.primaryContact?.email || "")
+                }
                 className="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
                 <Mail className="w-4 h-4 mr-2" />
                 Copy Email
               </button>
               <button
-                onClick={() => copyToClipboard(booking.transactionId || '')}
+                onClick={() => copyToClipboard(booking.transactionId || "")}
                 className="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
                 <CreditCard className="w-4 h-4 mr-2" />

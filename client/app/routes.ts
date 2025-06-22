@@ -7,6 +7,7 @@ export default [
   route("login", "routes/login.tsx"),
   route("register", "routes/register.tsx"),
   route("bookings", "routes/booking.tsx"),
+  route("booking", "routes/bookings.tsx"),
   route("unauthorized", "routes/unauthorized.tsx"),
   route("admin", "routes/admin/_layout.tsx", [
     index("routes/admin/dashboard.tsx"),

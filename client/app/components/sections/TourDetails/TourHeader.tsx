@@ -19,7 +19,7 @@ const TourHeader = ({ tourData }: { tourData: TourData }) => {
   return (
     <div className="relative h-96 bg-gray-900">
       <img
-        src="https://images.pexels.com/photos/4428291/pexels-photo-4428291.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+        src={tourData.heroImage}
         alt={tourData.title}
         className="absolute inset-0 w-full h-full object-cover"
       />

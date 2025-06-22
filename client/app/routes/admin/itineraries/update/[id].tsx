@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate,useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import {
   ArrowLeft,
   Save,
@@ -380,7 +380,7 @@ export default function NewItinerary() {
       fetchItinerary();
     }
   }, [id]);
-  
+
   // Debounced search effect
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -813,7 +813,7 @@ export default function NewItinerary() {
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                   <div className="mb-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">
-                    Update Tour Details
+                      Update Tour Details
                     </h2>
                     <p className="text-gray-600">
                       Configure tour specifications and location
@@ -1023,7 +1023,7 @@ export default function NewItinerary() {
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                   <div className="mb-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">
-                    Update Dates & Pricing
+                      Update Dates & Pricing
                     </h2>
                     <p className="text-gray-600">
                       Set tour prices and available dates
@@ -1089,7 +1089,7 @@ export default function NewItinerary() {
                       <div className="flex items-center gap-2">
                         <Calendar className="w-5 h-5 text-emerald-600" />
                         <h3 className="text-lg font-semibold text-gray-900">
-                        Update Available Dates
+                          Update Available Dates
                         </h3>
                       </div>
                       <button
@@ -1197,7 +1197,7 @@ export default function NewItinerary() {
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                   <div className="mb-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">
-                    Update Tour Content
+                      Update Tour Content
                     </h2>
                     <p className="text-gray-600">
                       Highlights, inclusions, and other tour details
@@ -1304,7 +1304,7 @@ export default function NewItinerary() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h2 className="text-xl font-bold text-gray-900 mb-2">
-                        Update Tour Itinerary
+                          Update Tour Itinerary
                         </h2>
                         <p className="text-gray-600">
                           Day-by-day schedule of your tour
