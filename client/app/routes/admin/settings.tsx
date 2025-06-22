@@ -18,7 +18,9 @@ export default function Settings() {
     passwordExpiry: "90 days",
   });
 
-  const handleGeneralChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleGeneralChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setGeneralSettings((prev) => ({
       ...prev,
@@ -34,7 +36,9 @@ export default function Settings() {
     }));
   };
 
-  const handleSecurityChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleSecurityChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value, checked, type } = e.target;
     setSecuritySettings((prev) => ({
       ...prev,
@@ -54,7 +58,9 @@ export default function Settings() {
     <div className="p-6">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">Manage platform configurations and preferences</p>
+        <p className="mt-1 text-sm text-gray-500">
+          Manage platform configurations and preferences
+        </p>
       </div>
 
       <form onSubmit={handleSaveSettings} className="space-y-8">
@@ -67,7 +73,10 @@ export default function Settings() {
           </div>
           <div className="p-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="siteName" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="siteName"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Site Name
               </label>
               <input
@@ -80,7 +89,10 @@ export default function Settings() {
               />
             </div>
             <div>
-              <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="contactEmail"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Contact Email
               </label>
               <input
@@ -93,7 +105,10 @@ export default function Settings() {
               />
             </div>
             <div>
-              <label htmlFor="timezone" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="timezone"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Timezone
               </label>
               <select
@@ -109,7 +124,10 @@ export default function Settings() {
               </select>
             </div>
             <div>
-              <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="currency"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Currency
               </label>
               <select
@@ -145,7 +163,10 @@ export default function Settings() {
                 onChange={handleNotificationChange}
                 className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
               />
-              <label htmlFor="newBookingEmail" className="ml-3 block text-sm text-gray-900">
+              <label
+                htmlFor="newBookingEmail"
+                className="ml-3 block text-sm text-gray-900"
+              >
                 Email me on new bookings
               </label>
             </div>
@@ -158,7 +179,10 @@ export default function Settings() {
                 onChange={handleNotificationChange}
                 className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
               />
-              <label htmlFor="userSignupEmail" className="ml-3 block text-sm text-gray-900">
+              <label
+                htmlFor="userSignupEmail"
+                className="ml-3 block text-sm text-gray-900"
+              >
                 Email me when a new user signs up
               </label>
             </div>
@@ -171,7 +195,10 @@ export default function Settings() {
                 onChange={handleNotificationChange}
                 className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
               />
-              <label htmlFor="reviewNotification" className="ml-3 block text-sm text-gray-900">
+              <label
+                htmlFor="reviewNotification"
+                className="ml-3 block text-sm text-gray-900"
+              >
                 Notify me of new customer reviews
               </label>
             </div>
@@ -195,12 +222,18 @@ export default function Settings() {
                 onChange={handleSecurityChange}
                 className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
               />
-              <label htmlFor="twoFactorAuth" className="ml-3 block text-sm text-gray-900">
+              <label
+                htmlFor="twoFactorAuth"
+                className="ml-3 block text-sm text-gray-900"
+              >
                 Enable Two-Factor Authentication
               </label>
             </div>
             <div>
-              <label htmlFor="passwordExpiry" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="passwordExpiry"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password Expiry
               </label>
               <select
@@ -239,4 +272,4 @@ export default function Settings() {
       </form>
     </div>
   );
-} 
+}

@@ -6,10 +6,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-import { AuthProvider } from './lib/auth';
 import "./app.css";
-import { useEffect } from "react";
-// import Lenis from "lenis";
+import { AuthProvider } from "./hooks/auth";
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -20,7 +18,7 @@ export const links = () => [
   },
   {
     rel: "icon",
-    href: "/images/logo.jpeg",
+    href: "/logo.jpg",
     type: "image/jpeg",
   },
   {
@@ -30,17 +28,6 @@ export const links = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  // useEffect(() => {
-  //   const lenis = new Lenis({
-  //     autoRaf: true,
-  //   });
-
-  //   function raf(time: number) {
-  //     lenis.raf(time);
-  //     requestAnimationFrame(raf);
-  //   }
-  //   requestAnimationFrame(raf);
-  // }, []);
   return (
     <html lang="en">
       <head>

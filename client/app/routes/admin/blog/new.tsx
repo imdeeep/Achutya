@@ -19,7 +19,9 @@ export default function NewBlogPost() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -42,13 +44,18 @@ export default function NewBlogPost() {
 
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">Add New Blog Post</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Add New Blog Post
+          </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Title
               </label>
               <input
@@ -62,7 +69,10 @@ export default function NewBlogPost() {
               />
             </div>
             <div>
-              <label htmlFor="author" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="author"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Author
               </label>
               <input
@@ -76,7 +86,10 @@ export default function NewBlogPost() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="content"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Content
               </label>
               <textarea
@@ -90,7 +103,10 @@ export default function NewBlogPost() {
               />
             </div>
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="status"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Status
               </label>
               <select

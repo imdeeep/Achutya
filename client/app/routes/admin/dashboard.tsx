@@ -1,212 +1,494 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users,
-  Calendar,
-  TrendingUp,
-  DollarSign,
-  Map,
-  Star,
-  ArrowUpRight,
-  ArrowDownRight,
-  BarChart,
-  BookOpen,
   MapPin,
+  Calendar,
+  DollarSign,
+  Star,
+  TrendingUp,
   Package,
-  Settings,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
 } from "lucide-react";
+import { statsApi } from "~/services/adminApi";
 
-const stats = [
-  {
-    name: "Total Bookings",
-    value: "2,543",
-    change: "+12.5%",
-    trend: "up",
-    icon: Calendar,
-  },
-  {
-    name: "Total Users",
-    value: "1,234",
-    change: "+8.2%",
-    trend: "up",
-    icon: Users,
-  },
-  {
-    name: "Revenue This Month",
-    value: "₹45,231",
-    change: "+23.1%",
-    trend: "up",
-    icon: DollarSign,
-  },
-  {
-    name: "New Signups",
-    value: "156",
-    change: "-2.4%",
-    trend: "down",
-    icon: Users,
-  },
-];
+interface UserStats {
+  total: number;
+  admins: number;
+  normalUsers: number;
+  latest: Array<{
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+    createdAt: string;
+  }>;
+}
 
-const topDestinations = [
-  {
-    name: "Goa",
-    bookings: 234,
-    revenue: "₹12,450",
-    change: "+15.3%",
-    trend: "up",
-  },
-  {
-    name: "Kerala",
-    bookings: 189,
-    revenue: "₹9,850",
-    change: "+8.7%",
-    trend: "up",
-  },
-  {
-    name: "Rajasthan",
-    bookings: 156,
-    revenue: "₹8,230",
-    change: "-3.2%",
-    trend: "down",
-  },
-  {
-    name: "Himachal",
-    bookings: 143,
-    revenue: "₹7,450",
-    change: "+12.1%",
-    trend: "up",
-  },
-];
+interface TourStats {
+  total: number;
+  averageRating: number;
+  topRated: Array<{
+    _id: string;
+    title: string;
+    slug: string;
+    rating: number;
+  }>;
+}
 
-const recentBookings = [
-  {
-    id: "BK001",
-    customer: "John Doe",
-    destination: "Goa",
-    amount: "₹12,500",
-    status: "Confirmed",
-    date: "2024-03-15",
-  },
-  {
-    id: "BK002",
-    customer: "Jane Smith",
-    destination: "Kerala",
-    amount: "₹15,800",
-    status: "Pending",
-    date: "2024-03-14",
-  },
-  {
-    id: "BK003",
-    customer: "Mike Johnson",
-    destination: "Rajasthan",
-    amount: "₹18,200",
-    status: "Completed",
-    date: "2024-03-13",
-  },
-];
+interface DestinationStats {
+  total: number;
+  india: number;
+  international: number;
+  recent: Array<{
+    _id: string;
+    name: string;
+    country: string;
+    countryName: string;
+    image: string;
+    createdAt: string;
+  }>;
+}
 
-export default function AdminDashboard() {
-  const [timeRange, setTimeRange] = useState("week");
+interface PaymentStats {
+  revenue: number;
+  success: number;
+}
+
+interface BookingStats {
+  total: number;
+  confirmed: number;
+  pending: number;
+  cancelled: number;
+  recent: Array<{
+    _id: string;
+    bookingId: string;
+    tourName: string;
+    userName: string;
+    status: string;
+    totalAmount: number;
+    bookingDate: string;
+    primaryContact: {
+      name: string;
+      email: string;
+      phone: string;
+    };
+    tour: {
+      title: string;
+    };
+    numberOfGuests: number;
+    paymentStatus: string;
+  }>;
+}
+
+interface StatsData {
+  users: UserStats;
+  tours: TourStats;
+  destinations: DestinationStats;
+  payments: PaymentStats;
+  bookings: BookingStats;
+}
+
+const AdminDashboard = () => {
+  const [stats, setStats] = useState<StatsData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const response = await statsApi();
+      if (response.success) {
+        setStats(response.data);
+      }
+    } catch (err) {
+      setError("Failed to fetch stats");
+      console.error("Error fetching stats:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Error Loading Dashboard
+          </h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={fetchStats}
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "confirmed":
+        return "text-emerald-600 bg-emerald-50";
+      case "pending":
+        return "text-yellow-600 bg-yellow-50";
+      case "completed":
+        return "text-blue-600 bg-blue-50";
+      case "cancelled":
+        return "text-red-600 bg-red-50";
+      default:
+        return "text-gray-600 bg-gray-50";
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-500">Overview of your travel management platform</p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Card 1: Total Bookings */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 bg-emerald-100 rounded-full p-3 text-emerald-600">
-              <BookOpen className="h-6 w-6" />
+    <div className="min-h-screen bg-gray-50">
+      <div className="px-4 max-w-7xl mx-auto">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Users Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Users</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">
+                  {stats.users.total}
+                </p>
+                <div className="flex items-center mt-2 space-x-2">
+                  <span className="text-xs text-gray-500">
+                    {stats.users.admins} Admins
+                  </span>
+                  <span className="text-xs text-gray-400">•</span>
+                  <span className="text-xs text-gray-500">
+                    {stats.users.normalUsers} Users
+                  </span>
+                </div>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Bookings</p>
-              <p className="text-2xl font-bold text-gray-900">1,234</p>
+          </div>
+
+          {/* Tours Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Tours</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">
+                  {stats.tours.total}
+                </p>
+                <div className="flex items-center mt-2">
+                  <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                  <span className="text-sm text-gray-600">
+                    {stats.tours.averageRating} avg rating
+                  </span>
+                </div>
+              </div>
+              <div className="p-3 bg-emerald-50 rounded-lg">
+                <Package className="h-6 w-6 text-emerald-600" />
+              </div>
+            </div>
+          </div>
+
+          {/* Destinations Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Destinations
+                </p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">
+                  {stats.destinations.total}
+                </p>
+                <div className="flex items-center mt-2 space-x-2">
+                  <span className="text-xs text-gray-500">
+                    {stats.destinations.india} India
+                  </span>
+                  <span className="text-xs text-gray-400">•</span>
+                  <span className="text-xs text-gray-500">
+                    {stats.destinations.international} International
+                  </span>
+                </div>
+              </div>
+              <div className="p-3 bg-purple-50 rounded-lg">
+                <MapPin className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </div>
+
+          {/* Revenue Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Revenue
+                </p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">
+                  {formatCurrency(stats.payments.revenue)}
+                </p>
+                <div className="flex items-center mt-2">
+                  <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
+                  <span className="text-sm text-emerald-600">
+                    {stats.payments.success} payments
+                  </span>
+                </div>
+              </div>
+              <div className="p-3 bg-green-50 rounded-lg">
+                <DollarSign className="h-6 w-6 text-green-600" />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Card 2: Total Revenue */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 bg-blue-100 rounded-full p-3 text-blue-600">
-              <DollarSign className="h-6 w-6" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Top Rated Tours */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+              Top Rated Tours
+            </h3>
+            <div className="space-y-4">
+              {stats.tours.topRated.map((tour, index) => (
+                <div
+                  key={tour._id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-emerald-600">
+                        #{index + 1}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">
+                        {tour.title}
+                      </h4>
+                      <p className="text-sm text-gray-500 capitalize">
+                        {tour.slug.replace(/-/g, " ")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                    <span className="text-sm font-medium text-gray-900">
+                      {tour.rating}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">₹1,23,45,678</p>
+          </div>
+
+          {/* Recent Destinations */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+              Recent Destinations
+            </h3>
+            <div className="space-y-4">
+              {stats.destinations.recent.slice(0, 3).map((destination) => (
+                <div
+                  key={destination._id}
+                  className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg"
+                >
+                  <img
+                    src={destination.image}
+                    alt={destination.name}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-gray-900">
+                      {destination.name}
+                    </h4>
+                    <p className="text-sm text-gray-500">
+                      {destination.countryName}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Added {formatDate(destination.createdAt)}
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                    Active
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Card 3: Total Users */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 bg-purple-100 rounded-full p-3 text-purple-600">
-              <Users className="h-6 w-6" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900">5,678</p>
+        {/* Recent Bookings */}
+        {stats.bookings.recent.length > 0 && (
+          <div className="mt-8">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Recent Bookings
+                </h3>
+                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <span>Total: {stats.bookings.total}</span>
+                  <span>•</span>
+                  <span>Cancelled: {stats.bookings.cancelled}</span>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Booking ID
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Customer
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Tour
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Amount
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats.bookings.recent.map((booking) => (
+                      <tr
+                        key={booking._id}
+                        className="border-b border-gray-100"
+                      >
+                        <td className="py-4 px-4">
+                          <span className="font-mono text-sm text-gray-600">
+                            {booking.bookingId.slice(0, 8)}...
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {booking.primaryContact.name}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {booking.primaryContact.email}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <p className="text-gray-900">{booking.tour.title}</p>
+                          <p className="text-sm text-gray-500">
+                            {booking.numberOfGuests} guests
+                          </p>
+                        </td>
+                        <td className="py-4 px-4">
+                          <p className="font-medium text-gray-900">
+                            {formatCurrency(booking.totalAmount)}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {booking.paymentStatus}
+                          </p>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}
+                          >
+                            {booking.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <p className="text-sm text-gray-900">
+                            {formatDate(booking.bookingDate)}
+                          </p>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Card 4: Active Itineraries */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 bg-yellow-100 rounded-full p-3 text-yellow-600">
-              <Package className="h-6 w-6" />
+        {/* Latest Users */}
+        <div className="mt-8">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+              Latest Users
+            </h3>
+            <div className="space-y-4">
+              {stats.users.latest.map((user) => (
+                <div
+                  key={user._id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-blue-600">
+                        {user.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">{user.name}</h4>
+                      <p className="text-sm text-gray-500">{user.email}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.role === "admin"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {user.role}
+                    </span>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {formatDate(user.createdAt)}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Active Itineraries</p>
-              <p className="text-2xl font-bold text-gray-900">150</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Recent Activities */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Activities</h2>
-          <ul className="divide-y divide-gray-200">
-            <li className="py-3 flex justify-between items-center">
-              <div className="text-sm text-gray-900">New booking for Rajasthan Tour by John Doe</div>
-              <div className="text-sm text-gray-500">5 mins ago</div>
-            </li>
-            <li className="py-3 flex justify-between items-center">
-              <div className="text-sm text-gray-900">New user registered: Jane Smith</div>
-              <div className="text-sm text-gray-500">1 hour ago</div>
-            </li>
-            <li className="py-3 flex justify-between items-center">
-              <div className="text-sm text-gray-900">Itinerary "Kerala Backwater" updated</div>
-              <div className="text-sm text-gray-500">1 day ago</div>
-            </li>
-          </ul>
-        </div>
-
-        {/* Quick Links */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Links</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <a href="/admin/itineraries" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
-              <Package className="w-5 h-5 mr-2" /> Manage Itineraries
-            </a>
-            <a href="/admin/bookings" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-              <BookOpen className="w-5 h-5 mr-2" /> View Bookings
-            </a>
-            <a href="/admin/users" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-              <Users className="w-5 h-5 mr-2" /> Manage Users
-            </a>
-            <a href="/admin/settings" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-              <Settings className="w-5 h-5 mr-2" /> Settings
-            </a>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default AdminDashboard;

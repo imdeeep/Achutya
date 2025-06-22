@@ -1,43 +1,48 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { useAuth } from '../lib/auth';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { useAuth } from "~/hooks/auth";
+import { Mail, Lock, Loader2 } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       await login(email, password);
-      navigate('/');
+      navigate("/");
     } catch (err) {
-      setError('Invalid email or password');
+      setError("Invalid email or password");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col text-black justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link to="/" className="flex justify-center">
-          <h1 className="text-4xl font-bold text-emerald-600 tracking-tight">Achyuta</h1>
+          <h1 className="text-4xl font-bold text-emerald-600 tracking-tight">
+            Achyuta
+          </h1>
         </Link>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
           Welcome back
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Don't have an account?{" "}
-          <Link to="/register" className="font-medium text-emerald-600 hover:text-emerald-500">
+          <Link
+            to="/register"
+            className="font-medium text-emerald-600 hover:text-emerald-500"
+          >
             Sign up
           </Link>
         </p>
@@ -53,7 +58,10 @@ export default function Login() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <div className="mt-1 relative">
@@ -75,7 +83,10 @@ export default function Login() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <div className="mt-1 relative">
@@ -104,13 +115,19 @@ export default function Login() {
                   type="checkbox"
                   className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-gray-900"
+                >
                   Remember me
                 </label>
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-emerald-600 hover:text-emerald-500">
+                <a
+                  href="#"
+                  className="font-medium text-emerald-600 hover:text-emerald-500"
+                >
                   Forgot your password?
                 </a>
               </div>
@@ -137,4 +154,4 @@ export default function Login() {
       </div>
     </div>
   );
-} 
+}

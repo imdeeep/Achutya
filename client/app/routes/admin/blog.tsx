@@ -31,8 +31,11 @@ export default function Blog() {
   const [filterStatus, setFilterStatus] = useState("All");
 
   const filteredPosts = mockBlogPosts.filter((post) => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "All" || post.status === filterStatus;
+    const matchesSearch = post.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      filterStatus === "All" || post.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -81,7 +84,9 @@ export default function Blog() {
 
         <div className="p-6">
           {filteredPosts.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No blog posts found.</p>
+            <p className="text-gray-500 text-center py-8">
+              No blog posts found.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -120,10 +125,14 @@ export default function Blog() {
                   {filteredPosts.map((post) => (
                     <tr key={post.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{post.title}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {post.title}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{post.author}</div>
+                        <div className="text-sm text-gray-900">
+                          {post.author}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{post.date}</div>
@@ -163,4 +172,4 @@ export default function Blog() {
       </div>
     </div>
   );
-} 
+}

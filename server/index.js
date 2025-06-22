@@ -3,7 +3,18 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
-const paymentRoutes = require('./routes/payment');
+const userRoutes = require('./routes/userRoutes');
+const tourRoutes = require('./routes/tourRoutes');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
+const destinationRoutes = require('./routes/destination');
+const bookRoutes = require('./routes/bookRoutes')
+const uploadRoutes = require('./routes/uploadRoutes');
+const { getStats } = require('./controllers/statsController');
+const { isAdmin } = require('./middleware/auth');
+
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -12,6 +23,9 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Serve Swagger docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
@@ -19,7 +33,12 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api', paymentRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/destinations', destinationRoutes);
+app.use('/api/tour',tourRoutes)
+app.use('/api/book',bookRoutes)
+app.use('/api/upload', uploadRoutes);
+app.get('/api/admin/stats', isAdmin, getStats);
 
 // Health check route
 app.get("/", (req, res) => {
@@ -34,4 +53,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
 });

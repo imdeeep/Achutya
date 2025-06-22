@@ -18,7 +18,9 @@ export default function Analytics() {
               <BarChart className="h-6 w-6" />
             </div>
             <div className="ml-4">
-              <h2 className="text-lg font-bold text-gray-900">Bookings Trend</h2>
+              <h2 className="text-lg font-bold text-gray-900">
+                Bookings Trend
+              </h2>
               <p className="text-sm text-gray-500">Last 6 months</p>
             </div>
           </div>
@@ -35,7 +37,9 @@ export default function Analytics() {
               <LineChart className="h-6 w-6" />
             </div>
             <div className="ml-4">
-              <h2 className="text-lg font-bold text-gray-900">Revenue Growth</h2>
+              <h2 className="text-lg font-bold text-gray-900">
+                Revenue Growth
+              </h2>
               <p className="text-sm text-gray-500">Year-to-date</p>
             </div>
           </div>
@@ -52,7 +56,9 @@ export default function Analytics() {
               <PieChart className="h-6 w-6" />
             </div>
             <div className="ml-4">
-              <h2 className="text-lg font-bold text-gray-900">User Demographics</h2>
+              <h2 className="text-lg font-bold text-gray-900">
+                User Demographics
+              </h2>
               <p className="text-sm text-gray-500">By region or age group</p>
             </div>
           </div>
@@ -64,26 +70,34 @@ export default function Analytics() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Key Performance Indicators (KPIs)</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          Key Performance Indicators (KPIs)
+        </h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 text-center">
             <p className="text-sm font-medium text-gray-500">Conversion Rate</p>
             <p className="text-3xl font-bold text-emerald-600 mt-2">3.5%</p>
           </div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 text-center">
-            <p className="text-sm font-medium text-gray-500">Average Booking Value</p>
+            <p className="text-sm font-medium text-gray-500">
+              Average Booking Value
+            </p>
             <p className="text-3xl font-bold text-blue-600 mt-2">₹18,500</p>
           </div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 text-center">
-            <p className="text-sm font-medium text-gray-500">Website Visitors (Monthly)</p>
+            <p className="text-sm font-medium text-gray-500">
+              Website Visitors (Monthly)
+            </p>
             <p className="text-3xl font-bold text-purple-600 mt-2">45,000</p>
           </div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 text-center">
-            <p className="text-sm font-medium text-gray-500">Customer Retention</p>
+            <p className="text-sm font-medium text-gray-500">
+              Customer Retention
+            </p>
             <p className="text-3xl font-bold text-yellow-600 mt-2">72%</p>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}
