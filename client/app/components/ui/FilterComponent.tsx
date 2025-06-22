@@ -10,7 +10,6 @@ interface FilterComponentProps {
   setDuration: (duration: [number, number]) => void;
   budget: [number, number];
   setBudget: (budget: [number, number]) => void;
-  countryData: Record<string, string[]>;
   formatPrice: (price: number) => string;
   filteredTours: any[];
 }
@@ -24,7 +23,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
   setDuration,
   budget,
   setBudget,
-  countryData,
   formatPrice,
   filteredTours,
 }) => {

@@ -400,7 +400,7 @@ const Page1 = () => {
 
                           <div className="flex items-center justify-between">
                             <p className="text-xs text-gray-500 truncate">
-                              📍 {result.location}
+                              {result.location}
                             </p>
 
                             {result.type === "tour" && result.price && (

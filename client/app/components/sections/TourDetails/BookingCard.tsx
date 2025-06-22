@@ -249,7 +249,6 @@ const BookingCard: React.FC<BookingCardProps> = ({
               }
             }
             
-            // Complete booking - axios returns data directly
             const verifyData = await bookingApi.completeBooking(data);
   
             if (verifyData.success) {
