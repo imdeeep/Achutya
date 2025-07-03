@@ -230,6 +230,7 @@ interface DayItinerary {
 
 interface TourFormData {
   title: string;
+  isFeatured?: boolean; 
   subtitle: string;
   description: string;
   image: string;
@@ -694,6 +695,23 @@ export default function NewItinerary() {
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <div className="flex items-center gap-3">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          id="isFeatured"
+                          checked={formData.isFeatured || false}
+                          onChange={(e) => handleInputChange("isFeatured", e.target.checked)}
+                          className="sr-only peer"  // Hide default checkbox
+                        />
+                        {/* Toggle Switch */}
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        <span className="ml-2 text-sm font-medium text-gray-700">
+                          {formData.isFeatured ? "Featured" : "Not Featured"}
+                        </span>
+                      </label>
+                    </div>
+                    <span className="text-sm text-gray-500">Note: The featured tour will be highlighted on home page</span>
                     <div className="lg:col-span-2">
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
                         <Tag className="w-4 h-4 text-emerald-600" />

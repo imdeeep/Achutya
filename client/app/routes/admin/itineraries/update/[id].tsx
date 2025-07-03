@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate,useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import {
   ArrowLeft,
   Save,
@@ -164,12 +164,11 @@ const ModernDatePicker: React.FC<ModernDatePickerProps> = ({
                 className={`
                   p-2 text-sm rounded-lg transition-colors relative
                   ${!date ? "invisible" : ""}
-                  ${
-                    isSelected(date)
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : isToday(date)
-                        ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                        : "hover:bg-gray-100 text-gray-700"
+                  ${isSelected(date)
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                    : isToday(date)
+                      ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                      : "hover:bg-gray-100 text-gray-700"
                   }
                 `}
               >
@@ -230,6 +229,7 @@ interface DayItinerary {
 
 interface TourFormData {
   title: string;
+  isFeatured?: boolean;
   subtitle: string;
   description: string;
   image: string;
@@ -241,7 +241,7 @@ interface TourFormData {
   groupType: string;
   maxGroupSize: number;
   difficulty: string;
-  destination: string;
+  destination: { _id: string; name: string; city: string; country: string } | string;
   country: string;
   city: string;
   location: string;
@@ -275,6 +275,7 @@ type ArrayField =
 
 const initialFormData: TourFormData = {
   title: "",
+  isFeatured: false,
   subtitle: "",
   description: "",
   image: "",
@@ -380,7 +381,7 @@ export default function NewItinerary() {
       fetchItinerary();
     }
   }, [id]);
-  
+
   // Debounced search effect
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -692,11 +693,10 @@ export default function NewItinerary() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                        activeTab === tab.id
-                          ? "bg-emerald-50 text-emerald-700 border-2 border-emerald-200"
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === tab.id
+                        ? "bg-emerald-50 text-emerald-700 border-2 border-emerald-200"
+                        : "text-gray-600 hover:bg-gray-50"
+                        }`}
                     >
                       <Icon className="w-5 h-5" />
                       {tab.label}
@@ -723,6 +723,23 @@ export default function NewItinerary() {
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="flex items-center gap-3">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          id="isFeatured"
+                          checked={formData.isFeatured || false}
+                          onChange={(e) => handleInputChange("isFeatured", e.target.checked)}
+                          className="sr-only peer"  // Hide default checkbox
+                        />
+                        {/* Toggle Switch */}
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        <span className="ml-2 text-sm font-medium text-gray-700">
+                          {formData.isFeatured ? "Featured" : "Not Featured"}
+                        </span>
+                      </label>
+                    </div>
+                    <span className="text-sm text-gray-500">Note: The featured tour will be highlighted on home page</span>
                     <div className="lg:col-span-2">
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
                         <Tag className="w-4 h-4 text-emerald-600" />
@@ -813,7 +830,7 @@ export default function NewItinerary() {
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                   <div className="mb-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">
-                    Update Tour Details
+                      Update Tour Details
                     </h2>
                     <p className="text-gray-600">
                       Configure tour specifications and location
@@ -899,7 +916,7 @@ export default function NewItinerary() {
                       </label>
                       <input
                         type="text"
-                        value={formData.destination.name}
+                        value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search destination..."
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
@@ -1023,7 +1040,7 @@ export default function NewItinerary() {
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                   <div className="mb-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">
-                    Update Dates & Pricing
+                      Update Dates & Pricing
                     </h2>
                     <p className="text-gray-600">
                       Set tour prices and available dates
@@ -1089,7 +1106,7 @@ export default function NewItinerary() {
                       <div className="flex items-center gap-2">
                         <Calendar className="w-5 h-5 text-emerald-600" />
                         <h3 className="text-lg font-semibold text-gray-900">
-                        Update Available Dates
+                          Update Available Dates
                         </h3>
                       </div>
                       <button
@@ -1197,7 +1214,7 @@ export default function NewItinerary() {
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                   <div className="mb-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">
-                    Update Tour Content
+                      Update Tour Content
                     </h2>
                     <p className="text-gray-600">
                       Highlights, inclusions, and other tour details
@@ -1304,7 +1321,7 @@ export default function NewItinerary() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h2 className="text-xl font-bold text-gray-900 mb-2">
-                        Update Tour Itinerary
+                          Update Tour Itinerary
                         </h2>
                         <p className="text-gray-600">
                           Day-by-day schedule of your tour

@@ -139,6 +139,15 @@ export const tourApi = {
     const response = await api.put(`/tour/${id}/available-dates/${dateId}`, dates);
     return response.data;
   },
+   getTopFeaturedTours: async () => {
+    const response = await api.get('/tour/featured/top');
+    return response.data;
+  },
+
+  getAllFeaturedTours: async (limit = 10) => {
+    const response = await api.get(`/tour/featured/latest?limit=${limit}`);
+    return response.data;
+  },
 };
 
 // Booking API calls 

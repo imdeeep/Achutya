@@ -17,10 +17,10 @@ const tourController = {
           });
         }
       }
-  
+
       const tour = new Tour(req.body);
       const savedTour = await tour.save();
-  
+
       // If availableDates are provided, create corresponding TourDate documents
       if (req.body.availableDates && req.body.availableDates.length > 0) {
         const tourDatePromises = req.body.availableDates.map(dateObj => {
@@ -36,13 +36,13 @@ const tourController = {
           });
           return tourDate.save();
         });
-  
+
         await Promise.all(tourDatePromises);
       }
-  
+
       // Populate destination details
       await savedTour.populate('destination', 'name country description image heroImage');
-  
+
       res.status(201).json({
         success: true,
         message: 'Tour created successfully',
@@ -323,7 +323,7 @@ const tourController = {
     try {
       const { id } = req.params;
       const { dates } = req.body; // Array of date objects
-  
+
       const tour = await Tour.findById(id);
       if (!tour) {
         return res.status(404).json({
@@ -331,22 +331,22 @@ const tourController = {
           message: 'Tour not found'
         });
       }
-  
+
       // Add new dates to tour's availableDates array
       const addedDates = [];
       const tourDateDocuments = [];
-  
+
       for (const dateObj of dates) {
         // Check if this date already exists for this tour
         const existingTourDate = await TourDate.findOne({
           tour: tour._id,
           startDate: new Date(dateObj.startDate)
         });
-  
+
         if (existingTourDate) {
           continue; // Skip if already exists
         }
-  
+
         // Add to tour's embedded availableDates
         const newAvailableDate = {
           startDate: new Date(dateObj.startDate),
@@ -357,10 +357,10 @@ const tourController = {
           isAvailable: true,
           notes: dateObj.notes
         };
-  
+
         tour.availableDates.push(newAvailableDate);
         addedDates.push(newAvailableDate);
-  
+
         // Create corresponding TourDate document
         const tourDate = new TourDate({
           tour: tour._id,
@@ -372,13 +372,13 @@ const tourController = {
           status: 'Available',
           isActive: true
         });
-  
+
         const savedTourDate = await tourDate.save();
         tourDateDocuments.push(savedTourDate);
       }
-  
+
       await tour.save();
-  
+
       res.status(200).json({
         success: true,
         message: 'Available dates added successfully',
@@ -396,7 +396,7 @@ const tourController = {
         error: error.message
       });
     }
-  },  
+  },
 
   // Remove/Update available date
   updateAvailableDate: async (req, res) => {
@@ -690,6 +690,58 @@ const tourController = {
         error: error.message
       });
     }
-  }
+  },
+  // Get top 3 featured tours (sorted by rating/reviews)
+  getTopFeaturedTours: async (req, res) => {
+    try {
+      const tours = await Tour.find({
+        isFeatured: true,
+        isActive: true
+      })
+        .sort({ rating: -1, reviewCount: -1 }) // Highest rated first
+        .limit(3)
+        .populate('destination', 'name country image')
+        .populate('additionalDestinations', 'name country image');
+
+      res.status(200).json({
+        success: true,
+        data: tours,
+        count: tours.length
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching featured tours',
+        error: error.message
+      });
+    }
+  },
+  // Get all featured tours (sorted by newest first)
+  getAllFeaturedTours: async (req, res) => {
+    try {
+      const { limit = 10 } = req.query;
+
+      const tours = await Tour.find({
+        isFeatured: true,
+        isActive: true
+      })
+        .sort({ createdAt: -1 }) // Newest first
+        .limit(Number(limit))
+        .populate('destination', 'name country image')
+        .populate('additionalDestinations', 'name country image');
+
+      res.status(200).json({
+        success: true,
+        data: tours,
+        count: tours.length
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching featured tours',
+        error: error.message
+      });
+    }
+  },
 };
 module.exports = tourController;
