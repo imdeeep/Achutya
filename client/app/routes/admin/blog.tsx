@@ -1,41 +1,58 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import { blogApi } from "~/services/adminApi";
 
-const mockBlogPosts = [
-  {
-    id: "1",
-    title: "Exploring the Wonders of Goa",
-    author: "Admin",
-    date: "2024-03-01",
-    status: "Published",
-  },
-  {
-    id: "2",
-    title: "Kerala Backwaters: A Serene Escape",
-    author: "Admin",
-    date: "2024-02-15",
-    status: "Draft",
-  },
-  {
-    id: "3",
-    title: "Rajasthan: Land of Kings and Forts",
-    author: "Admin",
-    date: "2024-01-20",
-    status: "Published",
-  },
-];
+type BlogPost = {
+  _id: string;
+  title: string;
+  author?: string;
+  publishedAt?: string;
+  featured?: boolean;
+};
 
 export default function Blog() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [loading, setLoading] = useState(false);
 
-  const filteredPosts = mockBlogPosts.filter((post) => {
+  // Fetch blog posts
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const data = await blogApi.getAllBlogs();
+      setPosts(data.data || []);
+    } catch (error) {
+      console.error("Failed to fetch blogs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  // Delete blog post
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    try {
+      await blogApi.deleteBlog(id);
+      setPosts((prev) => prev.filter((post) => post._id !== id));
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
+  };
+
+  const filteredPosts = posts.filter((post) => {
     const matchesSearch = post.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesStatus =
-      filterStatus === "All" || post.status === filterStatus;
+      filterStatus === "All" ||
+      (filterStatus === "Published" && post.publishedAt) ||
+      (filterStatus === "Draft" && !post.publishedAt);
     return matchesSearch && matchesStatus;
   });
 
@@ -83,7 +100,9 @@ export default function Blog() {
         </div>
 
         <div className="p-6">
-          {filteredPosts.length === 0 ? (
+          {loading ? (
+            <p className="text-center text-gray-500">Loading posts...</p>
+          ) : filteredPosts.length === 0 ? (
             <p className="text-gray-500 text-center py-8">
               No blog posts found.
             </p>
@@ -92,38 +111,26 @@ export default function Blog() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Title
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Author
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Date
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th scope="col" className="relative px-6 py-3">
+                    <th className="relative px-6 py-3">
                       <span className="sr-only">Edit</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredPosts.map((post) => (
-                    <tr key={post.id}>
+                    <tr key={post._id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
                           {post.title}
@@ -131,32 +138,36 @@ export default function Blog() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {post.author}
+                          {post.author || "Admin"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{post.date}</div>
+                        <div className="text-sm text-gray-900">
+                          {post.publishedAt
+                            ? new Date(post.publishedAt).toLocaleDateString()
+                            : "—"}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            post.status === "Published"
+                            post.publishedAt
                               ? "bg-green-100 text-green-800"
                               : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {post.status}
+                          {post.publishedAt ? "Published" : "Draft"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <Link
-                          to={`/admin/blog/${post.id}`}
+                          to={`/admin/blog/${post._id}`}
                           className="text-emerald-600 hover:text-emerald-900 mr-3"
                         >
                           <Edit className="w-5 h-5 inline" />
                         </Link>
                         <button
-                          onClick={() => console.log("Delete post:", post.id)}
+                          onClick={() => handleDelete(post._id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           <Trash2 className="w-5 h-5 inline" />

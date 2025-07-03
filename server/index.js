@@ -12,6 +12,7 @@ const bookRoutes = require('./routes/bookRoutes')
 const uploadRoutes = require('./routes/uploadRoutes');
 const { getStats } = require('./controllers/statsController');
 const { isAdmin } = require('./middleware/auth');
+const blogsRoutes = require('./routes/blogRoutes');
 
 
 
@@ -39,6 +40,7 @@ app.use('/api/tour',tourRoutes)
 app.use('/api/book',bookRoutes)
 app.use('/api/upload', uploadRoutes);
 app.get('/api/admin/stats', isAdmin, getStats);
+app.use('/api/blogs', blogsRoutes);
 
 // Health check route
 app.get("/", (req, res) => {

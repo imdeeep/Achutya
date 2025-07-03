@@ -177,3 +177,32 @@ export const statsApi = async () => {
   const response = await api.get("/admin/stats");
   return response.data;
 };
+
+
+// Blog API calls
+export const blogApi = {
+  getAllBlogs: async () => {
+    const response = await api.get("/blogs/");
+    return response.data;
+  },
+
+  getBlogById: async (id: string) => {
+    const response = await api.get(`/blogs/${id}`);
+    return response.data;
+  },
+
+  createBlog: async (blogData: any) => {
+    const response = await api.post("/blogs/", blogData);
+    return response.data;
+  },
+
+  updateBlog: async (id: string, blogData: any) => {
+    const response = await api.put(`/blogs/${id}`, blogData);
+    return response.data;
+  },
+
+  deleteBlog: async (id: string) => {
+    const response = await api.delete(`/blogs/${id}`);
+    return response.data;
+  }
+};

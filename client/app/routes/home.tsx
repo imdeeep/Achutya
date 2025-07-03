@@ -188,8 +188,8 @@ function FeaturedTours() {
 
                   {/* Bottom Text Overlay */}
                   <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black via-black/30 to-transparent px-4 py-4 text-white">
-                    <div className="flex flex-col items-center justify-between mb-2 mt-26">
-                      <h3 className="text-2xl font-bold truncate">{tour.title}</h3>
+                    <div className="flex flex-col items-center justify-between mb-2 mt-24">
+                      <h3 className=" sm:text-2xl font-bold truncate text-wrap">{tour.title}</h3>
                       <div className="flex items-center justify-between text-sm mt-3 w-full">
                         <div className="flex items-center ">
                           <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
