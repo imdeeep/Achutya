@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import Layout from "~/components/layout/Layout";
 import TourHeader from "~/components/sections/TourDetails/TourHeader";
 import TourNotFound from "~/components/sections/TourDetails/TourNotFound";
 import { Error } from "~/components/sections/TourDetails/Error";
 import BookingCard from "~/components/sections/TourDetails/BookingCard";
 import MainContent from "~/components/sections/TourDetails/MainContent";
-import { mockTourData } from "~/lib/mockTourData";
+import { tourApi } from "~/services/userApi";
 
 declare global {
   interface Window {
@@ -14,23 +14,26 @@ declare global {
   }
 }
 
-interface UserDetails {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-}
+// interface UserDetails {
+//   name: string;
+//   email: string;
+//   phone: string;
+//   address: string;
+// }
 
 const TourDetails = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tourData, setTourData] = useState<any>(mockTourData);
+  const [tourData, setTourData] = useState<any>(null); // Start with null instead of mockTourData
   const [selectedTab, setSelectedTab] = useState("overview");
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showAllNotes, setShowAllNotes] = useState(false);
+
+  // Extract ID from query parameter
+  const searchParams = new URLSearchParams(location.search);
+  const id = searchParams.get("q");
 
   useEffect(() => {
     // Razorpay script
@@ -40,56 +43,95 @@ const TourDetails = () => {
     document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
   }, []);
 
-  // useEffect(() => {
-  //   const fetchTourData = async () => {
-  //     try {
-  //       setLoading(true);
-  //       const response = await itineraryApi.getItinerary(id!);
-  //       if (response.success) {
-  //         // Transform the API data into the expected format
-  //         const transformedData = {
-  //           ...response.data,
-  //           overview: {
-  //             description: response.data.description,
-  //             features: response.data.features,
-  //           },
-  //           location: `${response.data.city}, ${response.data.country}`,
-  //           subtitle: response.data.description.substring(0, 100) + "...",
-  //           rating: 4.5, // Default values for now
-  //           reviewCount: 0,
-  //           maxGroupSize: 20,
-  //           price: Number(response.data.price),
-  //         };
-  //         setTourData(transformedData);
-  //       } else {
-  //         throw Error(response.error || "Failed to fetch itinerary details");
-  //       }
-  //     } catch (err) {
-  //       setError("Failed to load tour details. Please try again.");
-  //       console.error("Error fetching tour data:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchTourData = async () => {
+      if (!id) {
+        setError("Tour ID is required");
+        return;
+      }
 
-  //   if (id) {
-  //     fetchTourData();
-  //   }
-  // }, [id]);
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await tourApi.getTourById(id);
+        if (response.success && response.data) {
+          const transformedData = {
+            id: response.data.id || response.data._id,
+            title: response.data.title || response.data.name,
+            subtitle:
+              response.data.subtitle ||
+              (response.data.description
+                ? response.data.description.substring(0, 100) + "..."
+                : ""),
+            location:
+              response.data.location ||
+              `${response.data.city || ""}, ${response.data.country || ""}`.replace(
+                ", ,",
+                ""
+              ),
+            duration: response.data.duration,
+            price: Number(response.data.price) || 0,
+            rating: response.data.rating || 4.5,
+            reviewCount: response.data.reviewCount || 0,
+            maxGroupSize: response.data.maxGroupSize || 20,
+            heroImage: response.data.heroImage || [],
+            images: response.data.images || [],
+            overview: {
+              description:
+                response.data.description ||
+                response.data.overview?.description ||
+                "",
+              features:
+                response.data.features ||
+                response.data.overview?.features ||
+                [],
+            },
+            itinerary: response.data.itinerary || [],
+            inclusions: response.data.inclusions || [],
+            exclusions: response.data.exclusions || [],
+            notes: response.data.notes || [],
+            bookingInfo: response.data.bookingInfo || {},
+            // Add any other fields that your UI components expect
+            ...response.data,
+          };
+          setTourData(transformedData);
+        } else {
+          throw new Error(
+            response.error || response.message || "Failed to fetch tour details"
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching tour data:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load tour details. Please try again."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTourData();
+  }, [id]);
 
   const toggleAccordion = (dayIndex: number) => {
     setExpandedDay(expandedDay === dayIndex ? null : dayIndex);
   };
 
   const truncateText = (text: string, maxLength = 280) => {
+    if (!text) return "";
     if (text.length <= maxLength) return text;
     return text.substr(0, maxLength) + "...";
   };
 
+  // Show loading state
   if (loading) {
     return (
       <Layout>
@@ -112,10 +154,12 @@ const TourDetails = () => {
     );
   }
 
+  // Show error state
   if (error) {
     return <Error error={error} />;
   }
 
+  // Show not found state
   if (!tourData) {
     return <TourNotFound />;
   }

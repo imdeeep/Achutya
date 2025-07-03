@@ -107,7 +107,7 @@ const bookingController = {
         .update(body)
         .digest('hex');
 
-      console.log(expectedSignature)
+      // console.log(expectedSignature)
 
       if (expectedSignature !== razorpay_signature) {
         return res.status(400).json({
