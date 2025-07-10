@@ -94,7 +94,7 @@ export default function Bookings() {
 
   const handleCancelBooking = async (bookingId: string) => {
     if (!confirm("Are you sure you want to cancel this booking?")) return;
-    
+
     try {
       await BookingApi.cancelBooking(bookingId);
       fetchBookings(); // Refresh the list
@@ -104,11 +104,12 @@ export default function Bookings() {
     }
   };
 
-
   const filteredBookings = bookings.filter((booking) => {
     const matchesSearch =
       booking.tour.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.primaryContact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.primaryContact.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       booking.bookingId.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       selectedStatus === "All" || booking.status === selectedStatus;
@@ -194,17 +195,25 @@ export default function Bookings() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-
       {stats.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {stats.map((stat) => (
-            <div key={stat._id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div
+              key={stat._id}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+            >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getStatusColor(stat._id)}`}>
-                    {stat._id === "Completed" && <CheckCircle className="w-5 h-5" />}
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${getStatusColor(stat._id)}`}
+                  >
+                    {stat._id === "Completed" && (
+                      <CheckCircle className="w-5 h-5" />
+                    )}
                     {stat._id === "Pending" && <Clock className="w-5 h-5" />}
-                    {stat._id === "Cancelled" && <XCircle className="w-5 h-5" />}
+                    {stat._id === "Cancelled" && (
+                      <XCircle className="w-5 h-5" />
+                    )}
                   </div>
                 </div>
                 <div className="ml-5 w-0 flex-1">
@@ -334,7 +343,8 @@ export default function Bookings() {
                       <div className="flex items-center mt-1">
                         <Users className="h-4 w-4 mr-2 text-gray-400" />
                         <div className="text-sm text-gray-500">
-                          {booking.numberOfGuests} guest{booking.numberOfGuests > 1 ? 's' : ''}
+                          {booking.numberOfGuests} guest
+                          {booking.numberOfGuests > 1 ? "s" : ""}
                         </div>
                       </div>
                     </div>

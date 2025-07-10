@@ -7,7 +7,8 @@ const {
     updateDestination,
     deleteDestination,
     getDestinationByName,
-    searchDestinations
+    searchDestinations,
+    searchBothDestinationAndTour
 } = require('../controllers/Destination');
 const { isAdmin } = require('../middleware/auth');
 
@@ -16,6 +17,7 @@ router.route('/')
     .post(isAdmin,createDestination);      
 
 router.get('/search', searchDestinations);
+router.get('/search/both/',searchBothDestinationAndTour)
 
 router.get('/name/:name', getDestinationByName); 
 

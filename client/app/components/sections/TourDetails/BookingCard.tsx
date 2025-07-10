@@ -13,8 +13,20 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { bookingApi } from "~/services/userApi";
+import { useAuth } from "~/hooks/auth";
 
-// Types from your original code
+interface AvailableDate {
+  startDate: string;
+  endDate: string;
+  availableSlots: number;
+  bookedSlots: number;
+  isAvailable: boolean;
+  notes?: string;
+  _id: string;
+  id: string;
+}
+
 interface TourData {
   id: string;
   title: string;
@@ -23,6 +35,16 @@ interface TourData {
   description?: string;
   duration?: string;
   location?: string;
+  availableDates: AvailableDate[]; // This was missing in your original interface
+}
+
+// Add this new interface for calendar date states
+interface CalendarDate {
+  date: string;
+  isAvailable: boolean;
+  availableSlots: number;
+  bookedSlots: number;
+  tourDateId: string;
 }
 
 interface UserDetails {
@@ -49,6 +71,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
   tourData,
   onBookingSuccess,
 }) => {
+  const {user} = useAuth()
   const [selectedDate, setSelectedDate] = useState("");
   const [guests, setGuests] = useState(1);
   const [userDetails, setUserDetails] = useState<UserDetails>({
@@ -67,43 +90,24 @@ const BookingCard: React.FC<BookingCardProps> = ({
   );
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [availableDates, setAvailableDates] = useState<CalendarDate[]>([]);
+  const activeTourData = tourData;
 
-  // Mock tour data for demo
-  const defaultTourData: TourData = {
-    id: "spiti-circuit",
-    title: "7 Days Spiti Full Circuit Roadtrip",
-    price: 23499,
-    maxGroupSize: 16,
-    description:
-      "High Altitude Desert Adventure - Experience the pristine beauty of the Himalayas",
-    duration: "7 Days",
-    location: "Spiti Valley",
-  };
-
-  const activeTourData = tourData || defaultTourData;
-
-  // Generate mock available dates (you can replace this with actual API call)
   useEffect(() => {
-    const generateAvailableDates = () => {
-      const dates = [];
-      const today = new Date();
+    if (tourData?.availableDates) {
+      const calendarDates: CalendarDate[] = tourData.availableDates.map(
+        (dateObj) => ({
+          date: new Date(dateObj.startDate).toISOString().split("T")[0],
+          isAvailable: dateObj.isAvailable && dateObj.availableSlots > 0,
+          availableSlots: dateObj.availableSlots,
+          bookedSlots: dateObj.bookedSlots,
+          tourDateId: dateObj.id,
+        })
+      );
 
-      // Generate available dates for next 3 months
-      for (let i = 0; i < 90; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-
-        // Make some dates available (skip some randomly for demo)
-        if (Math.random() > 0.3) {
-          dates.push(date.toISOString().split("T")[0]);
-        }
-      }
-      setAvailableDates(dates);
-    };
-
-    generateAvailableDates();
-  }, []);
+      setAvailableDates(calendarDates);
+    }
+  }, [tourData]);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -190,44 +194,39 @@ const BookingCard: React.FC<BookingCardProps> = ({
       alert("Please select a date for your tour");
       return;
     }
-
+  
     if (!validateForm()) return;
-
+  
+    const selectedDateInfo = availableDates.find(
+      (d) => d.date === selectedDate
+    );
+    console.log(selectedDateInfo?.tourDateId);
+    if (!selectedDateInfo) {
+      alert("Selected date is not available");
+      return;
+    }
+  
     try {
       setLoading(true);
       const totalAmount = activeTourData.price * guests;
-
-      // Create payment order
-      const response = await fetch(
-        "http://localhost:3000/api/booking/create-payment-order",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            tourId: activeTourData.id,
-            tourDateId: selectedDate,
-            numberOfGuests: guests,
-            userDetails: {
-              _id: userDetails._id || null,
-              name: userDetails.name,
-              email: userDetails.email,
-              phone: userDetails.phone,
-            },
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create payment");
-      }
-
-      const orderData = await response.json();
-
+  
+      const bookingData = {
+        tourId: activeTourData.id,
+        tourDateId: selectedDateInfo.tourDateId,
+        numberOfGuests: guests,
+        userDetails: {
+          _id: userDetails._id || null,
+          name: userDetails.name,
+          email: userDetails.email,
+          phone: userDetails.phone,
+        },
+      };
+  
+      // Create payment order - axios returns data directly
+      const orderData = await bookingApi.createBooking(bookingData);
+  
       const options = {
-        key: process.env.RAZORPAY_KEY_ID || "rzp_test_pQLbxWbQ5iwwZe",
+        key: "rzp_test_pQLbxWbQ5iwwZe",
         amount: orderData.data.amount,
         currency: orderData.data.currency,
         name: "Achyuta Travel",
@@ -235,42 +234,27 @@ const BookingCard: React.FC<BookingCardProps> = ({
         order_id: orderData.data.orderId,
         handler: async function (response: any) {
           try {
-            const verifyResponse = await fetch(
-              "http://localhost:3000/api/booking/complete-booking",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_signature: response.razorpay_signature,
-                  tourId: activeTourData.id,
-                  tourDateId: selectedDate,
-                  numberOfGuests: guests,
-                  userDetails: {
-                    _id: userDetails._id || null,
-                    name: userDetails.name,
-                    email: userDetails.email,
-                    phone: userDetails.phone,
-                  },
-                }),
+            const data = {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              tourId: activeTourData.id,
+              tourDateId: selectedDateInfo.tourDateId,
+              numberOfGuests: guests,
+              userDetails: {
+                _id: user?.id,
+                name: userDetails.name,
+                email: userDetails.email,
+                phone: userDetails.phone,
               }
-            );
-
-            const verifyData = await verifyResponse.json();
-
-            if (!verifyResponse.ok) {
-              throw new Error(
-                verifyData.message || "Payment verification failed"
-              );
             }
-
+            
+            const verifyData = await bookingApi.completeBooking(data);
+  
             if (verifyData.success) {
               // Use the provided redirect URL or fallback to default
-              const redirectUrl = `/booking?bookingId=${verifyData.data.booking._id}`;
-
+              const redirectUrl = `/booking?bId=${verifyData.data.booking.bookingId}`;
+  
               // If onBookingSuccess callback is provided, use it
               if (onBookingSuccess) {
                 onBookingSuccess(verifyData.data.booking._id);
@@ -278,7 +262,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
                 // Otherwise redirect to the confirmation page
                 window.location.href = redirectUrl;
               }
-
+  
               // Show success message
               alert(
                 "Booking confirmed! Redirecting to your booking details..."
@@ -316,9 +300,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
           handle_back: true,
         },
       };
-
+  
       const razorpay = new window.Razorpay(options);
-
+  
       razorpay.on("payment.failed", function (response: any) {
         console.error("Payment failed:", response.error);
         alert(
@@ -326,7 +310,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
         );
         setLoading(false);
       });
-
+  
       razorpay.open();
     } catch (error) {
       console.error("Payment initialization failed:", error);
@@ -347,8 +331,8 @@ const BookingCard: React.FC<BookingCardProps> = ({
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
-  const isDateAvailable = (dateStr: string) => {
-    return availableDates.includes(dateStr);
+  const getDateInfo = (dateStr: string): CalendarDate | null => {
+    return availableDates.find((d) => d.date === dateStr) || null;
   };
 
   const isDateSelected = (dateStr: string) => {
@@ -389,36 +373,58 @@ const BookingCard: React.FC<BookingCardProps> = ({
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = formatDateForInput(year, month, day);
-      const isAvailable = isDateAvailable(dateStr);
+      const dateInfo = getDateInfo(dateStr);
       const isSelected = isDateSelected(dateStr);
       const isPast = new Date(dateStr) < today;
+
+      let buttonClass = "";
+      let buttonContent = day;
+      let isClickable = false;
+
+      if (isPast) {
+        buttonClass = "text-gray-300 cursor-not-allowed bg-gray-50";
+      } else if (dateInfo) {
+        if (dateInfo.isAvailable) {
+          isClickable = true;
+          if (isSelected) {
+            buttonClass = "bg-emerald-600 text-white shadow-lg";
+          } else {
+            buttonClass =
+              "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200";
+          }
+        } else if (dateInfo.availableSlots === 0) {
+          // Fully booked
+          buttonClass =
+            "bg-yellow-100 text-yellow-800 border border-yellow-300 cursor-not-allowed";
+        } else {
+          // Not available (isAvailable: false)
+          buttonClass =
+            "bg-yellow-100 text-yellow-800 border border-yellow-300 cursor-not-allowed";
+        }
+      } else {
+        buttonClass = "text-gray-400 cursor-not-allowed";
+      }
 
       days.push(
         <button
           key={day}
           onClick={() => {
-            if (isAvailable && !isPast) {
+            if (isClickable && dateInfo) {
               setSelectedDate(dateStr);
               setShowCalendar(false);
               if (errors.date) setErrors((prev) => ({ ...prev, date: "" }));
             }
           }}
-          disabled={!isAvailable || isPast}
-          className={`
-            p-2 text-sm rounded-lg transition-all duration-200 relative
-            ${
-              isSelected
-                ? "bg-emerald-600 text-white shadow-lg"
-                : isAvailable && !isPast
-                  ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
-                  : isPast
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-400 cursor-not-allowed"
-            }
-          `}
+          disabled={!isClickable}
+          className={`p-2 text-sm rounded-lg transition-all duration-200 relative ${buttonClass}`}
+          title={
+            dateInfo
+              ? `${dateInfo.isAvailable ? "Available" : "Not Available"} - ${dateInfo.availableSlots} slots remaining`
+              : "No tour scheduled"
+          }
         >
-          {day}
-          {isAvailable && !isPast && !isSelected && (
+          {buttonContent}
+          {dateInfo && dateInfo.isAvailable && !isSelected && (
             <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-emerald-500 rounded-full"></div>
           )}
         </button>
@@ -445,7 +451,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
     }
   };
 
-  const totalAmount = activeTourData.price * guests;
+  const totalAmount = tourData.price * guests;
 
   return (
     <div className="min-w-sm mx-auto text-black">
@@ -454,14 +460,14 @@ const BookingCard: React.FC<BookingCardProps> = ({
         <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 text-white">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-2xl font-bold">
-              ₹{activeTourData.price.toLocaleString()}
+              ₹{activeTourData?.price.toLocaleString()}
             </h3>
             <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
               per person
             </span>
           </div>
           <p className="text-emerald-100 text-sm">
-            {activeTourData.description}
+            {activeTourData?.description}
           </p>
         </div>
 
@@ -563,7 +569,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
                     </div>
                     {renderCalendar()}
                     <div className="mt-4 text-xs text-gray-600">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 flex-wrap">
                         <div className="flex items-center">
                           <div className="w-3 h-3 bg-emerald-50 border border-emerald-200 rounded mr-2"></div>
                           Available
@@ -571,6 +577,14 @@ const BookingCard: React.FC<BookingCardProps> = ({
                         <div className="flex items-center">
                           <div className="w-3 h-3 bg-emerald-600 rounded mr-2"></div>
                           Selected
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded mr-2"></div>
+                          Fully Booked
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-red-50 border border-red-200 rounded mr-2"></div>
+                          Unavailable
                         </div>
                       </div>
                     </div>
@@ -595,7 +609,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
                   onChange={(e) => setGuests(Number(e.target.value))}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  {[...Array(activeTourData.maxGroupSize)].map((_, i) => (
+                  {[...Array(activeTourData?.maxGroupSize || 1)].map((_, i) => (
                     <option key={i + 1} value={i + 1}>
                       {i + 1} {i === 0 ? "Guest" : "Guests"}
                     </option>
@@ -607,7 +621,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-gray-600">Price per person</span>
                   <span className="font-medium">
-                    ₹{activeTourData.price.toLocaleString()}
+                    ₹{activeTourData?.price.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm mb-2">
@@ -733,7 +747,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tour:</span>
-                    <span className="font-medium">{activeTourData.title}</span>
+                    <span className="font-medium">{activeTourData?.title}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Date:</span>

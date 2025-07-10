@@ -1,3 +1,5 @@
+import { API_URL } from "~/lib/baseurl";
+
 // Remove server-side SDK import
 // import { v2 as cloudinary } from 'cloudinary';
 
@@ -8,12 +10,14 @@
 //   api_secret: '-UjW9F9RS7Syyz6crou5_otGggg'
 // });
 
+
+
 export const uploadImage = async (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     formData.append("image", file);
 
-    fetch(`http://localhost:3000/api/upload/image`, {
+    fetch(`${API_URL}/upload/image`, {
       method: "POST",
       body: formData,
     })

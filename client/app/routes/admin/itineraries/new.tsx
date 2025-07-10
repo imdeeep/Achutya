@@ -866,9 +866,9 @@ export default function NewItinerary() {
 
                     <div className="relative">
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
-                                              <Globe className="w-4 h-4 text-emerald-600" />
-                                              Destination Name
-                                            </label>
+                        <Globe className="w-4 h-4 text-emerald-600" />
+                        Destination Name
+                      </label>
                       <input
                         type="text"
                         value={searchTerm}

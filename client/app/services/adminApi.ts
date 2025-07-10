@@ -1,18 +1,17 @@
 import axios from "axios";
-
-const API_URL = "http://localhost:3000/api";
+import { API_URL } from "~/lib/baseurl";
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    console.log(token)
+    const token = localStorage.getItem("token");
+    console.log(token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -26,7 +25,7 @@ api.interceptors.request.use(
 // User API calls
 export const userApi = {
   getAllUsers: async () => {
-    const response = await api.get('/users/');
+    const response = await api.get("/users/");
     return response.data;
   },
 
@@ -36,7 +35,7 @@ export const userApi = {
   },
 
   createUser: async (userData: any) => {
-    const response = await api.post('/users/', userData);
+    const response = await api.post("/users/", userData);
     return response.data;
   },
 
@@ -54,7 +53,7 @@ export const userApi = {
 // Destination API calls
 export const destinationApi = {
   getAllDestinations: async () => {
-    const response = await api.get('/destinations/');
+    const response = await api.get("/destinations/");
     return response.data;
   },
   getDestinationById: async (id: string) => {
@@ -62,7 +61,7 @@ export const destinationApi = {
     return response.data;
   },
   createDestination: async (destinationData: any) => {
-    const response = await api.post('/destinations/', destinationData);
+    const response = await api.post("/destinations/", destinationData);
     return response.data;
   },
   editDestination: async (id: string, destinationData: any) => {
@@ -87,7 +86,7 @@ export const destinationApi = {
 // Tours and Itinerary API calls
 export const tourApi = {
   getAllTours: async () => {
-    const response = await api.get('/tour/admin/all');
+    const response = await api.get("/tour/admin/all");
     return response.data;
   },
 
@@ -102,7 +101,7 @@ export const tourApi = {
   },
 
   createTour: async (tourData: any) => {
-    const response = await api.post('/tour/', tourData);
+    const response = await api.post("/tour/", tourData);
     return response.data;
   },
 
@@ -136,33 +135,36 @@ export const tourApi = {
     return response.data;
   },
   updateAvailableDates: async (id: string, dateId: string, dates: string[]) => {
-    const response = await api.put(`/tour/${id}/available-dates/${dateId}`, dates);
+    const response = await api.put(
+      `/tour/${id}/available-dates/${dateId}`,
+      dates
+    );
     return response.data;
   },
 };
 
-// Booking API calls 
+// Booking API calls
 export const BookingApi = {
-  getAllBookings: async()=>{
-    const response = await api.get('/book/admin/all');
-    return response.data
-  } ,
-  getBookingById: async(bookingId:string)=>{
+  getAllBookings: async () => {
+    const response = await api.get("/book/admin/all");
+    return response.data;
+  },
+  getBookingById: async (bookingId: string) => {
     const response = await api.get(`/book/${bookingId}`);
-    return response.data
+    return response.data;
   },
-  cancelBooking: async(bookingId:string)=>{
+  cancelBooking: async (bookingId: string) => {
     const response = await api.put(`/book/${bookingId}/cancel`);
-    return response.data
+    return response.data;
   },
-  updateBooking: async(id:string,status:string)=>{
-    const response = await api.patch(`/book/${id}/status`,{status});
-    return response.data
-  }
-}
+  updateBooking: async (id: string, status: string) => {
+    const response = await api.patch(`/book/${id}/status`, { status });
+    return response.data;
+  },
+};
 
 // Stats
- export const statsApi = async () => {
-    const response = await api.get('/admin/stats');
-    return response.data;
-  }
+export const statsApi = async () => {
+  const response = await api.get("/admin/stats");
+  return response.data;
+};

@@ -1,4 +1,5 @@
 const Destination = require('../models/Destination');
+const Tour = require('../models/Tour')
 
 // Create a new destination
 exports.createDestination = async (req, res) => {
@@ -106,5 +107,53 @@ exports.searchDestinations = async (req, res) => {
         res.status(200).json({ success: true, count: destinations.length, data: destinations });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+exports.searchBothDestinationAndTour = async (req, res) => {
+    try {
+        const { query } = req.query;
+
+        if (!query || query.trim() === '') {
+            return res.status(400).json({ success: false, error: 'Search query is required' });
+        }
+
+        // Search in both destinations and tours collections in parallel
+        const [destinations, tours] = await Promise.all([
+            // Search destinations by name
+            Destination.find({
+                name: { $regex: query, $options: 'i' }
+            }),
+            // Search tours by title or description
+            Tour.find({
+                $or: [
+                    { title: { $regex: query, $options: 'i' } },
+                    { description: { $regex: query, $options: 'i' } },
+                    { 'itinerary.description': { $regex: query, $options: 'i' } }
+                ]
+            }).populate('destination', 'name image')
+        ]);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                destinations: {
+                    count: destinations.length,
+                    results: destinations
+                },
+                tours: {
+                    count: tours.length,
+                    results: tours
+                },
+                totalResults: destinations.length + tours.length
+            }
+        });
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to perform search',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 };
