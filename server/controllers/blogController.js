@@ -110,3 +110,23 @@ exports.deleteBlog = async (req, res) => {
     });
   }
 };
+
+// Get top 3 featured blog posts
+exports.getFeaturedBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.find({ featured: true, status: 'Published' })
+      .sort({ publishedAt: -1 })
+      .limit(3);
+
+    res.status(200).json({
+      success: true,
+      count: blogs.length,
+      data: blogs
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};

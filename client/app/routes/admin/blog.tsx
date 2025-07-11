@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
 import { blogApi } from "~/services/adminApi";
 
 type BlogPost = {
@@ -150,11 +150,10 @@ export default function Blog() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            post.publishedAt
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${post.publishedAt
                               ? "bg-green-100 text-green-800"
                               : "bg-yellow-100 text-yellow-800"
-                          }`}
+                            }`}
                         >
                           {post.publishedAt ? "Published" : "Draft"}
                         </span>
@@ -162,6 +161,12 @@ export default function Blog() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <Link
                           to={`/admin/blog/${post._id}`}
+                          className="text-blue-600 hover:text-blue-900 mr-3"
+                        >
+                          <Eye className="w-5 h-5 inline" />
+                        </Link>
+                        <Link
+                          to={`/admin/blog/edit/${post._id}`}
                           className="text-emerald-600 hover:text-emerald-900 mr-3"
                         >
                           <Edit className="w-5 h-5 inline" />

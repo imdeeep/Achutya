@@ -4,6 +4,7 @@ import Layout from "../components/layout/Layout";
 import { Link } from "react-router";
 import { useEffect } from "react";
 import { tourApi } from "~/services/adminApi";
+import FeaturedBlogs from "~/components/blogs/BlogSection";
 
 interface TourFormData {
   _id: string;
@@ -230,12 +231,12 @@ function FeaturedTours() {
           </div>
         )}
         <div className="text-center">
-          <Link
+          {/* <Link
             to="/tours/featured"
             className="inline-block mt-6 text-[#277A55] font-semibold hover:underline"
           >
             View All Featured Tours →
-          </Link>
+          </Link> */}
         </div>
       </div>
     </section>
@@ -413,9 +414,13 @@ export default function Home() {
 
       {/* Popular Destinations */}
       <PopularDestinations />
-
+      <h1 className="text-3xl font-bold text-black text-center my-8">
+        Featured Blogs
+      </h1>
+      <FeaturedBlogs />
       {/* Testimonials */}
       <Testimonials />
+
 
       {/* Ready to Start Your Next Adventure? */}
       <CTASection />

@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router";
-import { ArrowLeft, Save, X, Plus, Trash2, Image as ImageIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router";
+import { ArrowLeft, Clock, Tag, User } from "lucide-react";
 import { blogApi } from "~/services/adminApi";
-import { v4 as uuidv4 } from 'uuid';
 
 type ContentBlock = {
   id: string;
@@ -34,68 +33,40 @@ type SEOData = {
   keywords?: string[];
 };
 
-export default function BlogPostDetail() {
-  const { slug } = useParams();
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    title: "",
-    slug: "",
-    author: "Admin",
-    publishedAt: "",
-    readTime: 5,
-    featured: false,
-    heroImage: {
-      url: "",
-      alt: ""
-    },
-    content: [] as ContentBlock[],
-    faq: [] as FAQItem[],
-    tags: [] as string[],
-    category: "",
-    relatedPosts: [] as string[],
-    seo: {
-      title: "",
-      description: "",
-      keywords: [] as string[]
-    },
-    status: "Draft"
-  });
+type BlogPost = {
+  id: string;
+  title: string;
+  slug: string;
+  author: string;
+  publishedAt: string | null;
+  readTime: number;
+  featured: boolean;
+  heroImage: HeroImage | null;
+  content: ContentBlock[];
+  faq: FAQItem[];
+  tags: string[];
+  category: string;
+  relatedPosts: string[];
+  seo: SEOData;
+  status: 'Draft' | 'Published';
+};
+
+export default function BlogPostView() {
+  const { id } = useParams();
+  const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState("");
-  const [newTag, setNewTag] = useState("");
-  const [newKeyword, setNewKeyword] = useState("");
 
   useEffect(() => {
     const fetchBlogPost = async () => {
       try {
         setLoading(true);
-        const response = await blogApi.getAllBlogs();
-        const post = response.find((p: any) => p.slug === slug);
+        const response = await blogApi.getBlogById(id!);
         
-        if (post) {
-          setFormData({
-            title: post.title,
-            slug: post.slug,
-            author: post.author || "Admin",
-            publishedAt: post.publishedAt || "",
-            readTime: post.readTime || 5,
-            featured: post.featured || false,
-            heroImage: post.heroImage || { url: "", alt: "" },
-            content: post.content || [],
-            faq: post.faq || [],
-            tags: post.tags || [],
-            category: post.category || "",
-            relatedPosts: post.relatedPosts || [],
-            seo: post.seo || {
-              title: "",
-              description: "",
-              keywords: []
-            },
-            status: post.publishedAt ? "Published" : "Draft"
-          });
+        if (response.success && response.data) {
+          setPost(response.data);
         } else {
-          setNotFound(true);
+          setError("Blog post not found");
         }
       } catch (err) {
         setError("Failed to fetch blog post");
@@ -106,354 +77,88 @@ export default function BlogPostDetail() {
     };
 
     fetchBlogPost();
-  }, [slug]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const updateData = {
-        ...formData,
-        publishedAt: formData.status === "Published" ? 
-          (formData.publishedAt || new Date().toISOString()) : 
-          null
-      };
-
-      const response = await blogApi.getAllBlogs();
-      const post = response.find((p: any) => p.slug === slug);
-      
-      if (!post) {
-        throw new Error("Post not found");
-      }
-
-      await blogApi.updateBlog(post.id, updateData);
-      alert("Blog post updated successfully!");
-      navigate("/admin/blog");
-    } catch (err) {
-      setError("Failed to update blog post");
-      console.error("Error updating blog post:", err);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: checked
-    }));
-  };
-
-  const handleContentBlockChange = (id: string, field: string, value: any) => {
-    setFormData(prev => {
-      const updatedContent = prev.content.map(block => {
-        if (block.id === id) {
-          return { ...block, [field]: value };
-        }
-        return block;
-      });
-      return { ...prev, content: updatedContent };
-    });
-  };
-
-  const handleFAQChange = (id: string, field: 'question' | 'answer', value: string) => {
-    setFormData(prev => {
-      const updatedFAQ = prev.faq.map(item => {
-        if (item.id === id) {
-          return { ...item, [field]: value };
-        }
-        return item;
-      });
-      return { ...prev, faq: updatedFAQ };
-    });
-  };
-
-  const addContentBlock = (type: ContentBlock['type']) => {
-    setFormData(prev => ({
-      ...prev,
-      content: [
-        ...prev.content,
-        {
-          id: uuidv4(),
-          type,
-          text: type === 'paragraph' || type === 'quote' ? '' : undefined,
-          items: type === 'list' ? [''] : undefined
-        }
-      ]
-    }));
-  };
-
-  const removeContentBlock = (id: string) => {
-    setFormData(prev => ({
-      ...prev,
-      content: prev.content.filter(block => block.id !== id)
-    }));
-  };
-
-  const addFAQItem = () => {
-    setFormData(prev => ({
-      ...prev,
-      faq: [...prev.faq, { id: uuidv4(), question: '', answer: '' }]
-    }));
-  };
-
-  const removeFAQItem = (id: string) => {
-    setFormData(prev => ({
-      ...prev,
-      faq: prev.faq.filter(item => item.id !== id)
-    }));
-  };
-
-  const addTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()]
-      }));
-      setNewTag("");
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
-
-  const addKeyword = () => {
-    if (newKeyword.trim() && !formData.seo.keywords.includes(newKeyword.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        seo: {
-          ...prev.seo,
-          keywords: [...prev.seo.keywords, newKeyword.trim()]
-        }
-      }));
-      setNewKeyword("");
-    }
-  };
-
-  const removeKeyword = (keywordToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      seo: {
-        ...prev.seo,
-        keywords: prev.seo.keywords.filter(keyword => keyword !== keywordToRemove)
-      }
-    }));
-  };
-
-  const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      // Mock upload - replace with actual API call
-      const mockUrl = URL.createObjectURL(file);
-      
-      setFormData(prev => ({
-        ...prev,
-        heroImage: {
-          url: mockUrl,
-          alt: `Hero image for ${prev.title}`
-        }
-      }));
-    }
-  };
-
-  const handleContentImageUpload = async (blockId: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      // Mock upload - replace with actual API call
-      const mockUrl = URL.createObjectURL(file);
-      
-      setFormData(prev => {
-        const updatedContent = prev.content.map(block => {
-          if (block.id === blockId) {
-            return { 
-              ...block, 
-              url: mockUrl,
-              alt: `Image in ${prev.title}`
-            };
-          }
-          return block;
-        });
-        return { ...prev, content: updatedContent };
-      });
-    }
-  };
+  }, [id]);
 
   const renderContentBlock = (block: ContentBlock) => {
     switch (block.type) {
       case 'paragraph':
         return (
-          <div className="mt-4">
-            <textarea
-              value={block.text || ''}
-              onChange={(e) => handleContentBlockChange(block.id, 'text', e.target.value)}
-              className="w-full border border-gray-300 rounded-md p-2"
-              rows={4}
-              placeholder="Write your paragraph here..."
-            />
-          </div>
+          <p className="mt-4 text-gray-700 leading-relaxed">
+            {block.text}
+          </p>
         );
       case 'image':
         return (
-          <div className="mt-4">
-            {block.url ? (
-              <div className="relative group">
-                <img src={block.url} alt={block.alt || ''} className="max-w-full h-auto rounded-md" />
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    type="button"
-                    onClick={() => removeContentBlock(block.id)}
-                    className="bg-red-500 text-white p-1 rounded-full"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  value={block.caption || ''}
-                  onChange={(e) => handleContentBlockChange(block.id, 'caption', e.target.value)}
-                  className="w-full mt-2 border border-gray-300 rounded-md p-2"
-                  placeholder="Image caption"
-                />
-              </div>
-            ) : (
-              <div className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-                <label className="cursor-pointer">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleContentImageUpload(block.id, e)}
-                    className="hidden"
-                  />
-                  <div className="flex flex-col items-center">
-                    <ImageIcon size={24} className="text-gray-400 mb-2" />
-                    <span className="text-gray-600">Upload an image</span>
-                  </div>
-                </label>
-              </div>
+          <div className="mt-6">
+            <img 
+              src={block.url} 
+              alt={block.alt || ''} 
+              className="w-full h-auto rounded-lg shadow-md"
+            />
+            {block.caption && (
+              <p className="mt-2 text-sm text-gray-500 italic text-center">
+                {block.caption}
+              </p>
             )}
           </div>
         );
       case 'list':
         return (
           <div className="mt-4">
-            <select
-              value={block.style || 'unordered'}
-              onChange={(e) => handleContentBlockChange(block.id, 'style', e.target.value)}
-              className="mb-2 border border-gray-300 rounded-md p-2"
-            >
-              <option value="unordered">Unordered List</option>
-              <option value="ordered">Ordered List</option>
-            </select>
-            <div className="space-y-2">
-              {(block.items || []).map((item, index) => (
-                <div key={index} className="flex items-center">
-                  <input
-                    type="text"
-                    value={item}
-                    onChange={(e) => {
-                      const newItems = [...(block.items || [])];
-                      newItems[index] = e.target.value;
-                      handleContentBlockChange(block.id, 'items', newItems);
-                    }}
-                    className="flex-1 border border-gray-300 rounded-md p-2"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newItems = [...(block.items || [])];
-                      newItems.splice(index, 1);
-                      handleContentBlockChange(block.id, 'items', newItems);
-                    }}
-                    className="ml-2 text-red-500"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                const newItems = [...(block.items || []), ''];
-                handleContentBlockChange(block.id, 'items', newItems);
-              }}
-              className="mt-2 flex items-center text-sm text-blue-500"
-            >
-              <Plus size={16} className="mr-1" /> Add Item
-            </button>
+            {block.style === 'ordered' ? (
+              <ol className="list-decimal pl-6 space-y-2 text-gray-700">
+                {block.items?.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ol>
+            ) : (
+              <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                {block.items?.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            )}
           </div>
         );
       case 'quote':
         return (
-          <div className="mt-4">
-            <textarea
-              value={block.text || ''}
-              onChange={(e) => handleContentBlockChange(block.id, 'text', e.target.value)}
-              className="w-full border-l-4 border-gray-400 pl-4 italic text-gray-600 p-2"
-              rows={3}
-              placeholder="Add a quote..."
-            />
-          </div>
+          <blockquote className="mt-6 border-l-4 border-emerald-500 pl-4 italic text-gray-600">
+            {block.text}
+          </blockquote>
         );
       case 'link':
         return (
           <div className="mt-4">
-            <input
-              type="text"
-              value={block.text || ''}
-              onChange={(e) => handleContentBlockChange(block.id, 'text', e.target.value)}
-              className="w-full mb-2 border border-gray-300 rounded-md p-2"
-              placeholder="Link text"
-            />
-            <input
-              type="url"
-              value={block.url || ''}
-              onChange={(e) => handleContentBlockChange(block.id, 'url', e.target.value)}
-              className="w-full border border-gray-300 rounded-md p-2"
-              placeholder="URL"
-            />
+            <a 
+              href={block.url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-emerald-600 hover:text-emerald-800 hover:underline"
+            >
+              {block.text || block.url}
+            </a>
           </div>
         );
       case 'section':
+        return (
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              {block.title}
+            </h2>
+            <div className="space-y-6">
+              {block.content?.map(subBlock => renderContentBlock(subBlock))}
+            </div>
+          </div>
+        );
       case 'subsection':
         return (
-          <div className="mt-4 border-l-2 pl-4 border-gray-200">
-            <input
-              type="text"
-              value={block.title || ''}
-              onChange={(e) => handleContentBlockChange(block.id, 'title', e.target.value)}
-              className="w-full font-bold text-lg mb-2 border border-gray-300 rounded-md p-2"
-              placeholder={`${block.type === 'section' ? 'Section' : 'Subsection'} title`}
-            />
+          <div className="mt-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+              {block.title}
+            </h3>
             <div className="space-y-4">
-              {(block.content || []).map(subBlock => renderContentBlock(subBlock))}
+              {block.content?.map(subBlock => renderContentBlock(subBlock))}
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                const updatedContent = [...(block.content || []), {
-                  id: uuidv4(),
-                  type: 'paragraph',
-                  text: ''
-                }];
-                handleContentBlockChange(block.id, 'content', updatedContent);
-              }}
-              className="mt-2 flex items-center text-sm text-blue-500"
-            >
-              <Plus size={16} className="mr-1" /> Add Content
-            </button>
           </div>
         );
       default:
@@ -462,17 +167,24 @@ export default function BlogPostDetail() {
   };
 
   if (loading) {
-    return <div className="p-6 text-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading blog post...</p>
+        </div>
+      </div>
+    );
   }
 
-  if (notFound) {
+  if (error) {
     return (
-      <div className="p-6 text-center text-red-500">
-        Blog post not found!
-        <div className="mt-4">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center text-red-500">
+          <p className="text-lg">{error}</p>
           <Link
             to="/admin/blog"
-            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
+            className="mt-4 inline-flex items-center text-emerald-600 hover:text-emerald-800"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Blog Posts
@@ -482,427 +194,156 @@ export default function BlogPostDetail() {
     );
   }
 
-  if (error) {
-    return <div className="p-6 text-center text-red-500">{error}</div>;
+  if (!post) {
+    return null;
   }
 
-  return (
-    <div className="p-6">
-      <div className="mb-8">
-        <Link
-          to="/admin/blog"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Blog Posts
-        </Link>
-      </div>
+  const formattedDate = post.publishedAt 
+    ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    : 'Not published';
 
-      <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Edit Blog Post: {formData.title}
-          </h1>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <Link
+            to="/admin/blog"
+            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Blog Posts
+          </Link>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Hero Image
-              </label>
-              {formData.heroImage?.url ? (
-                <div className="mt-1 relative group">
-                  <img 
-                    src={formData.heroImage.url} 
-                    alt={formData.heroImage.alt} 
-                    className="max-w-full h-64 object-cover rounded-md"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, heroImage: { url: "", alt: "" } }))}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ) : (
-                <div className="mt-1 border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-                  <label className="cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleHeroImageUpload}
-                      className="hidden"
-                    />
-                    <div className="flex flex-col items-center">
-                      <ImageIcon size={24} className="text-gray-400 mb-2" />
-                      <span className="text-gray-600">Upload a hero image</span>
-                    </div>
-                  </label>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                Title
-              </label>
-              <input
-                type="text"
-                name="title"
-                id="title"
-                value={formData.title}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                required
+        <article className="bg-white shadow-sm rounded-lg overflow-hidden">
+          {/* Hero Image */}
+          {post.heroImage && (
+            <div className="w-full h-64 sm:h-96 overflow-hidden">
+              <img
+                src={post.heroImage.url}
+                alt={post.heroImage.alt}
+                className="w-full h-full object-cover"
               />
             </div>
+          )}
 
-            <div>
-              <label htmlFor="slug" className="block text-sm font-medium text-gray-700">
-                Slug
-              </label>
-              <input
-                type="text"
-                name="slug"
-                id="slug"
-                value={formData.slug}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="author" className="block text-sm font-medium text-gray-700">
-                Author
-              </label>
-              <input
-                type="text"
-                name="author"
-                id="author"
-                value={formData.author}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="readTime" className="block text-sm font-medium text-gray-700">
-                Read Time (minutes)
-              </label>
-              <input
-                type="number"
-                name="readTime"
-                id="readTime"
-                min="1"
-                value={formData.readTime}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                Category
-              </label>
-              <input
-                type="text"
-                name="category"
-                id="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-              />
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                name="featured"
-                id="featured"
-                checked={formData.featured}
-                onChange={handleCheckboxChange}
-                className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
-              />
-              <label htmlFor="featured" className="ml-2 block text-sm text-gray-700">
-                Featured Post
-              </label>
-            </div>
-
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-                Status
-              </label>
-              <select
-                name="status"
-                id="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                required
-              >
-                <option value="Draft">Draft</option>
-                <option value="Published">Published</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Content</h3>
-            <div className="space-y-6">
-              {formData.content.map((block) => (
-                <div key={block.id} className="border border-gray-200 rounded-md p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <select
-                      value={block.type}
-                      onChange={(e) => handleContentBlockChange(block.id, 'type', e.target.value)}
-                      className="border border-gray-300 rounded-md p-2 text-sm"
-                    >
-                      <option value="paragraph">Paragraph</option>
-                      <option value="image">Image</option>
-                      <option value="list">List</option>
-                      <option value="quote">Quote</option>
-                      <option value="link">Link</option>
-                      <option value="section">Section</option>
-                      <option value="subsection">Subsection</option>
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => removeContentBlock(block.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                  {renderContentBlock(block)}
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => addContentBlock('paragraph')}
-                className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                <Plus size={16} className="mr-1" /> Paragraph
-              </button>
-              <button
-                type="button"
-                onClick={() => addContentBlock('image')}
-                className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                <Plus size={16} className="mr-1" /> Image
-              </button>
-              <button
-                type="button"
-                onClick={() => addContentBlock('list')}
-                className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                <Plus size={16} className="mr-1" /> List
-              </button>
-              <button
-                type="button"
-                onClick={() => addContentBlock('quote')}
-                className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                <Plus size={16} className="mr-1" /> Quote
-              </button>
-              <button
-                type="button"
-                onClick={() => addContentBlock('link')}
-                className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                <Plus size={16} className="mr-1" /> Link
-              </button>
-              <button
-                type="button"
-                onClick={() => addContentBlock('section')}
-                className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                <Plus size={16} className="mr-1" /> Section
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">FAQ Section</h3>
-            {formData.faq.length > 0 && (
-              <div className="space-y-4 mb-4">
-                {formData.faq.map((item) => (
-                  <div key={item.id} className="border border-gray-200 rounded-md p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium">FAQ Item</h4>
-                      <button
-                        type="button"
-                        onClick={() => removeFAQItem(item.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={item.question}
-                        onChange={(e) => handleFAQChange(item.id, 'question', e.target.value)}
-                        className="w-full border border-gray-300 rounded-md p-2"
-                        placeholder="Question"
-                      />
-                      <textarea
-                        value={item.answer}
-                        onChange={(e) => handleFAQChange(item.id, 'answer', e.target.value)}
-                        className="w-full border border-gray-300 rounded-md p-2"
-                        rows={3}
-                        placeholder="Answer"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={addFAQItem}
-              className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              <Plus size={16} className="mr-1" /> Add FAQ Item
-            </button>
-          </div>
-
-          <div className="mt-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Tags</h3>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {formData.tags.map((tag) => (
-                <span key={tag} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                  {tag}
-                  <button
-                    type="button"
-                    onClick={() => removeTag(tag)}
-                    className="ml-1.5 inline-flex text-gray-400 hover:text-gray-500"
-                  >
-                    <X size={12} />
-                  </button>
+          <div className="p-6 sm:p-8">
+            {/* Post Header */}
+            <header className="mb-8">
+              <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
+                <span className="flex items-center">
+                  <User className="w-4 h-4 mr-1" />
+                  {post.author}
                 </span>
-              ))}
-            </div>
-            <div className="flex">
-              <input
-                type="text"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                className="flex-1 min-w-0 block border border-gray-300 rounded-l-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                placeholder="Add a tag"
-              />
-              <button
-                type="button"
-                onClick={addTag}
-                className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
-              >
-                Add
-              </button>
-            </div>
-          </div>
+                <span className="flex items-center">
+                  <Clock className="w-4 h-4 mr-1" />
+                  {formattedDate}
+                </span>
+                <span className="flex items-center">
+                  <Clock className="w-4 h-4 mr-1" />
+                  {post.readTime} min read
+                </span>
+                {post.featured && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                    Featured
+                  </span>
+                )}
+              </div>
 
-          <div className="mt-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">SEO Settings</h3>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label htmlFor="seo.title" className="block text-sm font-medium text-gray-700">
-                  SEO Title
-                </label>
-                <input
-                  type="text"
-                  name="seo.title"
-                  id="seo.title"
-                  value={formData.seo.title}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    seo: {
-                      ...prev.seo,
-                      title: e.target.value
-                    }
-                  }))}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label htmlFor="seo.description" className="block text-sm font-medium text-gray-700">
-                  SEO Description
-                </label>
-                <textarea
-                  name="seo.description"
-                  id="seo.description"
-                  value={formData.seo.description}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    seo: {
-                      ...prev.seo,
-                      description: e.target.value
-                    }
-                  }))}
-                  rows={3}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label htmlFor="keywords" className="block text-sm font-medium text-gray-700">
-                  Keywords
-                </label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {formData.seo.keywords.map((keyword) => (
-                    <span key={keyword} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      {keyword}
-                      <button
-                        type="button"
-                        onClick={() => removeKeyword(keyword)}
-                        className="ml-1.5 inline-flex text-gray-400 hover:text-gray-500"
-                      >
-                        <X size={12} />
-                      </button>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+                {post.title}
+              </h1>
+
+              {post.category && (
+                <span className="inline-block bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded-full mb-4">
+                  {post.category}
+                </span>
+              )}
+
+              {post.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {post.tags.map(tag => (
+                    <span 
+                      key={tag} 
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                    >
+                      <Tag className="w-3 h-3 mr-1" />
+                      {tag}
                     </span>
                   ))}
                 </div>
-                <div className="flex">
-                  <input
-                    type="text"
-                    value={newKeyword}
-                    onChange={(e) => setNewKeyword(e.target.value)}
-                    className="flex-1 min-w-0 block border border-gray-300 rounded-l-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                    placeholder="Add a keyword"
-                  />
-                  <button
-                    type="button"
-                    onClick={addKeyword}
-                    className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
-                  >
-                    Add
-                  </button>
+              )}
+            </header>
+
+            {/* Post Content */}
+            <div className="prose max-w-none">
+              {post.content.map(block => renderContentBlock(block))}
+            </div>
+
+            {/* FAQ Section */}
+            {post.faq.length > 0 && (
+              <div className="mt-12">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                  Frequently Asked Questions
+                </h2>
+                <div className="space-y-4">
+                  {post.faq.map(item => (
+                    <div key={item.id} className="border border-gray-200 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                        {item.question}
+                      </h3>
+                      <p className="text-gray-600">
+                        {item.answer}
+                      </p>
+                    </div>
+                  ))}
                 </div>
+              </div>
+            )}
+
+            {/* SEO Metadata (visible only in admin view) */}
+            <div className="mt-12 border-t border-gray-200 pt-6">
+              <h3 className="text-sm font-medium text-gray-500 mb-2">SEO Metadata</h3>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Title:</span> {post.seo.title || 'Not set'}
+                </p>
+                <p className="text-sm text-gray-600 mt-2">
+                  <span className="font-medium">Description:</span> {post.seo.description || 'Not set'}
+                </p>
+                {post.seo.keywords && post.seo.keywords.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-gray-600">Keywords:</p>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {post.seo.keywords.map(keyword => (
+                        <span 
+                          key={keyword} 
+                          className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                        >
+                          {keyword}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
+        </article>
 
-          <div className="mt-6 flex justify-end space-x-3">
-            <Link
-              to="/admin/blog"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-            >
-              <X className="w-4 h-4 mr-2" />
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save Changes
-            </button>
-          </div>
-        </form>
+        {/* Admin Actions */}
+        <div className="mt-6 flex justify-end">
+          <Link
+            to={`/admin/blog/edit/${post.id}`}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+          >
+            Edit Post
+          </Link>
+        </div>
       </div>
     </div>
   );

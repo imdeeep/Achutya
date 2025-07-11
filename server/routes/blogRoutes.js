@@ -5,12 +5,15 @@ const {
   getBlogs,
   getBlog,
   updateBlog,
-  deleteBlog
+  deleteBlog,
+  getFeaturedBlogs
 } = require('../controllers/blogController');
 const { isAdmin } = require('../middleware/auth');
 
+console.log("Blog Routes Loaded");
 
 router.post('/', isAdmin, createBlog);
+router.get('/featured', getFeaturedBlogs);
 router.get('/', getBlogs);
 router.get('/:id', getBlog);
 router.put('/:id', isAdmin, updateBlog);

@@ -182,7 +182,7 @@ export const statsApi = async () => {
 // Blog API calls
 export const blogApi = {
   getAllBlogs: async () => {
-    const response = await api.get("/blogs/");
+    const response = await api.get("/blogs");
     return response.data;
   },
 
@@ -204,5 +204,9 @@ export const blogApi = {
   deleteBlog: async (id: string) => {
     const response = await api.delete(`/blogs/${id}`);
     return response.data;
-  }
+  },
+  getFeaturedBlogs: async () => {
+  const response = await api.get("/blogs/featured");
+  return response.data;
+},
 };
