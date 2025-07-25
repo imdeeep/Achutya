@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { ArrowLeft, Save, X, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, X, Plus, Trash2, Upload, Image } from "lucide-react";
 import { destinationApi } from "~/services/adminApi";
+import { API_URL } from "~/lib/baseurl";
+import imageCompression from 'browser-image-compression';
 
 interface FormData {
   name: string;
@@ -43,6 +45,56 @@ export default function NewDestination() {
   const [highlightInput, setHighlightInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'heroImage') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      setError('Please upload an image file');
+      return;
+    }
+
+    try {
+      type === 'image' ? setUploadingImage(true) : setUploadingHeroImage(true);
+
+      // Lossless compression (or as close as possible)
+      const compressedFile = await imageCompression(file, {
+        maxWidthOrHeight: 2000, // keep large, just in case
+        useWebWorker: true,
+        initialQuality: 1.0, // lossless for JPEG
+        fileType: file.type,
+        alwaysKeepResolution: true,
+      });
+
+      const formData = new FormData();
+      formData.append('image', compressedFile);
+
+      const response = await fetch(`${API_URL}/upload/image`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFormData(prev => ({
+          ...prev,
+          [type]: data.url
+        }));
+      } else {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      setError(err instanceof Error ? err.message : 'Failed to upload image');
+    } finally {
+      type === 'image' ? setUploadingImage(false) : setUploadingHeroImage(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,45 +303,130 @@ export default function NewDestination() {
               </div>
             </div>
 
-            {/* Images */}
+            {/* Images Section */}
             <div className="sm:col-span-2">
               <h2 className="text-lg font-medium text-gray-900 mb-4">Images</h2>
               <div className="space-y-4">
                 <div>
                   <label
                     htmlFor="image"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Thumbnail Image URL *
+                    Thumbnail Image *
                   </label>
-                  <input
-                    type="url"
-                    name="image"
-                    id="image"
-                    value={formData.image}
-                    onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                    placeholder="https://example.com/thumbnail.jpg"
-                    required
-                  />
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <label
+                        htmlFor="image-upload"
+                        className={`relative cursor-pointer flex justify-center items-center w-full border border-gray-300 border-dashed rounded-lg p-6 group hover:border-emerald-500 transition-colors ${
+                          uploadingImage ? 'bg-gray-50' : ''
+                        }`}
+                      >
+                        <div className="text-center">
+                          {uploadingImage ? (
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
+                          ) : formData.image ? (
+                            <div className="relative">
+                              <img
+                                src={formData.image}
+                                alt="Thumbnail preview"
+                                className="max-h-32 mx-auto rounded"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                                className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1 text-red-600 hover:bg-red-200"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <Image className="mx-auto h-12 w-12 text-gray-400" />
+                              <div className="mt-2">
+                                <span className="text-sm font-medium text-emerald-600 group-hover:text-emerald-700">
+                                  Upload thumbnail
+                                </span>
+                              </div>
+                              <p className="mt-1 text-xs text-gray-500">
+                                PNG, JPG, GIF up to 5MB
+                              </p>
+                            </>
+                          )}
+                        </div>
+                        <input
+                          id="image-upload"
+                          name="image-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, 'image')}
+                          className="sr-only"
+                          disabled={uploadingImage}
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
                   <label
                     htmlFor="heroImage"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Hero Image URL
+                    Hero Image
                   </label>
-                  <input
-                    type="url"
-                    name="heroImage"
-                    id="heroImage"
-                    value={formData.heroImage}
-                    onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                    placeholder="https://example.com/hero-image.jpg"
-                  />
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <label
+                        htmlFor="hero-image-upload"
+                        className={`relative cursor-pointer flex justify-center items-center w-full border border-gray-300 border-dashed rounded-lg p-6 group hover:border-emerald-500 transition-colors ${
+                          uploadingHeroImage ? 'bg-gray-50' : ''
+                        }`}
+                      >
+                        <div className="text-center">
+                          {uploadingHeroImage ? (
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
+                          ) : formData.heroImage ? (
+                            <div className="relative">
+                              <img
+                                src={formData.heroImage}
+                                alt="Hero image preview"
+                                className="max-h-32 mx-auto rounded"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, heroImage: '' }))}
+                                className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1 text-red-600 hover:bg-red-200"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <Image className="mx-auto h-12 w-12 text-gray-400" />
+                              <div className="mt-2">
+                                <span className="text-sm font-medium text-emerald-600 group-hover:text-emerald-700">
+                                  Upload hero image
+                                </span>
+                              </div>
+                              <p className="mt-1 text-xs text-gray-500">
+                                PNG, JPG, GIF up to 5MB
+                              </p>
+                            </>
+                          )}
+                        </div>
+                        <input
+                          id="hero-image-upload"
+                          name="hero-image-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, 'heroImage')}
+                          className="sr-only"
+                          disabled={uploadingHeroImage}
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

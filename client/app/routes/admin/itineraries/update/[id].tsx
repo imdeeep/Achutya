@@ -19,8 +19,10 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Image as LucideImage
 } from "lucide-react";
 import { tourApi, destinationApi } from "~/services/adminApi";
+import { API_URL } from "~/lib/baseurl";
 
 interface ModernDatePickerProps {
   value: string | null;
@@ -164,12 +166,11 @@ const ModernDatePicker: React.FC<ModernDatePickerProps> = ({
                 className={`
                   p-2 text-sm rounded-lg transition-colors relative
                   ${!date ? "invisible" : ""}
-                  ${
-                    isSelected(date)
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : isToday(date)
-                        ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                        : "hover:bg-gray-100 text-gray-700"
+                  ${isSelected(date)
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                    : isToday(date)
+                      ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                      : "hover:bg-gray-100 text-gray-700"
                   }
                 `}
               >
@@ -230,6 +231,7 @@ interface DayItinerary {
 
 interface TourFormData {
   title: string;
+  isFeatured?: boolean;
   subtitle: string;
   description: string;
   image: string;
@@ -241,7 +243,7 @@ interface TourFormData {
   groupType: string;
   maxGroupSize: number;
   difficulty: string;
-  destination: string;
+  destination: { _id: string; name: string; city: string; country: string } | string;
   country: string;
   city: string;
   location: string;
@@ -275,6 +277,7 @@ type ArrayField =
 
 const initialFormData: TourFormData = {
   title: "",
+  isFeatured: false,
   subtitle: "",
   description: "",
   image: "",
@@ -644,6 +647,37 @@ export default function NewItinerary() {
     );
   };
 
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'heroImage') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file');
+      return;
+    }
+    try {
+      type === 'image' ? setUploadingImage(true) : setUploadingHeroImage(true);
+      const formDataUpload = new FormData();
+      formDataUpload.append('image', file);
+      const response = await fetch(`${API_URL}/upload/image`, {
+        method: 'POST',
+        body: formDataUpload,
+      });
+      const data = await response.json();
+      if (data.success) {
+        setFormData(prev => ({ ...prev, [type]: data.url }));
+      } else {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload image');
+    } finally {
+      type === 'image' ? setUploadingImage(false) : setUploadingHeroImage(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="">
@@ -692,11 +726,10 @@ export default function NewItinerary() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                        activeTab === tab.id
-                          ? "bg-emerald-50 text-emerald-700 border-2 border-emerald-200"
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === tab.id
+                        ? "bg-emerald-50 text-emerald-700 border-2 border-emerald-200"
+                        : "text-gray-600 hover:bg-gray-50"
+                        }`}
                     >
                       <Icon className="w-5 h-5" />
                       {tab.label}
@@ -723,6 +756,23 @@ export default function NewItinerary() {
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="flex items-center gap-3">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          id="isFeatured"
+                          checked={formData.isFeatured || false}
+                          onChange={(e) => handleInputChange("isFeatured", e.target.checked)}
+                          className="sr-only peer"  // Hide default checkbox
+                        />
+                        {/* Toggle Switch */}
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        <span className="ml-2 text-sm font-medium text-gray-700">
+                          {formData.isFeatured ? "Featured" : "Not Featured"}
+                        </span>
+                      </label>
+                    </div>
+                    <span className="text-sm text-gray-500">Note: The featured tour will be highlighted on home page</span>
                     <div className="lg:col-span-2">
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
                         <Tag className="w-4 h-4 text-emerald-600" />
@@ -776,33 +826,114 @@ export default function NewItinerary() {
                     <div>
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
                         <ImageIcon className="w-4 h-4 text-emerald-600" />
-                        Tour Image URL
+                        Tour Image
                       </label>
-                      <input
-                        type="url"
-                        value={formData.image}
-                        onChange={(e) =>
-                          handleInputChange("image", e.target.value)
-                        }
-                        placeholder="https://example.com/image.jpg"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                      />
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <label
+                            htmlFor="image-upload"
+                            className={`relative cursor-pointer flex justify-center items-center w-full border border-gray-300 border-dashed rounded-lg p-6 group hover:border-emerald-500 transition-colors ${uploadingImage ? 'bg-gray-50' : ''}`}
+                          >
+                            <div className="text-center">
+                              {uploadingImage ? (
+                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
+                              ) : formData.image ? (
+                                <div className="relative">
+                                  <img
+                                    src={formData.image}
+                                    alt="Thumbnail preview"
+                                    className="max-h-32 mx-auto rounded"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                                    className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1 text-red-600 hover:bg-red-200"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  <LucideImage className="mx-auto h-12 w-12 text-gray-400" />
+                                  <div className="mt-2">
+                                    <span className="text-sm font-medium text-emerald-600 group-hover:text-emerald-700">
+                                      Upload image
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    PNG, JPG, GIF up to 5MB
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                            <input
+                              id="image-upload"
+                              name="image-upload"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload(e, 'image')}
+                              className="sr-only"
+                              disabled={uploadingImage}
+                            />
+                          </label>
+                        </div>
+                      </div>
                     </div>
-
                     <div>
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
                         <ImageIcon className="w-4 h-4 text-emerald-600" />
-                        Hero Image URL
+                        Hero Image
                       </label>
-                      <input
-                        type="url"
-                        value={formData.heroImage}
-                        onChange={(e) =>
-                          handleInputChange("heroImage", e.target.value)
-                        }
-                        placeholder="https://example.com/hero-image.jpg"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                      />
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <label
+                            htmlFor="hero-image-upload"
+                            className={`relative cursor-pointer flex justify-center items-center w-full border border-gray-300 border-dashed rounded-lg p-6 group hover:border-emerald-500 transition-colors ${uploadingHeroImage ? 'bg-gray-50' : ''}`}
+                          >
+                            <div className="text-center">
+                              {uploadingHeroImage ? (
+                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
+                              ) : formData.heroImage ? (
+                                <div className="relative">
+                                  <img
+                                    src={formData.heroImage}
+                                    alt="Hero image preview"
+                                    className="max-h-32 mx-auto rounded"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, heroImage: '' }))}
+                                    className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1 text-red-600 hover:bg-red-200"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  <LucideImage className="mx-auto h-12 w-12 text-gray-400" />
+                                  <div className="mt-2">
+                                    <span className="text-sm font-medium text-emerald-600 group-hover:text-emerald-700">
+                                      Upload hero image
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    PNG, JPG, GIF up to 5MB
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                            <input
+                              id="hero-image-upload"
+                              name="hero-image-upload"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload(e, 'heroImage')}
+                              className="sr-only"
+                              disabled={uploadingHeroImage}
+                            />
+                          </label>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -899,7 +1030,7 @@ export default function NewItinerary() {
                       </label>
                       <input
                         type="text"
-                        value={formData.destination.name}
+                        value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search destination..."
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"

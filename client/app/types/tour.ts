@@ -21,6 +21,7 @@ export interface ItineraryDay {
 
 export interface TourData {
   id: string;
+  isFeatured: boolean;
   title: string;
   subtitle: string;
   location: string;

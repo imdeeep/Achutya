@@ -25,6 +25,7 @@ export default [
     route("cms", "routes/admin/cms.tsx"),
     route("blog", "routes/admin/blog.tsx"),
     route("blog/new", "routes/admin/blog/new.tsx"),
+    route("blog/edit/:id", "routes/admin/blog/edit/[id].tsx"),
     route("blog/:id", "routes/admin/blog/[id].tsx"),
     route("marketing", "routes/admin/marketing.tsx"),
     route("reviews", "routes/admin/reviews.tsx"),
