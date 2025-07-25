@@ -19,8 +19,11 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Image as LucideImage
 } from "lucide-react";
 import { tourApi, destinationApi } from "~/services/adminApi";
+import { API_URL } from "~/lib/baseurl";
+import imageCompression from 'browser-image-compression';
 
 interface ModernDatePickerProps {
   value: string | null;
@@ -338,6 +341,8 @@ export default function NewItinerary() {
   const [isSearching, setIsSearching] = useState(false);
   const [selectedDestination, setSelectedDestination] =
     useState<Destination | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
 
   const searchDestinations = async (name: string) => {
     if (!name.trim()) {
@@ -561,6 +566,42 @@ export default function NewItinerary() {
       .replace(/--+/g, "-");
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'heroImage') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file');
+      return;
+    }
+    try {
+      type === 'image' ? setUploadingImage(true) : setUploadingHeroImage(true);
+      // Lossless compression (or as close as possible)
+      const compressedFile = await imageCompression(file, {
+        maxWidthOrHeight: 2000,
+        useWebWorker: true,
+        initialQuality: 1.0,
+        fileType: file.type,
+        alwaysKeepResolution: true,
+      });
+      const formDataUpload = new FormData();
+      formDataUpload.append('image', compressedFile);
+      const response = await fetch(`${API_URL}/upload/image`, {
+        method: 'POST',
+        body: formDataUpload,
+      });
+      const data = await response.json();
+      if (data.success) {
+        setFormData(prev => ({ ...prev, [type]: data.url }));
+      } else {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload image');
+    } finally {
+      type === 'image' ? setUploadingImage(false) : setUploadingHeroImage(false);
+    }
+  };
+
   const tabs = [
     { id: "basic", label: "Basic Info", icon: Info },
     { id: "details", label: "Details", icon: Tag },
@@ -765,33 +806,115 @@ export default function NewItinerary() {
                     <div>
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
                         <ImageIcon className="w-4 h-4 text-emerald-600" />
-                        Tour Image URL
+                        Tour Image
                       </label>
-                      <input
-                        type="url"
-                        value={formData.image}
-                        onChange={(e) =>
-                          handleInputChange("image", e.target.value)
-                        }
-                        placeholder="https://example.com/image.jpg"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                      />
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <label
+                            htmlFor="image-upload"
+                            className={`relative cursor-pointer flex justify-center items-center w-full border border-gray-300 border-dashed rounded-lg p-6 group hover:border-emerald-500 transition-colors ${uploadingImage ? 'bg-gray-50' : ''}`}
+                          >
+                            <div className="text-center">
+                              {uploadingImage ? (
+                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
+                              ) : formData.image ? (
+                                <div className="relative">
+                                  <img
+                                    src={formData.image}
+                                    alt="Thumbnail preview"
+                                    className="max-h-32 mx-auto rounded"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                                    className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1 text-red-600 hover:bg-red-200"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  <LucideImage className="mx-auto h-12 w-12 text-gray-400" />
+                                  <div className="mt-2">
+                                    <span className="text-sm font-medium text-emerald-600 group-hover:text-emerald-700">
+                                      Upload image
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    PNG, JPG, GIF up to 5MB
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                            <input
+                              id="image-upload"
+                              name="image-upload"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload(e, 'image')}
+                              className="sr-only"
+                              disabled={uploadingImage}
+                            />
+                          </label>
+                        </div>
+                      </div>
                     </div>
 
                     <div>
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
                         <ImageIcon className="w-4 h-4 text-emerald-600" />
-                        Hero Image URL
+                        Hero Image
                       </label>
-                      <input
-                        type="url"
-                        value={formData.heroImage}
-                        onChange={(e) =>
-                          handleInputChange("heroImage", e.target.value)
-                        }
-                        placeholder="https://example.com/hero-image.jpg"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                      />
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <label
+                            htmlFor="hero-image-upload"
+                            className={`relative cursor-pointer flex justify-center items-center w-full border border-gray-300 border-dashed rounded-lg p-6 group hover:border-emerald-500 transition-colors ${uploadingHeroImage ? 'bg-gray-50' : ''}`}
+                          >
+                            <div className="text-center">
+                              {uploadingHeroImage ? (
+                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
+                              ) : formData.heroImage ? (
+                                <div className="relative">
+                                  <img
+                                    src={formData.heroImage}
+                                    alt="Hero image preview"
+                                    className="max-h-32 mx-auto rounded"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, heroImage: '' }))}
+                                    className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1 text-red-600 hover:bg-red-200"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  <LucideImage className="mx-auto h-12 w-12 text-gray-400" />
+                                  <div className="mt-2">
+                                    <span className="text-sm font-medium text-emerald-600 group-hover:text-emerald-700">
+                                      Upload hero image
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    PNG, JPG, GIF up to 5MB
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                            <input
+                              id="hero-image-upload"
+                              name="hero-image-upload"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload(e, 'heroImage')}
+                              className="sr-only"
+                              disabled={uploadingHeroImage}
+                            />
+                          </label>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

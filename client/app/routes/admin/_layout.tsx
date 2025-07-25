@@ -51,28 +51,23 @@ function AdminLayoutInner() {
       icon: CreditCard,
       href: "/admin/bookings",
     },
-    { id: "cms", label: "CMS", icon: FileText, href: "/admin/cms" },
+    // { id: "cms", label: "CMS", icon: FileText, href: "/admin/cms" },
     { id: "blog", label: "Blog", icon: Newspaper, href: "/admin/blog" },
-    {
-      id: "marketing",
-      label: "Marketing",
-      icon: Megaphone,
-      href: "/admin/marketing",
-    },
+    // { id: "marketing", label: "Marketing", icon: Megaphone, href: "/admin/marketing" },
     { id: "reviews", label: "Reviews", icon: Star, href: "/admin/reviews" },
-    { id: "guides", label: "Guides", icon: Compass, href: "/admin/guides" },
-    {
-      id: "analytics",
-      label: "Analytics",
-      icon: BarChart,
-      href: "/admin/analytics",
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: Settings,
-      href: "/admin/settings",
-    },
+    // { id: "guides", label: "Guides", icon: Compass, href: "/admin/guides" },
+    // {
+    //   id: "analytics",
+    //   label: "Analytics",
+    //   icon: BarChart,
+    //   href: "/admin/analytics",
+    // },
+    // {
+    //   id: "settings",
+    //   label: "Settings",
+    //   icon: Settings,
+    //   href: "/admin/settings",
+    // },
   ];
 
   const handleLogout = async () => {
