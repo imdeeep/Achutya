@@ -2,8 +2,8 @@
 
 import React from 'react'
 
-export default function PrivacyPolicy() {
+export default function Payments() {
   return (
-    <div>PrivacyPolicy</div>
+    <div>Payments</div>
   )
 }
