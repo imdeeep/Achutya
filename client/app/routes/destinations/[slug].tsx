@@ -1,3 +1,4 @@
+// akash bhaiya is page ka ui pure project jaisa kar dena 
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import { destinationApi } from "~/services/userApi";
