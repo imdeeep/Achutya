@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { destinationApi } from "~/services/userApi";
+import { destinationApi, tourApi } from "~/services/userApi";
 import {
   Search,
   Calendar,
@@ -33,6 +33,16 @@ interface SearchResult {
   price?: number;
 }
 
+const TOUR_TYPES = [
+  "International Trips",
+  "India Trips",
+  "Weekend Trips",
+  "Group Tours",
+  "Honeymoon Packages",
+  "early-bird",
+  "Gift Cards"
+];
+
 const Navigation = () => {
   const { user, logout } = useAuth();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -46,12 +56,29 @@ const Navigation = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null)
+  const [toursByType, setToursByType] = useState<Record<string, any[]>>({});
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      const result: Record<string, any[]> = {};
+      for (const type of TOUR_TYPES) {
+        try {
+          const response = await tourApi.getToursByTypes([type]);
+          result[type] = response.data || [];
+        } catch (e) {
+          result[type] = [];
+        }
+      }
+      setToursByType(result);
+    };
+    fetchTours();
+  }, []);
 
   const dropdownContent: DropdownContentType = {
-    "International Trips": ["Thailand", "Switzerland", "Bali", "Dubai"],
-    "India Trips": ["Goa", "Kerala", "Rajasthan", "Himachal"],
-    "Weekend Trips": ["Lonavala", "Alibaug", "Pune", "Matheran"],
-    "Group Tours": ["Andaman", "Kashmir", "Sikkim", "Coorg"],
+    "International Trips": toursByType["International Trips"]?.map(t => t.title) || [],
+    "India Trips": toursByType["India Trips"]?.map(t => t.title) || [],
+    "Weekend Trips": toursByType["Weekend Trips"]?.map(t => t.title) || [],
+    "Group Tours": toursByType["Group Tours"]?.map(t => t.title) || [],
   };
 
   const createSlug = (destination: string) => {
@@ -421,17 +448,17 @@ const Navigation = () => {
                     Popular Destinations
                   </div>
                   {dropdownContent[item as keyof DropdownContentType].map(
-                    (destination: string) => (
+                    (tourTitle: string, idx: number) => (
                       <Link
-                        key={destination}
-                        to={`/destination/${createSlug(destination)}`}
+                        key={tourTitle}
+                        to={`/tour?type=${encodeURIComponent(item)}&title=${encodeURIComponent(tourTitle)}`}
                         className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 group/item transition-colors"
                       >
                         <MapPin
                           size={16}
                           className="mr-3 text-gray-400 group-hover/item:text-emerald-500 min-w-[16px] transition-colors"
                         />
-                        {destination}
+                        {tourTitle}
                       </Link>
                     )
                   )}
@@ -441,6 +468,13 @@ const Navigation = () => {
                       className="flex items-center px-4 py-2 text-xs text-emerald-600 hover:text-emerald-700 font-semibold transition-colors"
                     >
                       View All Destinations
+                      <ArrowRight size={16} className="ml-2" />
+                    </Link>
+                    <Link
+                      to={`/${encodeURIComponent(item)}`}
+                      className="flex items-center px-4 py-2 text-xs text-emerald-600 hover:text-emerald-700 font-semibold transition-colors mt-1"
+                    >
+                      View All {item} Tours
                       <ArrowRight size={16} className="ml-2" />
                     </Link>
                   </div>

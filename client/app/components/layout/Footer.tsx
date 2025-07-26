@@ -45,7 +45,7 @@ const Footer = () => {
       "Cancellation Policy",
       "Terms & Conditions",
       "Disclaimer",
-      "Blogs",
+      "Our Blogs",
       "Payments",
     ],
   };
@@ -133,7 +133,7 @@ const Footer = () => {
               {footerData["Quick Links"].map((link) => (
                 <li key={link}>
                   <a
-                    href="#"
+                    href={`/${link.toLowerCase().replace(/\s+/g, '-')}`}
                     className="text-white/80 hover:text-white transition-colors duration-200 text-sm group"
                   >
                     <span className="relative after:bg-white after:transition-all group-hover:after:w-full">

@@ -48,6 +48,10 @@ const destinationSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  isPopular: {
+    type: Boolean,
+    default: false
+  },
   slug: {
     type: String,
     unique: true,

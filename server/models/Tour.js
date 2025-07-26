@@ -195,7 +195,20 @@ const tourSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  // Tour types (multiple allowed)
+  types: [{
+    type: String,
+    enum: [
+      'International Trips',
+      'India Trips',
+      'Weekend Trips',
+      'Group Tours',
+      'Honeymoon Packages',
+      'early-bird',
+      'Gift Cards'
+    ]
+  }],
 });
 
 // Middleware to update updatedAt

@@ -19,6 +19,7 @@ interface FormData {
   timeZone: string;
   isActive: boolean;
   slug: string;
+  isPopular: boolean;
 }
 
 export default function EditDestination() {
@@ -39,6 +40,7 @@ export default function EditDestination() {
     timeZone: "",
     isActive: true,
     slug: "",
+    isPopular: false,
   });
   const [highlightInput, setHighlightInput] = useState("");
   const [loading, setLoading] = useState(true);
@@ -331,6 +333,18 @@ export default function EditDestination() {
                     required
                     placeholder="A brief description of the destination"
                   />
+                </div>
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <input
+                      type="checkbox"
+                      name="isPopular"
+                      checked={formData.isPopular}
+                      onChange={e => setFormData(prev => ({ ...prev, isPopular: e.target.checked }))}
+                      className="h-4 w-4 text-emerald-600 border-gray-300 rounded"
+                    />
+                    Popular Destination
+                  </label>
                 </div>
               </div>
             </div>

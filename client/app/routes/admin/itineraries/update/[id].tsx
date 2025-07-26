@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { tourApi, destinationApi } from "~/services/adminApi";
 import { API_URL } from "~/lib/baseurl";
+import Select from 'react-select';
 
 interface ModernDatePickerProps {
   value: string | null;
@@ -258,6 +259,7 @@ interface TourFormData {
   itinerary: DayItinerary[];
   isActive: boolean;
   slug: string;
+  types?: string[];
 }
 
 interface Destination {
@@ -678,6 +680,16 @@ export default function NewItinerary() {
     }
   };
 
+  const TOUR_TYPE_OPTIONS = [
+    { value: 'International Trips', label: 'International Trips' },
+    { value: 'India Trips', label: 'India Trips' },
+    { value: 'Weekend Trips', label: 'Weekend Trips' },
+    { value: 'Group Tours', label: 'Group Tours' },
+    { value: 'Honeymoon Packages', label: 'Honeymoon Packages' },
+    { value: 'early-bird', label: 'early-bird' },
+    { value: 'Gift Cards', label: 'Gift Cards' },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="">
@@ -773,6 +785,21 @@ export default function NewItinerary() {
                       </label>
                     </div>
                     <span className="text-sm text-gray-500">Note: The featured tour will be highlighted on home page</span>
+                    {/* Tour Types Multi-Select */}
+                    <div className="lg:col-span-2">
+                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
+                        <Tag className="w-4 h-4 text-emerald-600" />
+                        Tour Types
+                      </label>
+                      <Select
+                        isMulti
+                        options={TOUR_TYPE_OPTIONS}
+                        value={TOUR_TYPE_OPTIONS.filter(opt => formData.types?.includes(opt.value))}
+                        onChange={selected => handleInputChange('types', selected.map(opt => opt.value))}
+                        classNamePrefix="react-select"
+                        placeholder="Select tour types..."
+                      />
+                    </div>
                     <div className="lg:col-span-2">
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
                         <Tag className="w-4 h-4 text-emerald-600" />

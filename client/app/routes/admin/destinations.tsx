@@ -318,8 +318,8 @@ export default function Destinations() {
               <div className="relative h-48 bg-gray-100 overflow-hidden">
                 <img
                   src={
-                    destination.heroImage ||
                     destination.image ||
+                    destination.heroImage ||
                     "https://via.placeholder.com/800x450?text=No+Image"
                   }
                   alt={destination.name}

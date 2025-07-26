@@ -8,7 +8,8 @@ const {
     deleteDestination,
     getDestinationByName,
     searchDestinations,
-    searchBothDestinationAndTour
+    searchBothDestinationAndTour,
+    getDestinationBySlug
 } = require('../controllers/Destination');
 const { isAdmin } = require('../middleware/auth');
 
@@ -20,12 +21,9 @@ router.get('/search', searchDestinations);
 router.get('/search/both/',searchBothDestinationAndTour)
 
 router.get('/name/:name', getDestinationByName); 
-
+router.get('/findtours/:slug', getDestinationBySlug);
 router.route('/:id')
     .get(getDestination)           
     .put(isAdmin,updateDestination)        
     .delete(isAdmin,deleteDestination);
-    
-
-
 module.exports = router;
