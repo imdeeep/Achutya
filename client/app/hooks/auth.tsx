@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { API_URL } from "~/lib/baseurl";
 
 interface User {
+  phone: string;
   id: string;
   email: string;
   name: string;

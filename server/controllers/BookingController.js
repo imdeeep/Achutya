@@ -4,6 +4,7 @@ const Tour = require('../models/Tour');
 const TourDate = require('../models/TourDate');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const { sendMail } = require('../utils/mailer');
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -210,6 +211,25 @@ const bookingController = {
 
       await payment.save();
 
+      // Send confirmation email
+      try {
+        await sendMail({
+          to: userDetails.email,
+          subject: `Booking Confirmed: ${tour.title}`,
+          html: `<h2>Booking Confirmed!</h2>
+            <p>Dear ${userDetails.name},</p>
+            <p>Your booking for <b>${tour.title}</b> is confirmed.</p>
+            <ul>
+              <li><b>Date:</b> ${new Date(tourDate.startDate).toLocaleDateString()} - ${new Date(tourDate.endDate).toLocaleDateString()}</li>
+              <li><b>Guests:</b> ${numberOfGuests}</li>
+              <li><b>Total Amount:</b> ₹${totalAmount}</li>
+            </ul>
+            <p>Thank you for booking with Achyutya Travel!</p>`
+        });
+      } catch (mailErr) {
+        console.error('Error sending confirmation email:', mailErr);
+      }
+
       res.json({
         success: true,
         message: 'Booking completed successfully',
@@ -381,11 +401,24 @@ const bookingController = {
         await tour.save();
       }
 
-      // Update payment status
-      await Payment.findOneAndUpdate(
-        { booking: booking._id },
-        { status: 'Cancelled' }
-      );
+      // Send cancellation email
+      try {
+        await sendMail({
+          to: booking.primaryContact.email,
+          subject: `Booking Cancelled: ${tour.title}`,
+          html: `<h2>Booking Cancelled</h2>
+            <p>Dear ${booking.primaryContact.name},</p>
+            <p>Your booking for <b>${tour.title}</b> has been cancelled.</p>
+            <ul>
+              <li><b>Date:</b> ${new Date(booking.tourDate.startDate).toLocaleDateString()} - ${new Date(booking.tourDate.endDate).toLocaleDateString()}</li>
+              <li><b>Guests:</b> ${booking.numberOfGuests}</li>
+              <li><b>Refund Amount:</b> ₹${booking.refundAmount}</li>
+            </ul>
+            <p>If you have any questions, please contact us.</p>`
+        });
+      } catch (mailErr) {
+        console.error('Error sending cancellation email:', mailErr);
+      }
 
       res.json({
         success: true,

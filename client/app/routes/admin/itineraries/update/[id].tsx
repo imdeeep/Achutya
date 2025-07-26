@@ -76,7 +76,11 @@ const ModernDatePicker: React.FC<ModernDatePickerProps> = ({
 
   const handleDateSelect = (date: Date | null): void => {
     if (date) {
-      const formattedDate = date.toISOString().split("T")[0];
+      // Format as YYYY-MM-DD in local time
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const formattedDate = `${year}-${month}-${day}`;
       onChange(formattedDate);
       setIsOpen(false);
     }
@@ -212,6 +216,8 @@ interface AvailableDate {
   bookedSlots: number;
   isAvailable: boolean;
   notes?: string;
+  recurring?: string; // 'none', 'weekly', 'monthly'
+  isRecurringInstance?: boolean;
 }
 
 interface Feature {
@@ -531,7 +537,7 @@ export default function NewItinerary() {
     setFormData((prev) => ({
       ...prev,
       availableDates: prev.availableDates.map((date, i) =>
-        i === index ? { ...date, [field]: value } : date
+        i === index ? { ...date, [field]: value }  : date
       ),
     }));
   };
@@ -1057,7 +1063,7 @@ export default function NewItinerary() {
                       </label>
                       <input
                         type="text"
-                        value={searchTerm}
+                        value={typeof formData.destination === 'object' && formData.destination !== null && 'name' in formData.destination ? formData.destination.name : ''}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search destination..."
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
@@ -1279,6 +1285,49 @@ export default function NewItinerary() {
                             label="End Date"
                             placeholder="Select end date"
                           />
+                          {/* Recurring Dropdown */}
+                          <div className="mb-4">
+                            <label className="text-sm font-medium text-gray-700 mb-2 block">
+                              Recurring
+                            </label>
+                            <select
+                              value={date.recurring || 'none'}
+                              onChange={e => updateAvailableDate(index, 'recurring', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            >
+                              <option value="none">None</option>
+                              <option value="weekly">Weekly</option>
+                              <option value="monthly">Monthly</option>
+                            </select>
+                          </div>
+                          {/* Admin sets available slots for this date */}
+                          <div className="mb-4">
+                            <label className="text-sm font-medium text-gray-700 mb-2 block">
+                              Number of Slots (Total)
+                            </label>
+                            <input
+                              type="number"
+                              min={1}
+                              value={date.availableSlots}
+                              onChange={e => updateAvailableDate(index, 'availableSlots', parseInt(e.target.value) || 0)}
+                              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            />
+                          </div>
+                          {/* Slots Info */}
+                          <div className="mb-4 flex gap-4">
+                            <div className="text-sm text-gray-700">
+                              <span className="font-semibold">Total Slots:</span> {date.availableSlots}
+                            </div>
+                            <div className="text-sm text-gray-700">
+                              <span className="font-semibold">Slots Left:</span> {Math.max(0, (date.availableSlots || 0) - (date.bookedSlots || 0))}
+                            </div>
+                          </div>
+                          {/* Recurring Instance Badge */}
+                          {date.isRecurringInstance && (
+                            <div className="mb-2 inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">
+                              Recurring Instance
+                            </div>
+                          )}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                               <label className="text-sm font-medium text-gray-700 mb-2 block">

@@ -97,20 +97,20 @@ const TourDetails = () => {
             exclusions: response.data.exclusions || [],
             notes: response.data.notes || [],
             bookingInfo: response.data.bookingInfo || {},
-            // Add any other fields that your UI components expect
+            availableDates: response.data.availableDates || [],
             ...response.data,
           };
           setTourData(transformedData);
         } else {
-          throw new Error(
+          throw Error(
             response.error || response.message || "Failed to fetch tour details"
           );
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching tour data:", err);
         setError(
-          err instanceof Error
-            ? err.message
+          err && typeof err === 'object' && 'message' in err
+            ? (err as { message: string }).message
             : "Failed to load tour details. Please try again."
         );
       } finally {
@@ -170,6 +170,35 @@ const TourDetails = () => {
         {/* Header */}
         <TourHeader tourData={tourData} />
 
+        {/* Available Dates & Slots Info */}
+        {tourData.availableDates && tourData.availableDates.length > 0 && (
+          <div className="max-w-7xl mx-auto px-4 pt-4">
+            <div className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-4">
+              <h3 className="text-lg font-semibold mb-2 text-emerald-700 flex items-center gap-2">
+                <span>Available Dates & Slots</span>
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {tourData.availableDates.map((date: any, idx: number) => {
+                  const start = new Date(String(date.startDate));
+                  const end = new Date(String(date.endDate));
+                  return (
+                    <div key={idx} className="px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 flex flex-col items-start min-w-[180px]">
+                      <div className="font-medium text-gray-900">
+                        {start.toLocaleDateString()} - {end.toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-gray-600 mb-1">
+                        Slots Left: <span className="font-semibold">{date.slotsLeft ?? (date.availableSlots - date.bookedSlots)}</span> / <span className="font-semibold">{date.totalSlots ?? date.availableSlots}</span>
+                      </div>
+                      {date.isRecurringInstance && (
+                        <span className="inline-block bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold mt-1">Recurring</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

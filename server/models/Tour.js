@@ -118,6 +118,12 @@ const tourSchema = new mongoose.Schema({
     },
     notes: {
       type: String // Optional: special notes for this date
+    },
+    // Recurring config for this date (optional)
+    recurring: {
+      type: String, // e.g., 'none', 'weekly', 'monthly'
+      enum: ['none', 'weekly', 'monthly'],
+      default: 'none'
     }
   }],
   
@@ -292,6 +298,52 @@ tourSchema.methods.getDateBookingStatus = function(dateId) {
     isAvailable: dateObj.isAvailable,
     status: dateObj.bookedSlots > 0 ? 'Booked' : 'Available'
   };
+};
+
+// Virtuals for slots left and total slots per date
+// (not mongoose virtuals, but helper methods)
+tourSchema.methods.getDateSlotsInfo = function(dateObj) {
+  return {
+    totalSlots: dateObj.availableSlots,
+    slotsLeft: Math.max(0, dateObj.availableSlots - dateObj.bookedSlots)
+  };
+};
+
+// Generate recurring dates for the next 3 months (if recurring is set)
+tourSchema.methods.generateRecurringDates = function() {
+  const now = new Date();
+  const threeMonthsLater = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
+  let recDates = [];
+  this.availableDates.forEach(dateObj => {
+    if (!dateObj.recurring || dateObj.recurring === 'none') return;
+    let start = new Date(dateObj.startDate);
+    let end = new Date(dateObj.endDate);
+    while (start < threeMonthsLater) {
+      // Only add if not already present in availableDates
+      const exists = this.availableDates.some(d =>
+        d.startDate.getTime() === start.getTime() && d.endDate.getTime() === end.getTime()
+      );
+      if (!exists) {
+        recDates.push({
+          ...dateObj.toObject(),
+          startDate: new Date(start),
+          endDate: new Date(end),
+          isRecurringInstance: true
+        });
+      }
+      // Increment
+      if (dateObj.recurring === 'weekly') {
+        start.setDate(start.getDate() + 7);
+        end.setDate(end.getDate() + 7);
+      } else if (dateObj.recurring === 'monthly') {
+        start.setMonth(start.getMonth() + 1);
+        end.setMonth(end.getMonth() + 1);
+      } else {
+        break;
+      }
+    }
+  });
+  return recDates;
 };
 tourSchema.set('toJSON', { virtuals: true });
 tourSchema.set('toObject', { virtuals: true });

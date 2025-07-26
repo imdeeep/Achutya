@@ -79,6 +79,9 @@ const Booking: React.FC = () => {
   const [bookingData, setBookingData] = useState<BookingResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<boolean>(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [cancelSuccess, setCancelSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     const getSingleBooking = async (id: string): Promise<void> => {
@@ -155,6 +158,27 @@ const Booking: React.FC = () => {
         return 'bg-red-50 text-red-700 border border-red-200';
       default:
         return 'bg-gray-50 text-gray-700 border border-gray-200';
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    if (!bookingId) return;
+    if (!window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) return;
+    setCancelling(true);
+    setCancelError(null);
+    setCancelSuccess(null);
+    try {
+      const response = await bookingApi.cancelBooking(bookingId, {});
+      setCancelSuccess('Booking cancelled successfully. Refund (if any) will be processed.');
+      // Refresh booking data
+      if (user?.id) {
+        const refreshed = await bookingApi.getSingleBooking(bookingId);
+        setBookingData(refreshed.data);
+      }
+    } catch (err: any) {
+      setCancelError(err?.response?.data?.message || 'Failed to cancel booking.');
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -457,12 +481,20 @@ const Booking: React.FC = () => {
                       <button 
                         className="w-full px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors duration-200"
                         type="button"
+                        onClick={handleCancelBooking}
+                        disabled={cancelling}
                       >
                         Cancel Booking
                       </button>
                     )}
                   </div>
                 </div>
+                {cancelSuccess && (
+                  <div className="mt-2 text-green-600 text-sm text-center">{cancelSuccess}</div>
+                )}
+                {cancelError && (
+                  <div className="mt-2 text-red-600 text-sm text-center">{cancelError}</div>
+                )}
               </div>
             </div>
           </div>

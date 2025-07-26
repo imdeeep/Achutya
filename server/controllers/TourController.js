@@ -277,9 +277,24 @@ const tourController = {
         });
       }
 
+      // Add slots info and recurring dates
+      let availableDates = tour.availableDates.map(dateObj => ({
+        ...dateObj.toObject(),
+        ...tour.getDateSlotsInfo(dateObj)
+      }));
+      // Add recurring dates
+      const recurringDates = tour.generateRecurringDates().map(dateObj => ({
+        ...dateObj,
+        ...tour.getDateSlotsInfo(dateObj)
+      }));
+      availableDates = [...availableDates, ...recurringDates];
+
       res.status(200).json({
         success: true,
-        data: tour
+        data: {
+          ...tour.toObject(),
+          availableDates
+        }
       });
     } catch (error) {
       res.status(500).json({
@@ -309,7 +324,17 @@ const tourController = {
         });
       }
 
-      const availableDates = tour.getAvailableDates();
+      // Add slots info and recurring dates
+      let availableDates = tour.availableDates.map(dateObj => ({
+        ...dateObj.toObject(),
+        ...tour.getDateSlotsInfo(dateObj)
+      }));
+      // Add recurring dates
+      const recurringDates = tour.generateRecurringDates().map(dateObj => ({
+        ...dateObj,
+        ...tour.getDateSlotsInfo(dateObj)
+      }));
+      availableDates = [...availableDates, ...recurringDates];
 
       res.status(200).json({
         success: true,
@@ -457,6 +482,13 @@ const tourController = {
   updateTour: async (req, res) => {
     try {
       const { id } = req.params;
+      // Ensure availableSlots is set for each date
+      if (req.body.availableDates && Array.isArray(req.body.availableDates)) {
+        req.body.availableDates = req.body.availableDates.map(date => ({
+          ...date,
+          availableSlots: typeof date.availableSlots === 'number' ? date.availableSlots : 16 // default fallback
+        }));
+      }
       const tour = await Tour.findByIdAndUpdate(
         id,
         { ...req.body, updatedAt: Date.now() },
@@ -470,10 +502,25 @@ const tourController = {
         });
       }
 
+      // Add slots info and recurring dates
+      let availableDates = tour.availableDates.map(dateObj => ({
+        ...dateObj.toObject(),
+        ...tour.getDateSlotsInfo(dateObj)
+      }));
+      // Add recurring dates
+      const recurringDates = tour.generateRecurringDates().map(dateObj => ({
+        ...dateObj,
+        ...tour.getDateSlotsInfo(dateObj)
+      }));
+      availableDates = [...availableDates, ...recurringDates];
+
       res.status(200).json({
         success: true,
         message: 'Tour updated successfully',
-        data: tour
+        data: {
+          ...tour.toObject(),
+          availableDates
+        }
       });
     } catch (error) {
       res.status(400).json({
@@ -675,22 +722,32 @@ const tourController = {
     try {
       const { tourId } = req.params;
 
-      const tourDates = await TourDate.find({
-        tour: tourId,
-        isActive: true,
-        startDate: { $gte: new Date() } // Only future dates
-      }).sort({ startDate: 1 });
+      const tour = await Tour.findById(tourId);
+      if (!tour) {
+        return res.status(404).json({
+          success: false,
+          message: 'Tour not found'
+        });
+      }
 
-      const datesWithAvailability = tourDates.map(date => ({
-        _id: date._id,
-        startDate: date.startDate,
-        endDate: date.endDate,
-        price: date.price,
-        totalSlots: date.availableSlots,
-        bookedSlots: date.bookedSlots,
-        availableSlots: date.availableSlots - date.bookedSlots,
-        status: date.status,
-        isBookable: (date.availableSlots - date.bookedSlots) > 0
+      // Add slots info and recurring dates
+      let tourDates = tour.availableDates.map(dateObj => ({
+        ...dateObj.toObject(),
+        ...tour.getDateSlotsInfo(dateObj)
+      }));
+      // Add recurring dates
+      const recurringDates = tour.generateRecurringDates().map(dateObj => ({
+        ...dateObj,
+        ...tour.getDateSlotsInfo(dateObj)
+      }));
+      tourDates = [...tourDates, ...recurringDates];
+
+      // Only future dates
+      const now = new Date();
+      const datesWithAvailability = tourDates.filter(date => new Date(date.startDate) >= now).map(date => ({
+        ...date,
+        status: date.slotsLeft > 0 ? 'Available' : 'Booked',
+        isBookable: date.slotsLeft > 0
       }));
 
       res.json({

@@ -1,4 +1,5 @@
 require('dotenv').config();
+// EMAIL_USER and EMAIL_PASSWORD are loaded from .env for mailer
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
