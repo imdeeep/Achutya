@@ -73,7 +73,8 @@ const tourController = {
         page = 1,
         limit = 10,
         sortBy = 'createdAt',
-        sortOrder = 'desc'
+        sortOrder = 'desc',
+        types
       } = req.query;
 
       const filter = { isActive };
@@ -88,6 +89,10 @@ const tourController = {
         filter.price = {};
         if (minPrice) filter.price.$gte = Number(minPrice);
         if (maxPrice) filter.price.$lte = Number(maxPrice);
+      }
+      if (types) {
+        const typesArray = Array.isArray(types) ? types : types.split(',');
+        filter.types = { $in: typesArray };
       }
 
       const skip = (page - 1) * limit;
@@ -138,7 +143,8 @@ const tourController = {
         page = 1,
         limit = 10,
         sortBy = 'createdAt',
-        sortOrder = 'desc'
+        sortOrder = 'desc',
+        types
       } = req.query;
 
       const filter = {};
@@ -156,6 +162,10 @@ const tourController = {
         filter.price = {};
         if (minPrice) filter.price.$gte = Number(minPrice);
         if (maxPrice) filter.price.$lte = Number(maxPrice);
+      }
+      if (types) {
+        const typesArray = Array.isArray(types) ? types : types.split(',');
+        filter.types = { $in: typesArray };
       }
 
       const skip = (page - 1) * limit;
@@ -507,7 +517,7 @@ const tourController = {
   // Search tours
   searchTours: async (req, res) => {
     try {
-      const { q, country, city, difficulty, destination } = req.query;
+      const { q, country, city, difficulty, destination, types } = req.query;
 
       const searchFilter = { isActive: true };
 
@@ -526,6 +536,10 @@ const tourController = {
       if (city) searchFilter.city = new RegExp(city, 'i');
       if (difficulty) searchFilter.difficulty = difficulty;
       if (destination) searchFilter.destination = destination;
+      if (types) {
+        const typesArray = Array.isArray(types) ? types : types.split(',');
+        searchFilter.types = { $in: typesArray };
+      }
 
       const tours = await Tour.find(searchFilter)
         .populate('destination', 'name country image')

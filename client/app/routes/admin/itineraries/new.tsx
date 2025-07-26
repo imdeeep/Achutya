@@ -24,6 +24,7 @@ import {
 import { tourApi, destinationApi } from "~/services/adminApi";
 import { API_URL } from "~/lib/baseurl";
 import imageCompression from 'browser-image-compression';
+import Select from 'react-select';
 
 interface ModernDatePickerProps {
   value: string | null;
@@ -260,6 +261,7 @@ interface TourFormData {
   itinerary: DayItinerary[];
   isActive: boolean;
   slug: string;
+  types?: string[];
 }
 
 interface Destination {
@@ -657,6 +659,16 @@ export default function NewItinerary() {
     );
   };
 
+  const TOUR_TYPE_OPTIONS = [
+    { value: 'International Trips', label: 'International Trips' },
+    { value: 'India Trips', label: 'India Trips' },
+    { value: 'Weekend Trips', label: 'Weekend Trips' },
+    { value: 'Group Tours', label: 'Group Tours' },
+    { value: 'Honeymoon Packages', label: 'Honeymoon Packages' },
+    { value: 'early-bird', label: 'early-bird' },
+    { value: 'Gift Cards', label: 'Gift Cards' },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="">
@@ -734,16 +746,15 @@ export default function NewItinerary() {
                       Essential details about your tour package
                     </p>
                   </div>
-
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                        <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           id="isFeatured"
                           checked={formData.isFeatured || false}
                           onChange={(e) => handleInputChange("isFeatured", e.target.checked)}
-                          className="sr-only peer"  // Hide default checkbox
+                          className="sr-only peer"
                         />
                         {/* Toggle Switch */}
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
@@ -753,6 +764,21 @@ export default function NewItinerary() {
                       </label>
                     </div>
                     <span className="text-sm text-gray-500">Note: The featured tour will be highlighted on home page</span>
+                    {/* Tour Types Multi-Select */}
+                    <div className="lg:col-span-2">
+                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
+                        <Tag className="w-4 h-4 text-emerald-600" />
+                        Tour Types
+                      </label>
+                      <Select
+                        isMulti
+                        options={TOUR_TYPE_OPTIONS}
+                        value={TOUR_TYPE_OPTIONS.filter(opt => formData.types?.includes(opt.value))}
+                        onChange={selected => handleInputChange('types', selected.map(opt => opt.value))}
+                        classNamePrefix="react-select"
+                        placeholder="Select tour types..."
+                      />
+                    </div>
                     <div className="lg:col-span-2">
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
                         <Tag className="w-4 h-4 text-emerald-600" />

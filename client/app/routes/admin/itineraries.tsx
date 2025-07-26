@@ -231,7 +231,7 @@ export default function Itineraries() {
               />
               <div className="absolute top-4 right-4 flex items-center space-x-2">
                 <Link
-                  to={`/tour/${itinerary._id}`}
+                  to={`/tour?q=${itinerary._id}`}
                   className="p-2 bg-white rounded-full shadow-sm hover:bg-emerald-50 text-gray-600 hover:text-emerald-600 transition-colors duration-200"
                   title="View Tour"
                 >

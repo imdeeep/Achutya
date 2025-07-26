@@ -23,8 +23,8 @@ api.interceptors.request.use(
 
 // Destination APIs
 export const destinationApi = {
-  getAllDestination: async () => {
-    const response = await axios.get(`${API_URL}/destinations`);
+  getAllDestination: async (params = {}) => {
+    const response = await axios.get(`${API_URL}/destinations`, { params });
     return response.data;
   },
   getDestinationById: async (id: string) => {
@@ -80,6 +80,10 @@ export const destinationApi = {
       throw error;
     }
   },
+  getDestinationBySlug: async (slug: string) => {
+    const response = await axios.get(`${API_URL}/destinations/findtours/${slug}`);
+    return response.data;
+  },
 };
 
 // Tour APIs
@@ -102,6 +106,12 @@ export const tourApi = {
   },
   getAvailableDates: async (id: string) => {
     const response = await axios.get(`${API_URL}/tour/${id}/available-dates`);
+    return response.data;
+  },
+  getToursByTypes: async (types: string[]) => {
+    const params = new URLSearchParams();
+    params.append('types', types.join(','));
+    const response = await axios.get(`${API_URL}/tour?${params.toString()}`);
     return response.data;
   },
 };

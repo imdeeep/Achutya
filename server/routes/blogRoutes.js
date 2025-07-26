@@ -10,7 +10,6 @@ const {
 } = require('../controllers/blogController');
 const { isAdmin } = require('../middleware/auth');
 
-console.log("Blog Routes Loaded");
 
 router.post('/', isAdmin, createBlog);
 router.get('/featured', getFeaturedBlogs);

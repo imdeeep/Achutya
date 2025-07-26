@@ -1,5 +1,6 @@
 const Destination = require('../models/Destination');
 const Tour = require('../models/Tour')
+const mongoose = require('mongoose');
 
 // Create a new destination
 exports.createDestination = async (req, res) => {
@@ -15,14 +16,24 @@ exports.createDestination = async (req, res) => {
 // Get all destinations
 exports.getDestinations = async (req, res) => {
     try {
-        const { country, isActive } = req.query;
+        const { country, isActive, isPopular, page = 1, limit = 12 } = req.query;
         const filter = {};
-        
         if (country) filter.country = country;
         if (isActive !== undefined) filter.isActive = isActive === 'true';
-        
-        const destinations = await Destination.find(filter);
-        res.status(200).json({ success: true, count: destinations.length, data: destinations });
+        if (isPopular !== undefined) filter.isPopular = isPopular === 'true';
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const destinations = await Destination.find(filter)
+          .skip(skip)
+          .limit(parseInt(limit));
+        const total = await Destination.countDocuments(filter);
+        res.status(200).json({
+          success: true,
+          count: destinations.length,
+          total,
+          page: parseInt(page),
+          pages: Math.ceil(total / limit),
+          data: destinations
+        });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -157,3 +168,28 @@ exports.searchBothDestinationAndTour = async (req, res) => {
         });
     }
 };
+
+// Get destination by slug and its tours
+exports.getDestinationBySlug = async (req, res) => {
+    try {
+        const { slug } = req.params;
+        let destination;
+        
+        // Check if it's a valid ObjectId, otherwise search by slug
+        if (mongoose.Types.ObjectId.isValid(slug)) {
+            destination = await Destination.findById(slug);
+        } else {
+            destination = await Destination.findOne({ slug });
+        }
+        
+        if (!destination) {
+            return res.status(404).json({ success: false, error: 'Destination not found' });
+        }
+        
+        const tours = await Tour.find({ destination: destination._id });
+        res.status(200).json({ success: true, data: { destination, tours } });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+

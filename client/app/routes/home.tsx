@@ -5,6 +5,7 @@ import { Link } from "react-router";
 import { useEffect } from "react";
 import { tourApi } from "~/services/adminApi";
 import FeaturedBlogs from "~/components/blogs/BlogSection";
+import PopularDestinations from "~/components/sections/Home/PopularDestinations";
 
 interface TourFormData {
   _id: string;
@@ -237,67 +238,6 @@ function FeaturedTours() {
           >
             View All Featured Tours →
           </Link> */}
-        </div>
-      </div>
-    </section>
-  );
-}
-// Popular Destinations
-function PopularDestinations() {
-  const destinations = [
-    {
-      name: "Himachal Pradesh",
-      image:
-        "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tours: "15 Tours",
-    },
-    {
-      name: "Kerala",
-      image:
-        "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tours: "12 Tours",
-    },
-    {
-      name: "Rajasthan",
-      image:
-        "https://images.unsplash.com/photo-1477587458883-47145ed94245?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tours: "18 Tours",
-    },
-    {
-      name: "Goa",
-      image:
-        "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tours: "8 Tours",
-    },
-  ];
-
-  return (
-    <section className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">Popular Destinations</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Discover amazing places and create unforgettable memories
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {destinations.map((dest, index) => (
-            <div key={index} className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-2xl shadow-lg">
-                <img
-                  src={dest.image}
-                  alt={dest.name}
-                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 text-white">
-                  <h3 className="text-xl font-bold">{dest.name}</h3>
-                  <p className="text-sm opacity-90">{dest.tours}</p>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </section>
