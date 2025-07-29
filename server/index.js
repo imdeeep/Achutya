@@ -15,9 +15,6 @@ const { getStats } = require('./controllers/statsController');
 const { isAdmin } = require('./middleware/auth');
 const blogsRoutes = require('./routes/blogRoutes');
 
-
-
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 
