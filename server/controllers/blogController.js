@@ -17,10 +17,25 @@ exports.createBlog = async (req, res) => {
   }
 };
 
-// Get all blog posts
+// Get all blog posts with filtering
 exports.getBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find().sort({ createdAt: -1 });
+    const { category, limit, status = 'Published' } = req.query;
+    
+    let query = { status };
+    
+    if (category && category !== 'all') {
+      query.category = category;
+    }
+    
+    let blogsQuery = Blog.find(query).sort({ createdAt: -1 });
+    
+    if (limit) {
+      blogsQuery = blogsQuery.limit(parseInt(limit));
+    }
+    
+    const blogs = await blogsQuery;
+    
     res.status(200).json({
       success: true,
       count: blogs.length,
@@ -34,7 +49,7 @@ exports.getBlogs = async (req, res) => {
   }
 };
 
-// Get single blog post
+// Get single blog post by ID
 exports.getBlog = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
@@ -44,6 +59,34 @@ exports.getBlog = async (req, res) => {
         error: 'Blog post not found'
       });
     }
+    res.status(200).json({
+      success: true,
+      data: blog
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+// Get single blog post by slug
+exports.getBlogBySlug = async (req, res) => {
+  try {
+    const blog = await Blog.findOne({ 
+      slug: req.params.slug,
+      status: 'Published'
+    });
+    
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        error: 'Blog post not found'
+      });
+    }
+
+    // Increment read count or add analytics here if needed
     res.status(200).json({
       success: true,
       data: blog

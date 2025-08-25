@@ -359,6 +359,17 @@ export default function Home() {
         Featured Blogs
       </h1>
       <FeaturedBlogs />
+      <div className="text-center mt-8 mb-12">
+        <Link
+          to="/our-blogs"
+          className="inline-flex items-center px-8 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition-colors"
+        >
+          View All Blogs
+          <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </Link>
+      </div>
       {/* Testimonials */}
       <Testimonials />
 

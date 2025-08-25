@@ -11,6 +11,7 @@ export default [
   route("destinations","routes/destinations.tsx"),
   route("destinations/:slug", "routes/destinations/[slug].tsx"),
   route("our-blogs", "routes/blogs.tsx"),
+  route("blogs/:slug", "routes/blogs/[slug].tsx"),
   route("privacy-policy", "routes/privacypolicy.tsx"),
   route("contact", "routes/contact.tsx"),
   route("about-us", "routes/about.tsx"),
