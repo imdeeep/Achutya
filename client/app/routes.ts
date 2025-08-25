@@ -38,6 +38,7 @@ export default [
     route("blog/:id", "routes/admin/blog/[id].tsx"),
     route("marketing", "routes/admin/marketing.tsx"),
     route("reviews", "routes/admin/reviews.tsx"),
+    route("enquiries", "routes/admin/enquiries.tsx"),
     route("guides", "routes/admin/guides.tsx"),
     route("analytics", "routes/admin/analytics.tsx"),
     route("settings", "routes/admin/settings.tsx"),

@@ -14,6 +14,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const { getStats } = require('./controllers/statsController');
 const { isAdmin } = require('./middleware/auth');
 const blogsRoutes = require('./routes/blogRoutes');
+const enquiryRoutes = require('./routes/enquiryRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -39,6 +40,7 @@ app.use('/api/book',bookRoutes)
 app.use('/api/upload', uploadRoutes);
 app.get('/api/admin/stats', isAdmin, getStats);
 app.use('/api/blogs', blogsRoutes);
+app.use('/api/enquiries', enquiryRoutes);
 
 // Health check route
 app.get("/", (req, res) => {

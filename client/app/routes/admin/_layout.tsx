@@ -55,6 +55,7 @@ function AdminLayoutInner() {
     { id: "blog", label: "Blog", icon: Newspaper, href: "/admin/blog" },
     // { id: "marketing", label: "Marketing", icon: Megaphone, href: "/admin/marketing" },
     { id: "reviews", label: "Reviews", icon: Star, href: "/admin/reviews" },
+    { id: "enquiries", label: "Enquiries", icon: FileText, href: "/admin/enquiries" },
     // { id: "guides", label: "Guides", icon: Compass, href: "/admin/guides" },
     // {
     //   id: "analytics",

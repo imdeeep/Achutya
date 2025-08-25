@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { tourApi } from "~/services/adminApi";
 import FeaturedBlogs from "~/components/blogs/BlogSection";
 import PopularDestinations from "~/components/sections/Home/PopularDestinations";
+import ContactSection from "~/components/sections/Home/ContactSection";
 
 interface TourFormData {
   _id: string;
@@ -361,6 +362,9 @@ export default function Home() {
       {/* Testimonials */}
       <Testimonials />
 
+
+      {/* Contact Section */}
+      <ContactSection />
 
       {/* Ready to Start Your Next Adventure? */}
       <CTASection />
