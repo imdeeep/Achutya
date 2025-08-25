@@ -7,9 +7,9 @@ const sharp = require('sharp');
 
 // Configure Cloudinary
 cloudinary.config({
-  cloud_name: 'travelee',
-  api_key: '884793152861746',
-  api_secret: '-UjW9F9RS7Syyz6crou5_otGggg'
+  cloud_name: 'dsefbhic4',
+  api_key: '326494612843742',
+  api_secret: 'rymsI1BCuhC5YbgcBJYVRjxEwxQ'
 });
 
 // Configure multer storage
