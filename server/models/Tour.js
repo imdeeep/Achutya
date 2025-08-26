@@ -25,6 +25,10 @@ const tourSchema = new mongoose.Schema({
     required: true,
     type: String
   },
+  pdf: {
+    type: String, // URL to the uploaded PDF file
+    required: false
+  },
   duration: {
     type: String,
     required: true // e.g., "6N - 7D"

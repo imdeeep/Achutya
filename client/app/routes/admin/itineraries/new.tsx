@@ -239,6 +239,7 @@ interface TourFormData {
   description: string;
   image: string;
   heroImage: string;
+  pdf: string;
   duration: string;
   price: number;
   originalPrice: number;
@@ -285,6 +286,7 @@ const initialFormData: TourFormData = {
   description: "",
   image: "",
   heroImage: "",
+  pdf: "",
   duration: "",
   price: 0,
   originalPrice: 0,
@@ -345,6 +347,7 @@ export default function NewItinerary() {
     useState<Destination | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const searchDestinations = async (name: string) => {
     if (!name.trim()) {
@@ -601,6 +604,44 @@ export default function NewItinerary() {
       setError(err instanceof Error ? err.message : 'Failed to upload image');
     } finally {
       type === 'image' ? setUploadingImage(false) : setUploadingHeroImage(false);
+    }
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.type !== 'application/pdf') {
+      setError('Please upload a PDF file');
+      return;
+    }
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('PDF file size must be less than 10MB');
+      return;
+    }
+
+    try {
+      setUploadingPdf(true);
+      const formDataUpload = new FormData();
+      formDataUpload.append('pdf', file);
+      
+      const response = await fetch(`${API_URL}/upload/pdf`, {
+        method: 'POST',
+        body: formDataUpload,
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setFormData(prev => ({ ...prev, pdf: data.url }));
+      } else {
+        throw new Error(data.error || 'Failed to upload PDF');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload PDF');
+    } finally {
+      setUploadingPdf(false);
     }
   };
 
@@ -937,6 +978,69 @@ export default function NewItinerary() {
                               onChange={(e) => handleImageUpload(e, 'heroImage')}
                               className="sr-only"
                               disabled={uploadingHeroImage}
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* PDF Upload */}
+                    <div className="lg:col-span-2">
+                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
+                        <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Tour PDF (Optional)
+                      </label>
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <label
+                            htmlFor="pdf-upload"
+                            className={`relative cursor-pointer flex justify-center items-center w-full border border-gray-300 border-dashed rounded-lg p-6 group hover:border-emerald-500 transition-colors ${uploadingPdf ? 'bg-gray-50' : ''}`}
+                          >
+                            <div className="text-center">
+                              {uploadingPdf ? (
+                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
+                              ) : formData.pdf ? (
+                                <div className="relative">
+                                  <div className="flex items-center gap-2 text-emerald-600">
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <span className="font-medium">PDF uploaded successfully</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, pdf: '' }))}
+                                    className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1 text-red-600 hover:bg-red-200"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
+                                  <div className="mt-2">
+                                    <span className="text-sm font-medium text-emerald-600 group-hover:text-emerald-700">
+                                      Upload PDF
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    PDF files up to 10MB
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                            <input
+                              id="pdf-upload"
+                              name="pdf-upload"
+                              type="file"
+                              accept=".pdf"
+                              onChange={handlePdfUpload}
+                              className="sr-only"
+                              disabled={uploadingPdf}
                             />
                           </label>
                         </div>

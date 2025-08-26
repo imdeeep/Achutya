@@ -212,7 +212,8 @@ const Navigation = () => {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur shadow-sm">
         {/* Desktop Line 1 - Hidden on mobile */}
         <div className="hidden lg:block">
-          <div className="max-w-10/12 mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="max-w-10/12 mx-auto px-4 py-3 flex items-center">
+          <img src="https://res.cloudinary.com/dsefbhic4/image/upload/v1756178987/c7a4c299-b347-45dc-be74-c76e8437677a.png" alt="Achyuta" className="w-10 h-10" />
             <Link
               to="/"
               className="text-3xl font-bold text-emerald-600 tracking-tight"
