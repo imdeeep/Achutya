@@ -11,6 +11,8 @@ import {
   Phone,
   ChevronDown,
   User,
+  BookOpen,
+  Info,
 } from "lucide-react";
 import { Link } from "react-router";
 import { useAuth } from "~/hooks/auth";
@@ -221,7 +223,7 @@ const Navigation = () => {
               Achyuta
             </Link>
 
-            <div className="flex-1 mx-8 flex items-center gap-2 max-w-xl" ref={searchRef}>
+            <div className="flex-1 mx-8 flex items-center gap-2 max-w-xl justify-between" ref={searchRef}>
               <div className="relative w-full">
                 <input
                   type="text"
@@ -335,22 +337,18 @@ const Navigation = () => {
             </div>
 
             <div className="flex space-x-6 md:mr-10">
-              {["Upcoming Trips", "Corporate Tours", "Blogs", "About Us"].map(
-                (item) => (
-                  <a
-                    key={item}
-                    href="#"
-                    className="text-gray-600 hover:text-emerald-600 transition-colors duration-200 flex items-center text-sm group"
-                  >
-                    {item === "Upcoming Trips" && (
-                      <Calendar size={16} className="mr-2 text-emerald-500" />
-                    )}
-                    <span className="relative after:bg-emerald-600 after:transition-all group-hover:after:w-full">
-                      {item}
-                    </span>
-                  </a>
-                )
-              )}
+              <Link to="/our-blogs" className="text-gray-600 hover:text-emerald-600 transition-colors duration-200 flex items-center text-sm group">
+                <BookOpen size={16} className="mr-2 text-emerald-500" />
+                <span className="relative after:bg-emerald-600 after:transition-all group-hover:after:w-full">
+                  Blogs
+                </span>
+              </Link> 
+              <Link to="/about-us" className="text-gray-600 hover:text-emerald-600 transition-colors duration-200 flex items-center text-sm group">
+                <Info size={16} className="mr-2 text-emerald-500" />
+                <span className="relative after:bg-emerald-600 after:transition-all group-hover:after:w-full">
+                  About Us
+                </span>
+              </Link>
             </div>
 
             <div className="flex items-center gap-4">

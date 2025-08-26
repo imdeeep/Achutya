@@ -7,6 +7,11 @@ import { tourApi } from "~/services/adminApi";
 import FeaturedBlogs from "~/components/blogs/BlogSection";
 import PopularDestinations from "~/components/sections/Home/PopularDestinations";
 import ContactSection from "~/components/sections/Home/ContactSection";
+import JourneyCarousel from "~/components/sections/Home/JourneyCarousel";
+import Button from "~/components/ui/Button";
+import SectionHeader from "~/components/ui/SectionHeader";
+import Card from "~/components/ui/Card";
+import Container from "~/components/ui/Container";
 
 interface TourFormData {
   _id: string;
@@ -86,7 +91,7 @@ function FeaturedTours() {
     const fetchFeaturedTours = async () => {
       try {
         setLoading(true);
-        const response = await tourApi.getTopFeaturedTours(); // Use the API endpoint we created
+        const response = await tourApi.getTopFeaturedTours();
         if (response.success) {
           setTours(response.data);
         } else {
@@ -105,16 +110,12 @@ function FeaturedTours() {
 
   if (loading) {
     return (
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Featured Tours
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Loading featured tours...
-            </p>
-          </div>
+      <section className="py-20 bg-white">
+        <Container>
+          <SectionHeader
+            title="Featured Tours"
+            subtitle="Handpicked experiences designed to give you the best of each destination"
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="bg-white rounded-2xl shadow-lg overflow-hidden">
@@ -129,50 +130,45 @@ function FeaturedTours() {
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
     );
   }
 
   if (error) {
     return (
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-red-500 mb-4">Error: {error}</div>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-[#277A55] text-white px-4 py-2 rounded"
-          >
-            Retry
-          </button>
-        </div>
+      <section className="py-20 bg-white">
+        <Container>
+          <div className="text-center">
+            <div className="text-red-500 mb-4">Error: {error}</div>
+            <Button
+              onClick={() => window.location.reload()}
+              variant="primary"
+              size="md"
+            >
+              Retry
+            </Button>
+          </div>
+        </Container>
       </section>
     );
   }
 
   return (
-    <section className="py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Featured Tours
-          </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Handpicked experiences designed to give you the best of each
-            destination
-          </p>
-        </div>
+    <section className="py-20 bg-white">
+      <Container>
+        <SectionHeader
+          title="Featured Tours"
+          subtitle="Handpicked experiences designed to give you the best of each destination"
+        />
 
         {tours.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {tours.map((tour) => (
-              <div
-                key={tour._id}
-                className="relative bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
-
+              <Card key={tour._id} shadow="xl" hover={true}>
                 <Link
                   to={`/tour?q=${tour._id}`}
-                  className=""
+                  className="block"
                 >
                   {/* Tour Image */}
                   <div className="relative">
@@ -192,10 +188,10 @@ function FeaturedTours() {
                   {/* Bottom Text Overlay */}
                   <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black via-black/30 to-transparent px-4 py-4 text-white">
                     <div className="flex flex-col items-center justify-between mb-2 mt-24">
-                      <h3 className=" sm:text-2xl font-bold truncate text-wrap">{tour.title}</h3>
+                      <h3 className="sm:text-2xl font-bold truncate text-wrap">{tour.title}</h3>
                       <div className="flex items-center justify-between text-sm mt-3 w-full">
-                        <div className="flex items-center ">
-                          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center">
+                          <svg className="w-4 h-4 text-white mr-1" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M19 11H5v2h14v-2z" />
                           </svg>
                           <span>{tour.duration}</span>
@@ -222,9 +218,8 @@ function FeaturedTours() {
                       </div>
                     </div>
                   </div>
-                    </Link>
-              </div>
-
+                </Link>
+              </Card>
             ))}
           </div>
         ) : (
@@ -232,15 +227,7 @@ function FeaturedTours() {
             <p className="text-gray-600">No featured tours available at the moment.</p>
           </div>
         )}
-        <div className="text-center">
-          {/* <Link
-            to="/tours/featured"
-            className="inline-block mt-6 text-[#277A55] font-semibold hover:underline"
-          >
-            View All Featured Tours →
-          </Link> */}
-        </div>
-      </div>
+      </Container>
     </section>
   );
 }
@@ -275,45 +262,45 @@ function Testimonials() {
   ];
 
   return (
-    <section className="py-20">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">What Our Travelers Say</h2>
-          <p className="text-gray-600">
-            Real experiences from real adventurers
-          </p>
-        </div>
+    <section className="py-20 bg-gray-50">
+      <Container>
+        <SectionHeader
+          title="What Our Travelers Say"
+          subtitle="Real experiences from real adventurers"
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
-            <div key={index} className="bg-white p-6 rounded-2xl shadow-lg">
-              <div className="flex mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className="w-5 h-5 text-yellow-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
+            <Card key={index} shadow="lg" hover={true}>
+              <div className="p-8">
+                <div className="flex mb-6">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <svg
+                      key={i}
+                      className="w-6 h-6 text-yellow-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
 
-              <p className="text-gray-700 mb-4">"{testimonial.content}"</p>
+                <p className="text-gray-700 mb-6 text-lg leading-relaxed">"{testimonial.content}"</p>
 
-              <div className="flex items-center">
-                <img
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  className="w-10 h-10 rounded-full mr-3 object-cover"
-                />
-                <h4 className="font-semibold">{testimonial.name}</h4>
+                <div className="flex items-center">
+                  <img
+                    src={testimonial.image}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full mr-4 object-cover"
+                  />
+                  <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
+                </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
@@ -321,25 +308,34 @@ function Testimonials() {
 // CTA Section
 function CTASection() {
   return (
-    <section className="py-20 bg-[#277A55] text-white text-center">
-      <div className="max-w-4xl mx-auto px-4">
+    <section className="py-20 bg-teal-600 text-white text-center">
+      <Container size="md">
         <h2 className="text-4xl font-bold mb-6">
           Ready to Start Your Next Adventure?
         </h2>
         <p className="text-xl mb-8 opacity-90">
-          Join thousands of travelers who have discovered incredible
-          destinations with us
+          Join thousands of travelers who have discovered incredible destinations with us
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-white text-[#277A55] px-8 py-3 rounded-full font-semibold hover:bg-gray-100">
+          <Button
+            href="/destinations"
+            variant="primary"
+            size="lg"
+            className="bg-white text-teal-600 hover:bg-gray-100"
+          >
             Explore Tours
-          </button>
-          <button className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-[#277A55]">
+          </Button>
+          <Button
+            href="/contact"
+            variant="outline"
+            size="lg"
+            className="border-white text-white hover:bg-white hover:text-teal-600"
+          >
             Contact Us
-          </button>
+          </Button>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
@@ -350,29 +346,43 @@ export default function Home() {
       {/* Hero Section */}
       <Page1 />
 
+      {/* Journey in Frames Carousel */}
+      {/* <JourneyCarousel /> */}
+
       {/* Featured Tours */}
       <FeaturedTours />
 
       {/* Popular Destinations */}
       <PopularDestinations />
-      <h1 className="text-3xl font-bold text-black text-center my-8">
-        Featured Blogs
-      </h1>
-      <FeaturedBlogs />
-      <div className="text-center mt-8 mb-12">
-        <Link
-          to="/our-blogs"
-          className="inline-flex items-center px-8 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition-colors"
-        >
-          View All Blogs
-          <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-        </Link>
-      </div>
+      
+      {/* Featured Blogs */}
+      <section className="py-20 bg-white">
+        <Container>
+          <SectionHeader
+            title="Featured Blogs"
+            subtitle="Discover travel stories, tips, and insights from our adventure experts"
+          />
+          <FeaturedBlogs />
+          <div className="text-center mt-12">
+            <Button
+              href="/our-blogs"
+              variant="primary"
+              size="lg"
+              icon={
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              }
+              iconPosition="right"
+            >
+              View All Blogs
+            </Button>
+          </div>
+        </Container>
+      </section>
+
       {/* Testimonials */}
       <Testimonials />
-
 
       {/* Contact Section */}
       <ContactSection />
