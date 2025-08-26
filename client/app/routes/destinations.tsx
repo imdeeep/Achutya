@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Clock, Thermometer, DollarSign, Globe, Calendar, Eye, Plus } from 'lucide-react';
+import { Search, MapPin, Clock, Thermometer, DollarSign, Globe, Calendar, Eye, Plus, Star, Users, ArrowRight } from 'lucide-react';
 import Layout from '~/components/layout/Layout';
 import { destinationApi } from '~/services/userApi';
 import { Link } from 'react-router';
@@ -108,6 +108,34 @@ const Destinations = () => {
     );
   };
 
+  // Helper function to get destinations by category
+  const getDestinationsByCategory = (category: string, limit?: number) => {
+    let filtered = destinations;
+    
+    switch (category) {
+      case 'International':
+        filtered = destinations.filter(dest => dest.country === 'International');
+        break;
+      case 'India':
+        filtered = destinations.filter(dest => dest.country === 'India');
+        break;
+      case 'Weekend':
+        // For weekend trips, you might want to add a specific field in your destination model
+        // For now, we'll show a subset of destinations
+        filtered = destinations.slice(0, 4);
+        break;
+      case 'Group':
+        // For group tours, you might want to add a specific field in your destination model
+        // For now, we'll show a subset of destinations
+        filtered = destinations.slice(0, 4);
+        break;
+      default:
+        filtered = destinations;
+    }
+    
+    return limit ? filtered.slice(0, limit) : filtered;
+  };
+
   if (isLoading) {
     return (
       <Layout>
@@ -147,30 +175,28 @@ const Destinations = () => {
     <Layout>
       <div className="min-h-screen bg-gray-50 py-6">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="mb-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                  Explore Destinations
-                </h1>
-                <p className="text-gray-600 text-sm">
-                  Discover amazing places around the world
-                </p>
-              </div>
+          {/* Header Section */}
+          <div className="mb-8">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                Explore Amazing Destinations
+              </h1>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Discover incredible places around the world, from exotic international locations to beautiful destinations in India
+              </p>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4">
-            
+            <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
               <div className="flex-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4 text-gray-400" />
+                  <Search className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name, country, or highlights..."
-                  className="w-full pl-9 pr-4 text-black py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                  className="w-full pl-10 pr-4 text-black py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 />
               </div>
 
@@ -178,7 +204,7 @@ const Destinations = () => {
                 <select
                   value={selectedCountryType}
                   onChange={(e) => setSelectedCountryType(e.target.value)}
-                  className="w-full px-3 py-2.5 text-black border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-sm"
+                  className="w-full px-3 py-3 text-black border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
                 >
                   {getCountryTypes().map((type) => (
                     <option key={type} value={type}>
@@ -188,13 +214,15 @@ const Destinations = () => {
                 </select>
               </div>
             </div>
+
+            <div className="text-center mt-4">
+              <p className="text-gray-600">
+                Showing {filteredDestinations.length} of {destinations.length} destinations
+              </p>
+            </div>
           </div>
 
-          <div className="mb-4">
-            <p className="text-gray-600 text-sm">
-              Showing {filteredDestinations.length} of {destinations.length} destinations
-            </p>
-          </div>
+          {/* All Destinations Grid */}
           {filteredDestinations.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -209,30 +237,30 @@ const Destinations = () => {
                   setSearchQuery('');
                   setSelectedCountryType('All');
                 }}
-                className="text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+                className="text-teal-600 hover:text-teal-700 font-medium text-sm"
               >
                 Clear all filters
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16">
               {filteredDestinations.map((destination) => (
                 <div
                   key={destination._id}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border border-gray-100"
+                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100"
                 >
-                  <div className="relative h-32 overflow-hidden">
+                  <div className="relative h-48 overflow-hidden">
                     <img
                       src={destination.heroImage || destination.image}
                       alt={destination.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute top-2 left-2">
+                    <div className="absolute top-3 left-3">
                       <span
-                        className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           destination.country === 'International'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-green-100 text-green-800'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-green-500 text-white'
                         }`}
                       >
                         <Globe size={10} className="mr-1" />
@@ -241,66 +269,271 @@ const Destinations = () => {
                     </div>
                   </div>
 
-                  <div className="p-4">
+                  <div className="p-5">
                     <div className="mb-3">
-                      <h3 className="text-base font-bold text-gray-900 mb-1 line-clamp-1">
+                      <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">
                         {highlightSearchTerm(destination.name, searchQuery)}
                       </h3>
-                      <div className="flex items-center text-gray-600 text-xs">
-                        <MapPin size={12} className="mr-1" />
+                      <div className="flex items-center text-gray-600 text-sm">
+                        <MapPin size={14} className="mr-1" />
                         {highlightSearchTerm(destination.countryName, searchQuery)}
                       </div>
                     </div>
 
-                    <p className="text-gray-600 text-xs mb-3 line-clamp-2 leading-relaxed">
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
                       {highlightSearchTerm(destination.description, searchQuery)}
                     </p>
-                    <div className="grid grid-cols-2 gap-2 mb-3">
+
+                    <div className="grid grid-cols-2 gap-3 mb-4">
                       <div className="flex items-start text-xs text-gray-600">
-                        <Calendar size={10} className="mr-1.5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                        <Calendar size={12} className="mr-1.5 text-teal-500 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="font-medium text-gray-900 text-xs">Best Time</div>
                           <div className="text-xs">{formatBestTime(destination.bestTimeToVisit)}</div>
                         </div>
                       </div>
                       <div className="flex items-start text-xs text-gray-600">
-                        <Thermometer size={10} className="mr-1.5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                        <Thermometer size={12} className="mr-1.5 text-teal-500 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="font-medium text-gray-900 text-xs">Climate</div>
                           <div className="text-xs line-clamp-1">{destination.climate}</div>
                         </div>
                       </div>
-                      <div className="flex items-start text-xs text-gray-600">
-                        <Clock size={10} className="mr-1.5 text-emerald-500 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="font-medium text-gray-900 text-xs">Time Zone</div>
-                          <div className="text-xs">{formatTimeZone(destination.timeZone)}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start text-xs text-gray-600">
-                        <DollarSign size={10} className="mr-1.5 text-emerald-500 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="font-medium text-gray-900 text-xs">Currency</div>
-                          <div className="text-xs line-clamp-1">{destination.currency}</div>
-                        </div>
-                      </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      <Link
-                        to={`/destination/${destination.name}?q=${destination._id}`}
-                        className="flex-1 bg-emerald-600 text-white text-center py-1.5 px-3 rounded-md hover:bg-emerald-700 transition-colors text-xs font-medium flex items-center justify-center gap-1"
-                      >
-                        <Eye size={12} />
-                        View
-                      </Link>
-                    </div>
+                    <Link
+                      to={`/destinations/${destination.slug}`}
+                      className="w-full bg-teal-600 text-white text-center py-2 px-4 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                    >
+                      <Eye size={14} />
+                      View Details
+                    </Link>
                   </div>
                 </div>
               ))}   
             </div>
           )}
+
+          {/* Category Sections */}
+          <div className="space-y-16">
+            {/* International Trips Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">International Trips</h2>
+                  <p className="text-gray-600">Explore exotic destinations around the world</p>
+                </div>
+                <Link
+                  to="/destinations?country=International"
+                  className="inline-flex items-center text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  View All International
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {getDestinationsByCategory('International', 4).map((destination) => (
+                  <div
+                    key={destination._id}
+                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100"
+                  >
+                    <div className="relative h-40 overflow-hidden">
+                      <img
+                        src={destination.heroImage || destination.image}
+                        alt={destination.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 left-2">
+                        <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          International
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{destination.name}</h3>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{destination.description}</p>
+                      <Link
+                        to={`/destinations/${destination.slug}`}
+                        className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+                      >
+                        Explore Destination →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* India Trips Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">India Trips</h2>
+                  <p className="text-gray-600">Discover the beauty and diversity of India</p>
+                </div>
+                <Link
+                  to="/destinations?country=India"
+                  className="inline-flex items-center text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  View All India
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {getDestinationsByCategory('India', 4).map((destination) => (
+                  <div
+                    key={destination._id}
+                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100"
+                  >
+                    <div className="relative h-40 overflow-hidden">
+                      <img
+                        src={destination.heroImage || destination.image}
+                        alt={destination.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 left-2">
+                        <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          India
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{destination.name}</h3>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{destination.description}</p>
+                      <Link
+                        to={`/destinations/${destination.slug}`}
+                        className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+                      >
+                        Explore Destination →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Weekend Trips Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Weekend Trips</h2>
+                  <p className="text-gray-600">Perfect getaways for your weekends</p>
+                </div>
+                <Link
+                  to="/destinations"
+                  className="inline-flex items-center text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  View All Weekend
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {getDestinationsByCategory('Weekend', 4).map((destination) => (
+                  <div
+                    key={destination._id}
+                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100"
+                  >
+                    <div className="relative h-40 overflow-hidden">
+                      <img
+                        src={destination.heroImage || destination.image}
+                        alt={destination.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 left-2">
+                        <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          Weekend
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{destination.name}</h3>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{destination.description}</p>
+                      <Link
+                        to={`/destinations/${destination.slug}`}
+                        className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+                      >
+                        Explore Destination →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Group Tours Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Group Tours</h2>
+                  <p className="text-gray-600">Travel together with like-minded adventurers</p>
+                </div>
+                <Link
+                  to="/destinations"
+                  className="inline-flex items-center text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  View All Group Tours
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {getDestinationsByCategory('Group', 4).map((destination) => (
+                  <div
+                    key={destination._id}
+                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100"
+                  >
+                    <div className="relative h-40 overflow-hidden">
+                      <img
+                        src={destination.heroImage || destination.image}
+                        alt={destination.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 left-2">
+                        <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          Group Tour
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{destination.name}</h3>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{destination.description}</p>
+                      <Link
+                        to={`/destinations/${destination.slug}`}
+                        className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+                      >
+                        Explore Destination →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          {/* Call to Action */}
+          <section className="text-center py-16 bg-gradient-to-r from-teal-600 to-blue-600 rounded-3xl text-white mt-16">
+            <h2 className="text-3xl font-bold mb-4">Ready to Start Your Adventure?</h2>
+            <p className="text-xl mb-8 opacity-90">
+              Explore our destinations and find your next unforgettable journey
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/tour"
+                className="bg-white text-teal-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+              >
+                Browse All Tours
+              </Link>
+              <Link
+                to="/contact"
+                className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-teal-600 transition-colors"
+              >
+                Contact Us
+              </Link>
+            </div>
+          </section>
         </div>
       </div>
     </Layout>

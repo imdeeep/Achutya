@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from "react-router";
 import { ArrowLeft, Save, X, Plus, Trash2, Image as ImageIcon } from "lucide-react";
 import { blogApi } from "~/services/adminApi";
 import { v4 as uuidv4 } from 'uuid';
+import { API_URL } from "~/lib/baseurl";
 
 type ContentBlock = {
   id: string;
@@ -92,6 +93,8 @@ export default function BlogPostDetail() {
   const [error, setError] = useState("");
   const [newTag, setNewTag] = useState("");
   const [newKeyword, setNewKeyword] = useState("");
+  const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
+  const [uploadingContentImage, setUploadingContentImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBlogPost = async () => {
@@ -305,42 +308,96 @@ export default function BlogPostDetail() {
   };
 
   const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      // Mock upload - replace with actual API call
-      const mockUrl = URL.createObjectURL(file);
-      
-      setFormData(prev => ({
-        ...prev,
-        heroImage: {
-          url: mockUrl,
-          alt: `Hero image for ${prev.title}`
-        }
-      }));
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      alert('Please upload an image file');
+      return;
+    }
+
+    try {
+      setUploadingHeroImage(true);
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch(`${API_URL}/upload/blog-image`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFormData(prev => ({
+          ...prev,
+          heroImage: {
+            url: data.url,
+            alt: `Hero image for ${prev.title}`
+          }
+        }));
+      } else {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      alert(err instanceof Error ? err.message : 'Failed to upload image');
+    } finally {
+      setUploadingHeroImage(false);
     }
   };
 
   const handleContentImageUpload = async (blockId: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      // Mock upload - replace with actual API call
-      const mockUrl = URL.createObjectURL(file);
-      
-      setFormData(prev => {
-        const updatedContent = prev.content.map(block => {
-          if (block.id === blockId) {
-            return { 
-              ...block, 
-              url: mockUrl,
-              alt: `Image in ${prev.title}`
-            };
-          }
-          return block;
-        });
-        return { ...prev, content: updatedContent };
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      alert('Please upload an image file');
+      return;
+    }
+
+    try {
+      setUploadingContentImage(blockId);
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch(`${API_URL}/upload/blog-image`, {
+        method: 'POST',
+        body: formData,
       });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFormData(prev => {
+          const updatedContent = prev.content.map(block => {
+            if (block.id === blockId) {
+              return { 
+                ...block, 
+                url: data.url,
+                alt: `Image in ${prev.title}`
+              };
+            }
+            return block;
+          });
+          return { ...prev, content: updatedContent };
+        });
+      } else {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      alert(err instanceof Error ? err.message : 'Failed to upload image');
+    } finally {
+      setUploadingContentImage(null);
     }
   };
+
+
 
   const renderContentBlock = (block: ContentBlock) => {
     switch (block.type) {
@@ -381,16 +438,23 @@ export default function BlogPostDetail() {
               </div>
             ) : (
               <div className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-                <label className="cursor-pointer">
+                <label className={`cursor-pointer ${uploadingContentImage === block.id ? 'opacity-50' : ''}`}>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleContentImageUpload(block.id, e)}
                     className="hidden"
+                    disabled={uploadingContentImage === block.id}
                   />
                   <div className="flex flex-col items-center">
-                    <ImageIcon size={24} className="text-gray-400 mb-2" />
-                    <span className="text-gray-600">Upload an image</span>
+                    {uploadingContentImage === block.id ? (
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-500 mb-2"></div>
+                    ) : (
+                      <ImageIcon size={24} className="text-gray-400 mb-2" />
+                    )}
+                    <span className="text-gray-600">
+                      {uploadingContentImage === block.id ? 'Uploading...' : 'Upload an image'}
+                    </span>
                   </div>
                 </label>
               </div>
@@ -580,16 +644,23 @@ export default function BlogPostDetail() {
                 </div>
               ) : (
                 <div className="mt-1 border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-                  <label className="cursor-pointer">
+                  <label className={`cursor-pointer ${uploadingHeroImage ? 'opacity-50' : ''}`}>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleHeroImageUpload}
                       className="hidden"
+                      disabled={uploadingHeroImage}
                     />
                     <div className="flex flex-col items-center">
-                      <ImageIcon size={24} className="text-gray-400 mb-2" />
-                      <span className="text-gray-600">Upload a hero image</span>
+                      {uploadingHeroImage ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-500 mb-2"></div>
+                      ) : (
+                        <ImageIcon size={24} className="text-gray-400 mb-2" />
+                      )}
+                      <span className="text-gray-600">
+                        {uploadingHeroImage ? 'Uploading...' : 'Upload a hero image'}
+                      </span>
                     </div>
                   </label>
                 </div>
