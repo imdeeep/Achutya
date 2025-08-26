@@ -119,27 +119,27 @@ export const tourApi = {
 // Booking APIs
 export const bookingApi = {
   getUserBooking: async (id: string) => {
-    const response = await api.get(`${API_URL}/book/user/${id}`);
+    const response = await api.get(`/book/user/${id}`);
     return response.data;
   },
   getSingleBooking: async (bookingId: string) => {
-    const response = await api.get(`${API_URL}/book/${bookingId}`);
+    const response = await api.get(`/book/${bookingId}`);
     return response.data;
   },
   createBooking: async (booking: any) => {
     const response = await api.post(
-      `${API_URL}/book/create-payment-order`,
+      `/book/create-payment-order`,
       booking
     );
     return response.data;
   },
   completeBooking: async (data: any) => {
-    const response = await api.post(`${API_URL}/book/complete-booking`, data);
+    const response = await api.post(`/book/complete-booking`, data);
     return response.data;
   },
   cancelBooking: async (bookingId: string, reason: any) => {
     const response = await api.put(
-      `${API_URL}/book/${bookingId}/cancel`,
+      `/book/${bookingId}/cancel`,
       reason
     );
     return response.data;

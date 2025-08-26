@@ -16,8 +16,24 @@ const bookingController = {
   // Create payment order (Step 1)
   createPaymentOrder: async (req, res) => {
     try {
-      const { tourId, tourDateId, numberOfGuests, userDetails } = req.body;
+      const { tourId, tourDateId, numberOfGuests, userDetails, amount, baseAmount, gstAmount, gatewayFee } = req.body;
       
+      // Validate required fields
+      if (!tourId || !tourDateId || !numberOfGuests || !userDetails || !amount) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing required fields: tourId, tourDateId, numberOfGuests, userDetails, amount'
+        });
+      }
+
+      // Validate user details
+      if (!userDetails.name || !userDetails.email || !userDetails.phone || !userDetails.address) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing required user details: name, email, phone, address'
+        });
+      }
+
       // Validate tour and date
       const tour = await Tour.findById(tourId);
       if (!tour) {
@@ -27,6 +43,7 @@ const bookingController = {
         });
       }
 
+      // Find the tour date in the tour's availableDates array
       const tourDate = tour.availableDates.id(tourDateId);
       if (!tourDate) {
         return res.status(404).json({
@@ -35,17 +52,32 @@ const bookingController = {
         });
       }
 
-      // Check if date is already booked (since only one booking per date is allowed)
-      if (tourDate.bookedSlots > 0 || !tourDate.isAvailable) {
+      // Check if date is available and has slots
+      if (!tourDate.isAvailable || (tourDate.slotsLeft ?? (tourDate.availableSlots - tourDate.bookedSlots)) <= 0) {
         return res.status(400).json({
           success: false,
-          message: 'This date is already booked by another group'
+          message: 'This date is not available or has no slots left'
         });
       }
 
-      // Calculate amount
-      const totalAmount = tour.price * numberOfGuests;
-      const amountInPaise = Math.round(totalAmount * 100);
+      // Calculate expected amount for validation
+      const expectedBaseAmount = tour.price * numberOfGuests;
+      const expectedGstAmount = Math.round(expectedBaseAmount * 0.05); // 5% GST
+      const expectedGatewayFee = Math.round(expectedBaseAmount * 0.02); // 2% Payment Gateway Fee
+      const expectedTotalAmount = expectedBaseAmount + expectedGstAmount + expectedGatewayFee;
+
+      // Validate amount (allow small rounding differences)
+      if (Math.abs(amount - expectedTotalAmount) > 1) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid amount. Expected: ₹${expectedTotalAmount}, Received: ₹${amount}`,
+          expected: expectedTotalAmount,
+          received: amount
+        });
+      }
+
+      // Create Razorpay order
+      const amountInPaise = Math.round(amount * 100);
 
       const options = {
         amount: amountInPaise,
@@ -55,8 +87,12 @@ const bookingController = {
         notes: {
           tourId: tourId,
           tourDateId: tourDateId,
-          numberOfGuests: numberOfGuests,
-          userDetails: JSON.stringify(userDetails)
+          numberOfGuests: numberOfGuests.toString(),
+          userDetails: JSON.stringify(userDetails),
+          baseAmount: baseAmount.toString(),
+          gstAmount: gstAmount.toString(),
+          gatewayFee: gatewayFee.toString(),
+          totalAmount: amount.toString()
         }
       };
 
@@ -72,9 +108,12 @@ const bookingController = {
             title: tour.title,
             startDate: tourDate.startDate,
             endDate: tourDate.endDate,
-            price: tourDate.price,
+            price: tour.price,
             numberOfGuests: numberOfGuests,
-            totalAmount: totalAmount
+            baseAmount: baseAmount,
+            gstAmount: gstAmount,
+            gatewayFee: gatewayFee,
+            totalAmount: amount
           }
         }
       });
@@ -98,22 +137,110 @@ const bookingController = {
         tourId,
         tourDateId,
         numberOfGuests,
-        userDetails
+        userDetails,
+        amount,
+        baseAmount,
+        gstAmount,
+        gatewayFee
       } = req.body;
 
-      // Verify payment signature
-      const body = razorpay_order_id + '|' + razorpay_payment_id;
-      const expectedSignature = crypto
-        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'htb3dEruoc4vtPVNr6Pvu7i0')
-        .update(body)
-        .digest('hex');
+      // Log the received data for debugging
+      console.log('Payment verification request:', {
+        razorpay_payment_id,
+        razorpay_order_id,
+        razorpay_signature: razorpay_signature ? 'present' : 'missing',
+        tourId,
+        tourDateId,
+        numberOfGuests,
+        amount
+      });
 
-      // console.log(expectedSignature)
-
-      if (expectedSignature !== razorpay_signature) {
+      // Validate required fields
+      if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
         return res.status(400).json({
           success: false,
-          message: 'Payment verification failed'
+          message: 'Missing payment verification details',
+          error: 'razorpay_payment_id, razorpay_order_id, and razorpay_signature are required'
+        });
+      }
+
+      if (!tourId || !tourDateId || !numberOfGuests || !userDetails || !amount) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing booking details',
+          error: 'tourId, tourDateId, numberOfGuests, userDetails, and amount are required'
+        });
+      }
+
+      // Verify payment signature with better error handling
+      try {
+        const body = razorpay_order_id + '|' + razorpay_payment_id;
+        const expectedSignature = crypto
+          .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'htb3dEruoc4vtPVNr6Pvu7i0')
+          .update(body)
+          .digest('hex');
+
+        console.log('Signature verification:', {
+          body,
+          expectedSignature: expectedSignature.substring(0, 10) + '...',
+          receivedSignature: razorpay_signature.substring(0, 10) + '...',
+          match: expectedSignature === razorpay_signature
+        });
+
+        if (expectedSignature !== razorpay_signature) {
+          return res.status(400).json({
+            success: false,
+            message: 'Payment signature verification failed',
+            error: 'Invalid payment signature',
+            orderId: razorpay_order_id
+          });
+        }
+      } catch (signatureError) {
+        console.error('Signature verification error:', signatureError);
+        return res.status(400).json({
+          success: false,
+          message: 'Payment signature verification error',
+          error: signatureError.message,
+          orderId: razorpay_order_id
+        });
+      }
+
+      // Verify payment with Razorpay API
+      try {
+        const payment = await razorpay.payments.fetch(razorpay_payment_id);
+        console.log('Razorpay payment verification:', {
+          paymentId: payment.id,
+          status: payment.status,
+          amount: payment.amount,
+          currency: payment.currency
+        });
+
+        if (payment.status !== 'captured') {
+          return res.status(400).json({
+            success: false,
+            message: 'Payment not captured',
+            error: `Payment status is ${payment.status}`,
+            orderId: razorpay_order_id
+          });
+        }
+
+        // Verify amount matches
+        const expectedAmount = Math.round(amount * 100); // Convert to paise
+        if (payment.amount !== expectedAmount) {
+          return res.status(400).json({
+            success: false,
+            message: 'Payment amount mismatch',
+            error: `Expected: ${expectedAmount} paise, Received: ${payment.amount} paise`,
+            orderId: razorpay_order_id
+          });
+        }
+      } catch (razorpayError) {
+        console.error('Razorpay payment verification error:', razorpayError);
+        return res.status(400).json({
+          success: false,
+          message: 'Payment verification with Razorpay failed',
+          error: razorpayError.message,
+          orderId: razorpay_order_id
         });
       }
 
@@ -121,7 +248,8 @@ const bookingController = {
       if (!tour) {
         return res.status(404).json({
           success: false,
-          message: 'Tour not found'
+          message: 'Tour not found',
+          error: 'Tour ID not found in database'
         });
       }
 
@@ -130,7 +258,8 @@ const bookingController = {
       if (!tourDate) {
         return res.status(404).json({
           success: false,
-          message: 'Tour date not found'
+          message: 'Tour date not found',
+          error: 'Tour date ID not found in tour data'
         });
       }
 
@@ -138,12 +267,10 @@ const bookingController = {
       if (tourDate.bookedSlots > 0 || !tourDate.isAvailable) {
         return res.status(400).json({
           success: false,
-          message: 'This date has already been booked by another group'
+          message: 'This date has already been booked by another group',
+          error: 'Tour date is no longer available'
         });
       }
-
-      // Calculate amount
-      const totalAmount = tour.price * numberOfGuests;
 
       // Create or update TourDate document
       let tourDateDoc = await TourDate.findOne({ 
@@ -176,18 +303,25 @@ const bookingController = {
         tour: tourId,
         tourDate: tourDateDoc._id,
         numberOfGuests: numberOfGuests,
-        totalAmount: totalAmount,
+        totalAmount: amount,
         pricePerPerson: tour.price,
         primaryContact: {
           name: userDetails.name,
           email: userDetails.email,
-          phone: userDetails.phone
+          phone: userDetails.phone,
+          address: userDetails.address
         },
         status: 'Confirmed',
         paymentStatus: 'Completed',
         transactionId: razorpay_payment_id,
-        paidAmount: totalAmount,
-        confirmationDate: new Date()
+        paidAmount: amount,
+        confirmationDate: new Date(),
+        paymentBreakdown: {
+          baseAmount: baseAmount,
+          gstAmount: gstAmount,
+          gatewayFee: gatewayFee,
+          totalAmount: amount
+        }
       });
 
       await booking.save();
@@ -198,18 +332,24 @@ const bookingController = {
       await tour.save();
 
       // Create payment record
-      const payment = new Payment({
+      const paymentRecord = new Payment({
         booking: booking._id,
-        amount: totalAmount,
+        amount: amount,
         currency: 'INR',
         paymentMethod: 'Razorpay',
         status: 'Success',
         transactionId: razorpay_payment_id,
         orderId: razorpay_order_id,
-        paymentDate: new Date()
+        paymentDate: new Date(),
+        paymentBreakdown: {
+          baseAmount: baseAmount,
+          gstAmount: gstAmount,
+          gatewayFee: gatewayFee,
+          totalAmount: amount
+        }
       });
 
-      await payment.save();
+      await paymentRecord.save();
 
       // Send confirmation email
       try {
@@ -222,7 +362,10 @@ const bookingController = {
             <ul>
               <li><b>Date:</b> ${new Date(tourDate.startDate).toLocaleDateString()} - ${new Date(tourDate.endDate).toLocaleDateString()}</li>
               <li><b>Guests:</b> ${numberOfGuests}</li>
-              <li><b>Total Amount:</b> ₹${totalAmount}</li>
+              <li><b>Base Amount:</b> ₹${baseAmount}</li>
+              <li><b>GST (5%):</b> ₹${gstAmount}</li>
+              <li><b>Gateway Fee (2%):</b> ₹${gatewayFee}</li>
+              <li><b>Total Amount:</b> ₹${amount}</li>
             </ul>
             <p>Thank you for booking with Achyutya Travel!</p>`
         });
@@ -230,12 +373,18 @@ const bookingController = {
         console.error('Error sending confirmation email:', mailErr);
       }
 
+      console.log('Booking completed successfully:', {
+        bookingId: booking._id,
+        paymentId: paymentRecord._id,
+        orderId: razorpay_order_id
+      });
+
       res.json({
         success: true,
         message: 'Booking completed successfully',
         data: {
           booking: booking,
-          payment: payment
+          payment: paymentRecord
         }
       });
     } catch (error) {

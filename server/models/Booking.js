@@ -81,6 +81,26 @@ const bookingSchema = new mongoose.Schema({
     default: 0
   },
   
+  // Payment breakdown for transparency
+  paymentBreakdown: {
+    baseAmount: {
+      type: Number,
+      required: false
+    },
+    gstAmount: {
+      type: Number,
+      required: false
+    },
+    gatewayFee: {
+      type: Number,
+      required: false
+    },
+    totalAmount: {
+      type: Number,
+      required: false
+    }
+  },
+  
   // Timestamps
   bookingDate: {
     type: Date,

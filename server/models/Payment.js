@@ -34,6 +34,27 @@ const paymentSchema = new mongoose.Schema({
   notes: {
     type: String
   },
+  
+  // Payment breakdown for transparency
+  paymentBreakdown: {
+    baseAmount: {
+      type: Number,
+      required: false
+    },
+    gstAmount: {
+      type: Number,
+      required: false
+    },
+    gatewayFee: {
+      type: Number,
+      required: false
+    },
+    totalAmount: {
+      type: Number,
+      required: false
+    }
+  },
+  
   createdAt: {
     type: Date,
     default: Date.now
