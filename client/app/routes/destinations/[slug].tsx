@@ -1,7 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import { destinationApi } from "~/services/userApi";
-import { MapPin, Clock, Thermometer, DollarSign, Globe, Calendar, Star, Users, ArrowLeft, ArrowRight } from "lucide-react";
+import {
+  MapPin,
+  Clock,
+  Thermometer,
+  DollarSign,
+  Globe,
+  Calendar,
+  Star,
+  Users,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
 import Layout from "~/components/layout/Layout";
 
 export default function DestinationSlugPage() {
@@ -15,8 +26,9 @@ export default function DestinationSlugPage() {
     if (!slug) return;
     setLoading(true);
     setError(null);
-    destinationApi.getDestinationBySlug(slug as string)
-      .then(res => {
+    destinationApi
+      .getDestinationBySlug(slug as string)
+      .then((res) => {
         setDestination(res.data.destination);
         setTours(res.data.tours || []);
       })
@@ -45,7 +57,7 @@ export default function DestinationSlugPage() {
             <div className="text-6xl mb-4">🌍</div>
             <h1 className="text-2xl font-bold text-gray-800 mb-2">Something went wrong</h1>
             <p className="text-gray-600 mb-6">{error}</p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors"
             >
@@ -95,10 +107,10 @@ export default function DestinationSlugPage() {
           alt={destination.name}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+
         {/* Back Button */}
-        <div className="absolute top-6 left-6">
+        <div className="absolute top-6 left-6 z-10">
           <Link
             to="/destinations"
             className="inline-flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm text-gray-800 rounded-lg hover:bg-white transition-all duration-200 shadow-lg"
@@ -109,14 +121,14 @@ export default function DestinationSlugPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+        <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white z-10">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center gap-3 mb-3">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                destination.country === 'International' 
-                  ? 'bg-blue-500/90 text-white' 
-                  : 'bg-green-500/90 text-white'
-              }`}>
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                  destination.country === "International" ? "bg-blue-500/90" : "bg-green-500/90"
+                }`}
+              >
                 <Globe className="w-4 h-4 mr-1" />
                 {destination.country}
               </span>
@@ -124,16 +136,15 @@ export default function DestinationSlugPage() {
                 {destination.countryName}
               </span>
             </div>
-            <h1 className="text-4xl lg:text-6xl font-bold mb-4 leading-tight">
-              {destination.name}
-            </h1>
-            <p className="text-xl lg:text-2xl text-gray-200 max-w-3xl leading-relaxed">
+            <h1 className="text-3xl lg:text-5xl font-bold mb-3 leading-tight">{destination.name}</h1>
+            <p className="text-lg lg:text-xl text-gray-200 max-w-3xl line-clamp-3">
               {destination.description}
             </p>
           </div>
         </div>
       </section>
 
+      {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Destination Details */}
         <section className="mb-16">
@@ -141,13 +152,16 @@ export default function DestinationSlugPage() {
             {/* Main Content */}
             <div className="lg:col-span-2">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">About {destination.name}</h2>
-              
+
               {destination.highlights?.length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">Highlights</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {destination.highlights.map((highlight: string, i: number) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-teal-50 rounded-lg border border-teal-100">
+                      <div
+                        key={i}
+                        className="flex items-center gap-3 p-3 bg-teal-50 rounded-lg border border-teal-100"
+                      >
                         <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
                         <span className="text-gray-700">{highlight}</span>
                       </div>
@@ -155,13 +169,10 @@ export default function DestinationSlugPage() {
                   </div>
                 </div>
               )}
-
               {destination.description && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">Description</h3>
-                  <p className="text-gray-700 leading-relaxed text-lg">
-                    {destination.description}
-                  </p>
+                  <p className="text-gray-700 leading-relaxed text-lg">{destination.description}</p>
                 </div>
               )}
             </div>
@@ -170,7 +181,6 @@ export default function DestinationSlugPage() {
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-6">Quick Info</h3>
-                
                 <div className="space-y-4">
                   {destination.bestTimeToVisit && (
                     <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
@@ -181,7 +191,6 @@ export default function DestinationSlugPage() {
                       </div>
                     </div>
                   )}
-
                   {destination.climate && (
                     <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
                       <Thermometer className="w-5 h-5 text-orange-600" />
@@ -191,7 +200,6 @@ export default function DestinationSlugPage() {
                       </div>
                     </div>
                   )}
-
                   {destination.currency && (
                     <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                       <DollarSign className="w-5 h-5 text-green-600" />
@@ -201,7 +209,6 @@ export default function DestinationSlugPage() {
                       </div>
                     </div>
                   )}
-
                   {destination.timeZone && (
                     <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
                       <Clock className="w-5 h-5 text-purple-600" />
@@ -211,7 +218,6 @@ export default function DestinationSlugPage() {
                       </div>
                     </div>
                   )}
-
                   {destination.language && (
                     <div className="flex items-center gap-3 p-3 bg-indigo-50 rounded-lg">
                       <Globe className="w-5 h-5 text-indigo-600" />
@@ -231,28 +237,21 @@ export default function DestinationSlugPage() {
         <section className="mb-16">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Tours in {destination.name}
-              </h2>
-              <p className="text-gray-600 text-lg">
-                Discover amazing experiences and adventures
-              </p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Tours in {destination.name}</h2>
+              <p className="text-gray-600 text-lg">Discover amazing experiences and adventures</p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-teal-600">{tours.length}</div>
               <div className="text-sm text-gray-500">Available Tours</div>
             </div>
           </div>
-
           {tours.length === 0 ? (
             <div className="text-center py-16 bg-gray-50 rounded-2xl">
               <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MapPin className="w-10 h-10 text-gray-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">No tours found</h3>
-              <p className="text-gray-600 mb-6">
-                We don't have any tours available for this destination yet.
-              </p>
+              <p className="text-gray-600 mb-6">We don't have any tours available for this destination yet.</p>
               <Link
                 to="/destinations"
                 className="inline-flex items-center px-6 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition-colors"
@@ -283,15 +282,14 @@ export default function DestinationSlugPage() {
                     )}
                     <div className="absolute top-3 right-3">
                       <span className="bg-black/50 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs">
-                        {tour.duration || 'N/A'}
+                        {tour.duration || "N/A"}
                       </span>
                     </div>
                   </div>
-
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="bg-teal-100 text-teal-800 px-2 py-1 rounded-full text-xs font-medium">
-                        {tour.groupType || 'Group Tour'}
+                        {tour.groupType || "Group Tour"}
                       </span>
                       {tour.maxGroupSize && (
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
@@ -299,16 +297,13 @@ export default function DestinationSlugPage() {
                         </span>
                       )}
                     </div>
-
                     <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-teal-600 transition-colors line-clamp-2">
                       {tour.title}
                     </h3>
-
                     <div className="flex items-center gap-2 text-gray-600 mb-3">
                       <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{tour.location || tour.city || 'N/A'}</span>
+                      <span className="text-sm">{tour.location || tour.city || "N/A"}</span>
                     </div>
-
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
@@ -317,28 +312,22 @@ export default function DestinationSlugPage() {
                         </span>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-teal-600">
-                          {formatPrice(tour.price)}
-                        </div>
+                        <div className="text-2xl font-bold text-teal-600">{formatPrice(tour.price)}</div>
                         {tour.originalPrice && tour.originalPrice > tour.price && (
-                          <div className="text-sm text-gray-500 line-through">
-                            {formatPrice(tour.originalPrice)}
-                          </div>
+                          <div className="text-sm text-gray-500 line-through">{formatPrice(tour.originalPrice)}</div>
                         )}
                       </div>
                     </div>
-
                     <div className="flex items-center justify-between text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <Users className="w-4 h-4" />
-                        <span>{tour.groupType || 'Group'}</span>
+                        <span>{tour.groupType || "Group"}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
-                        <span>{tour.duration || 'N/A'}</span>
+                        <span>{tour.duration || "N/A"}</span>
                       </div>
                     </div>
-
                     <div className="mt-4 flex items-center text-teal-600 group-hover:text-teal-700 transition-colors">
                       <span className="text-sm font-medium">View Details</span>
                       <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -353,9 +342,7 @@ export default function DestinationSlugPage() {
         {/* Call to Action */}
         <section className="text-center py-16 bg-gradient-to-r from-teal-600 to-blue-600 rounded-3xl text-white">
           <h2 className="text-3xl font-bold mb-4">Ready to Explore {destination.name}?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Book your next adventure and create unforgettable memories
-          </p>
+          <p className="text-xl mb-8 opacity-90">Book your next adventure and create unforgettable memories</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/destinations"
@@ -374,4 +361,4 @@ export default function DestinationSlugPage() {
       </div>
     </Layout>
   );
-} 
+}
